@@ -1,8 +1,12 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
+<<<<<<< Updated upstream
 import './Header.scss';
 import logo_icon from '../../assets/logo.png'
+=======
+import logo_icon from "../../assets/IMS_logo.png"
+>>>>>>> Stashed changes
 
 
 

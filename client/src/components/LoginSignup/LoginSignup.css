@@ -1,24 +1,18 @@
-:root {
-    --primary-text-color: #f0f4f8;
-    --login-background:  #c9d7da;
-    --bg-primary-color: #9fd3c7;
-    --bg-secondary-color: #385170;
-  }
+
 
 .container {
     display: flex;
-    flex-direction: column;
-    margin: auto;
-    margin-top: 100px;
-    margin-bottom: 40px;
-    width: 600px;
-    margin-right: 800px;
+    flex-direction:column;
+    margin-top: 50px;
+    width: 30%;
+    margin-left: 500px;
     padding: 20px;
     border-radius: 40px;
     backdrop-filter: blur(7.8px); 
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     -webkit-backdrop-filter: blur(7.8px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    border: 16px solid rgba(0, 0, 0, .1);
+    background-color: var( --secondary-background);
 } 
 
 .header{
@@ -31,15 +25,15 @@
 }
 
 .text{
-    color: var(  --primary-text-color);
-    font-size: 48px;
-    font-weight: 700;
+    color: var(  --primary-text);
+    font-size: 52px;
+    font-weight: bolder;
 }
 
 .underline{
     width: 65px;
     height: 6px;
-    background-color: var(  --primary-text-color);
+    background-color: var(  --secondary-text);
     border-radius: 10px;
 }
 
@@ -56,9 +50,9 @@
     margin: auto;
     width: 480px;
     height: 80px;
-    background-color: var( --login-background);
+    background-color: var( --primary-background);
     border-radius: 6px;
-    border: 1px solid var(  --primary-text-color);
+    border: 1px solid var(  --primary-text);
 }
 
 .input img{
@@ -73,7 +67,7 @@
     background: transparent;
     border: none;
     outline: none;
-    color: #00565b;
+    color: var(  --primary-text);
     font-size: 19px;
     font-weight: 500;
     font-size: 24px;
@@ -82,14 +76,14 @@
 .forgot-password{
     padding-left: 65px;
     margin-top: 25px;
-    color: var(  --primary-text-color);
+    color: var(  --primary-text);
     
     font-size: 18px;
 }
 
 .forgot-password span{
     font-weight: bold;
-    color: var(  --primary-text-color);
+    color: var(  --primary-text);
     cursor: pointer;
 }
 
@@ -105,8 +99,8 @@
     align-items: center;
     width: 220px;
     height: 60px;
-    color: #104095;
-    background-color:	#00FFEC;
+    color: var(  --primary-background);
+    background-color:var(  --secondary-text);
     font-size: 25px;
     font-weight: 700;
     cursor: pointer;

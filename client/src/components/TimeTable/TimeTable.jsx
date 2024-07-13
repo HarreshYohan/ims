@@ -3,17 +3,15 @@ import api from '../../services/api';
 import {useAuth}  from '../../services/authContex';
 import { useNavigate } from 'react-router-dom';
 import {Header } from '../Header/Header'
-import './Dashboard.css';
-
+import './TimeTable.css';
 import {Navbar} from '../Navbar/Navbar';
+import {SectionHeader} from '../SectionHeader/SectionHeader';
 
-export const Dashboard = () => {
-
+export const TimeTable = () => {
   const [data, setData] = useState([]);
   const navigate = useNavigate();
 
   const localToken = localStorage.getItem("authToken");
-
 
   useEffect(() => {
     
@@ -46,20 +44,55 @@ export const Dashboard = () => {
     fetchData();
   }, []);
 
+  const Table = ({ data }) => {
+    return (
+      <table className="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((item) => (
+            <tr key={item.id}>
+              <td>{item.id}</td>
+              <td>{item.username}</td>
+              <td>{item.email}</td>
+              <td>{item.user_type}</td>
+              <td>
+                <button onClick={() => handleEdit(item.id)}>Edit</button>
+                <button onClick={() => handleDelete(item.id)}>Delete</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  };
+
+  const handleEdit = (id) => {
+    console.log(`Edit user with ID: ${id}`);
+    // Implement your edit logic here, e.g., navigate to an edit page
+  };
+  
+  const handleDelete = (id) => {
+    console.log(`Delete user with ID: ${id}`);
+    // Implement your delete logic here
+  };
+
   return (
     <div>
       <Header type={'dashboard'} action = {"Logout"}/>
-<<<<<<< Updated upstream
-      <Navbar />
-      <div className='main'>
-        <p>body comes here</p>
-=======
       <Navbar /> 
-      <SectionHeader section={'Dashboard'} />
+      <SectionHeader section={'TimeTable'} is_create={true} />
       <div className='main'>
         <Table data={data} />
->>>>>>> Stashed changes
       </div>
     </div>
   );
 };
+

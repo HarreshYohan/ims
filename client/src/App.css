@@ -1,8 +1,23 @@
+:root {
+  --primary-text: #c2cfd8;
+  --primary-background:  #fafafafa;
+  --secondary-background: #e1eeff;
+  --secondary-text: #CCAA71;
+  --nav-bar-color : #ffea95;
+  
+}
+
 body {
     margin: 0;
     padding: 0;
+<<<<<<< Updated upstream
     font-family: Arial, sans-serif;
     background: url('../src/assets/header.jpeg');
+=======
+>>>>>>> Stashed changes
     align-items: center;
+    font-family: 'Open Sans', sans-serif;
     justify-content: center;
-  }
+    background-color: var(  --primary-background);
+}
+

@@ -19,6 +19,7 @@ exports.login = async (req, res) => {
     const user = await User.findOne({
         where: { email: email }
       });
+      console.log(password, user)
     if (user && ( await bcrypt.compare(password, user.password))) {
         // Create token
         const token = jwt.sign(
@@ -45,7 +46,7 @@ exports.signup = async (req, res) => {
   if (!helpers.isValidObject(req.body)) {
     return res.status(401).send({ message: "Input is invalid. Some elements are null or empty." });
   }
-  const saltRounds = 5;
+  const saltRounds = 10;
   const hashedPassword = bcrypt.hashSync(req.body.password, saltRounds);
 
   try {

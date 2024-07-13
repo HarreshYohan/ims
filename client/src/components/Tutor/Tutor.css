@@ -1,0 +1,105 @@
+
+.main {
+    position:fixed;
+    background-color:var( --primary-background) ;
+    width: 85%;
+    height: 85%;
+    margin-top: 11%;
+    margin-left: 15%;
+}
+.data-table {
+    width: 100%;
+    margin-top: 20px;
+    font-family: 'Roboto', sans-serif;
+    border-spacing: 0 15px;
+}
+
+.data-table thead {
+    background-color: #2c3e50;
+    color: #ecf0f1;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px 20px;
+    text-align: left;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.data-table th {
+    font-weight: 700;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border: none;
+}
+
+.data-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.data-table tbody tr:hover {
+    background-color: #ecf0f1;
+    color: #333;
+}
+
+.data-table td {
+    color: #34495e;
+    font-size: 14px;
+    border-top: 1px solid #ddd;
+}
+
+.data-table td:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.data-table td:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.data-table button {
+    margin-right: 5px;
+    padding: 8px 14px;
+    background-color: #2980b9;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.data-table button:hover {
+    background-color: #1f6395;
+    transform: scale(1.05);
+}
+
+.data-table button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(41, 128, 185, 0.3);
+}
+
+/* Additional styling for a polished look */
+.data-table th,
+.data-table td {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.data-table th:first-child,
+.data-table td:first-child {
+    padding-left: 25px;
+}
+
+.data-table th:last-child,
+.data-table td:last-child {
+    padding-right: 25px;
+}
