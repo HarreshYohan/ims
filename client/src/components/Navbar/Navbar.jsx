@@ -72,6 +72,11 @@ export const Navbar = () => {
             News & Updates
           </NavLink>
         </li>
+        <li>
+          <NavLink to="/chatroom">
+            chatroom
+          </NavLink>
+        </li>
       </ul>
     </nav>
   );

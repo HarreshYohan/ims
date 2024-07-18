@@ -39,7 +39,7 @@ body, html {
 .nav-buttons {
   display: flex;
   gap: 15px;
-  margin-left: 1200px;
+  margin-left: 780px;
   margin-top: -130px;
 }
 
@@ -53,6 +53,9 @@ body, html {
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  
+  
+  
 }
 
 .ghost-button::before {
@@ -118,6 +121,9 @@ body, html {
   padding: 100px 20px;
   text-align: center;
   opacity: 0.9;
+  
+  
+
 }
 
 .section h2 {
@@ -128,5 +134,7 @@ body, html {
 .section p {
   font-size: 1.25rem;
   line-height: 1.5;
+ color:honeydew;
+ float: left;
 }
 
