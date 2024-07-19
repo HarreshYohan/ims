@@ -60,7 +60,6 @@ exports.create = async (req, res) => {
       throw new Error('Email or Student already exists');
     }
 
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newStudentData = async () => {

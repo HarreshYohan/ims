@@ -101,7 +101,7 @@ export const Chatroom = () => {
 
       if (response.status === 201) {
         setMessage("");
-        await fetchMessages(selectedSubject); // Fetch latest messages after sending a new one
+        await fetchMessages(selectedSubject);
       } else {
         console.error('Failed to send message');
       }
