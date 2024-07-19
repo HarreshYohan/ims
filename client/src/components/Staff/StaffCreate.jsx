@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../Header/Header';
-import './NewStudent.css'; // Create a new CSS file for styling
+import './NewStaff.css'; // Create a new CSS file for styling
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
 
 
-export const NewStudent = () => {
+export const NewStaff = () => {
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,8 +26,6 @@ export const NewStudent = () => {
     
     try {
       const response = await api.post('/api/student/create', {
-        userName: userName,
-        password:password,
         firstname: firstName,
         lastname: lastName,
         grade,
@@ -52,8 +50,7 @@ export const NewStudent = () => {
       <Header type={'dashboard'} action={"Logout"} />
       <Navbar />
       <SectionHeader section={'New Student'} />
-
-      <div className='main'>
+ <div className='main'>
         <form className='student-form' onSubmit={handleSubmit}>
           <div className='form-group'>
             <label htmlFor='userName'>UserName:</label><br></br>

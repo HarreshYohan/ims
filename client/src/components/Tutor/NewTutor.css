@@ -1,0 +1,42 @@
+.main{
+    font-family:Goudy Bookletter 1911, sans-serif;
+    text-align:left;
+    margin-left: 20%;
+    background-color: #dfd8c8;
+   
+   
+}
+.form-group{
+    input {
+       
+        color: white;
+        width: 30%;
+        padding: 10px;
+        border-radius: 5px;
+        box-sizing: border-box;
+        height: 35px;
+        background-color:tan;
+      
+    }
+    font-size: 25px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    text-align: left;
+
+}
+#userName{
+    background-color: tan;
+}
+.submit-btn{
+    width: 10%;
+    height: 60px;
+    color:floralwhite;
+    background-color: darkcyan;
+    border-radius:5px;
+    font-size: 20px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin-left:80%;
+    margin-bottom: 2%;
+    box-shadow: inset;
+}
+
+

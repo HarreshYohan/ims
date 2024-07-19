@@ -2,15 +2,12 @@ import React, { useState } from 'react';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../Header/Header';
-import './NewStudent.css'; // Create a new CSS file for styling
+import './NewTutor.css'; // Create a new CSS file for styling
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
 
 
-export const NewStudent = () => {
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export const NewTutor = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [grade, setGrade] = useState('');
@@ -26,8 +23,6 @@ export const NewStudent = () => {
     
     try {
       const response = await api.post('/api/student/create', {
-        userName: userName,
-        password:password,
         firstname: firstName,
         lastname: lastName,
         grade,
@@ -51,7 +46,7 @@ export const NewStudent = () => {
     <div>
       <Header type={'dashboard'} action={"Logout"} />
       <Navbar />
-      <SectionHeader section={'New Student'} />
+      <SectionHeader section={'New Tutor'} />
 
       <div className='main'>
         <form className='student-form' onSubmit={handleSubmit}>
@@ -60,7 +55,7 @@ export const NewStudent = () => {
             <input
               type='text'
               id='userName'
-              value={userName}
+              value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               required
             />
@@ -71,7 +66,7 @@ export const NewStudent = () => {
             <input
               type='text'
               id='email'
-              value={email}
+              value={grade}
               onChange={(e) => setLastName(e.target.value)}
               required
             />
@@ -82,8 +77,19 @@ export const NewStudent = () => {
             <input
               type='text'
               id='passcode'
-              value={password}
+              value={Text}
               onChange={(e) => setGrade(e.target.value)}
+              required
+            />
+          </div>
+          <br></br>
+          <div className='form-group'>
+            <label htmlFor='Title'>Title:</label><br></br>
+             <input
+              type='text'
+              id='firstName'
+              value={firstName}
+              onChange={(e) => setContact(e.target.value)}
               required
             />
           </div>
@@ -116,17 +122,6 @@ export const NewStudent = () => {
               type='text'
               id='contact'
               value={contact}
-              onChange={(e) => setContact(e.target.value)}
-              required
-            />
-          </div>
-          <br></br>
-          <div className='form-group'>
-            <label htmlFor='lastName'>Grade:</label><br></br>
-            <input
-              type='text'
-              id='LName'
-              value={lastName}
               onChange={(e) => setContact(e.target.value)}
               required
             />

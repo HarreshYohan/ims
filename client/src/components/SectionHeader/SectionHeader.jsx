@@ -6,7 +6,18 @@ export const SectionHeader = ({ section, is_create }) => {
   const navigate = useNavigate();
 
   const handleCreateClick = () => {
-    navigate('/new-student');
+    switch (section){
+      case 'Student':
+        navigate('/new-student');
+        break
+      case 'Tutor':
+        navigate('/new-tutor');
+        break
+      case 'Staff':
+        navigate('/new-staff');
+        break
+    }
+    
   };
 
   return (

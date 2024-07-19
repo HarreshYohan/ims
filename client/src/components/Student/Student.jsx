@@ -6,6 +6,7 @@ import './Student.css';
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
 
+
 export const Student = () => {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
