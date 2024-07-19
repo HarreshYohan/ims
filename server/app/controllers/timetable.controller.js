@@ -186,7 +186,6 @@ exports.delete = async (req, res) => {
   const { day } = req.body;
 
   try {
-    console.log(id);
     const timetable = await Timetable.findOne({ where: { timeslotid: id } });
     if (!timetable) {
       return res.status(404).send({ message: `Cannot find Timetable with id=${id}.` });
@@ -196,7 +195,7 @@ exports.delete = async (req, res) => {
     updateData[day] = null;
     
     const result = await timetable.update(updateData);
-    console.log(result);
+
     res.status(200).send({ message: `Timetable  for ${day} ${timetable.timeslot} was deleted successfully!` });
   } catch (err) {
     res.status(500).send({

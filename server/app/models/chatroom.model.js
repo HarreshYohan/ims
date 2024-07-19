@@ -1,14 +1,25 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize, Sequelize) => {
-    const Classroom = sequelize.define("classroom", {
-      name: {
+    const Chatroom = sequelize.define("chatroom", {
+      user_id: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: 'User', 
+            key: 'id',
+          },
+        allowNull: false,
+      },
+      message: {
         type: DataTypes.STRING,
         allowNull: false,
-        unique: true,
       },
-      capacity: {
+      subjecttutorid: {
         type: DataTypes.INTEGER,
+        references: {
+          model: 'SubjectTutor',
+          key: 'id',
+        },
         allowNull: false,
       },
       createdAt: {
@@ -21,10 +32,10 @@ module.exports = (sequelize, Sequelize) => {
         field: 'updated_at'
       }
     }, {
-      tableName: 'classroom',
+      tableName: 'chatroom',
       timestamps: false,
     });
   
-    return Classroom;
+    return Chatroom;
   };
   

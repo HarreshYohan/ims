@@ -13,6 +13,7 @@ import { Tutor } from "./components/Tutor/Tutor";
 import { News } from "./components/News/News";
 import { Classroom } from "./components/Classroom/Classroom";
 import { Chatroom } from "./components/Chatroom/Chatroom";
+import { NewStudent } from "./components/Student/StudentCreate";
 
 
 function App() {
@@ -30,6 +31,7 @@ return (
     <Route path="/report" element={<Report />} />
     <Route path="/classroom" element={<Classroom />} />
     <Route path="/chatroom" element={<Chatroom />} />
+    <Route path="/new-student" element={<NewStudent />} />
     </Routes>
   </Router>
 );

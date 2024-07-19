@@ -34,6 +34,13 @@ exports.create = async (req, res) => {
           contact: contact,
         });
 
+        const newUser = await User.create({
+          username: username,
+          user_type: 'TUTOR',
+          user_type_id: newTutor.id,
+          is_active: true
+        });
+        
         return newTutor
 
       }
