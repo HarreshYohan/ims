@@ -27,6 +27,7 @@ const Classroom = require('./classroom.model')(sequelize, Sequelize.DataTypes);
 const SubjectTutor = require('./subject_tutor.model')(sequelize, Sequelize.DataTypes);
 const StudentSubject = require('./student_subject.model')(sequelize, Sequelize.DataTypes);
 const Timetable = require('./timetable.model')(sequelize, Sequelize.DataTypes);
+const Chatroom = require('./chatroom.model')(sequelize, Sequelize.DataTypes);
 
 SubjectTutor.belongsTo(Tutor, { foreignKey: 'tutorid', as: 'tutor' });
 SubjectTutor.belongsTo(Subject, { foreignKey: 'subjectid', as: 'subject' });
@@ -44,6 +45,8 @@ Timetable.belongsTo(SubjectTutor, { foreignKey: 'friday', as: 'fridaycls' });
 Timetable.belongsTo(SubjectTutor, { foreignKey: 'saturday', as: 'saturdaycls' });
 Timetable.belongsTo(SubjectTutor, { foreignKey: 'sunday', as: 'sundaycls' });
 
+Chatroom.belongsTo(SubjectTutor, { foreignKey: 'subjecttutorid', as: 'subjectTutor' });
+Chatroom.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 module.exports = {
   sequelize,
@@ -56,6 +59,7 @@ module.exports = {
   Classroom,
   SubjectTutor,
   StudentSubject,
-  Timetable
+  Timetable,
+  Chatroom
 
 };

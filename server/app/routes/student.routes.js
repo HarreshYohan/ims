@@ -11,5 +11,7 @@ module.exports = (app) => {
 
   router.post("/", student.create);
 
+  router.get("/student_subject/:id", student.student_subject);
+
   app.use('/api/student', router);
 };

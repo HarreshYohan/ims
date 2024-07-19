@@ -2,6 +2,7 @@ import React from 'react';
 import './Welcome.css';
 import { useNavigate } from 'react-router-dom';
 import Image from '../../assets/home-bg.jpg';
+import contactus from '../../assets/contactus.jpg';
 
 export const Welcome = () => {
   const navigate = useNavigate();
@@ -31,11 +32,12 @@ export const Welcome = () => {
       <div id="why-us" className="section">
         <h2>Why Us</h2>
         <p>Content for Why Us section.</p>
-        <img src="C:\Users\Mishtika\Downloads\assign\ims\client\src\images\welcom pg\img_1 about.jpeg" className='img_1'></img>
+       
       </div>
       <div id="contact-us" className="section">
         <h2>Contact Us</h2>
         <p>Content for Contact Us section.</p>
+        <p className='contactus_img' style={{backgroundImage: 'url(' + contactus + ')' }}> </p>
       </div>
       <div id="about-us" className="section">
         <h2>About Us</h2>

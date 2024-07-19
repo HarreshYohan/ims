@@ -35,7 +35,16 @@ const SubjectTutor = (sequelize) => {
     fees: {
       type: DataTypes.INTEGER,
       allowNull: false,
-  },
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      field: 'created_at'
+    },
+
+    updatedAt: {
+      type: DataTypes.DATE,
+      field: 'updated_at'
+    }
   }, {
     tableName: 'subject_tutor', 
     timestamps: false,

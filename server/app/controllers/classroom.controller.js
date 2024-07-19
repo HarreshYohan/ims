@@ -1,4 +1,4 @@
-const { Classroom } = require('../models');
+const { Classroom, Timetable } = require('../models');
 const { check, validationResult } = require('express-validator');
 
 
@@ -15,29 +15,61 @@ exports.validate = (method) => {
 
 
 exports.create = async (req, res) => {
-
+  
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { name , capacity } = req.body;
+  const { name, capacity } = req.body;
 
   try {
-    const classroom = await Classroom.create({ name, capacity });
-    res.status(201).send(classroom);
+
+      const existingClassroom = await Classroom.findOne({ where: { name } });
+
+      if (existingClassroom) {
+        throw new Error('Email or Staff already exists');
+      }
+
+      const newClassroom = async () => {
+
+        const classroom = await Classroom.create({
+          name: name,
+          capacity: capacity
+        });
+
+        const timtableData = [
+          {id:1, timeslot:"7.00-9.00"},
+          {id:2, timeslot:"9.00-11.00"},
+          {id:3, timeslot:"11.00-13.00"},
+          {id:4, timeslot:"13.00-15.00"},
+          {id:5, timeslot:"15.00-17.00"},
+          {id:6, timeslot:"17.00-19.00"},
+          {id:7, timeslot:"19.00-21.00"}]
+
+          timtableData.forEach(async slot => { 
+              // let timeslotid = slot.id
+              // let timeslot =  slot.timeslot;
+             await Timetable.create({
+              timeslotid : slot.id,
+              timeslot: slot.timeslot,
+              classroomid: classroom.id
+            });
+            
+          });
+
+
+        return classroom
+      }
+      const result = await newClassroom();
+    res.status(201).send(result);
   } catch (err) {
-    if (err.name === 'SequelizeUniqueConstraintError') {
-      res.status(400).send({
-        message: 'Classroom name already exists.'
-      });
-    } else {
-      res.status(500).send({
-        message: err.message || 'Some error occurred while creating the Classroom.'
-      });
-    }
+    res.status(500).send({
+      message: err.message || 'Some error occurred while creating the User.'
+    });
   }
 };
+
 
 
 exports.findAll = async (req, res) => {

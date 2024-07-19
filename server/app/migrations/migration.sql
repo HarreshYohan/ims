@@ -27,8 +27,10 @@ DROP TABLE IF EXISTS "grade";
 DROP TABLE IF EXISTS "subject";
 DROP TABLE IF EXISTS "classroom";
 DROP TABLE IF EXISTS "timetable";
+DROP TABLE IF EXISTS "chatroom";
+DROP TABLE IF EXISTS "user";
 
--- Create users table
+-- Create student table
 CREATE TABLE IF NOT EXISTS "student" (
   id SERIAL PRIMARY KEY,
   username VARCHAR(255) NOT NULL UNIQUE,
@@ -70,20 +72,37 @@ CREATE TABLE IF NOT EXISTS "staff" (
   updated_at timestamptz DEFAULT CURRENT_TIMESTAMP 
 );
 
+
+CREATE TABLE IF NOT EXISTS "user" (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(255) NOT NULL,
+  user_type user_type NOT NULL DEFAULT 'NA',
+  user_type_id INT NOT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamptz DEFAULT CURRENT_TIMESTAMP 
+);
+
 CREATE TABLE IF NOT EXISTS "subject" (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL UNIQUE CHECK (name = UPPER(name))
+  name VARCHAR(255) NOT NULL UNIQUE CHECK (name = UPPER(name)),
+  created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamptz DEFAULT CURRENT_TIMESTAMP 
 );
 
 CREATE TABLE IF NOT EXISTS "grade" (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(255) NOT NULL UNIQUE
+  name VARCHAR(255) NOT NULL UNIQUE,
+  created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamptz DEFAULT CURRENT_TIMESTAMP 
 );
 
 CREATE TABLE IF NOT EXISTS "classroom" (
   id SERIAL PRIMARY KEY,
   capacity INT NOT NULL DEFAULT 10,
-  name VARCHAR(255) NOT NULL UNIQUE
+  name VARCHAR(255) NOT NULL UNIQUE,
+  created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamptz DEFAULT CURRENT_TIMESTAMP 
 );
 
 CREATE TABLE IF NOT EXISTS "subject_tutor" (
@@ -91,16 +110,31 @@ CREATE TABLE IF NOT EXISTS "subject_tutor" (
   subjectid INTEGER REFERENCES subject(id) ON UPDATE CASCADE ON DELETE CASCADE NOT NULL,
   tutorid INTEGER REFERENCES tutor(id) ON UPDATE CASCADE ON DELETE CASCADE NOT NULL,
   gradeid INTEGER REFERENCES grade(id) ON UPDATE CASCADE ON DELETE CASCADE NOT NULL,
-  fees INT NOT NULL DEFAULT 10
+  fees INT NOT NULL DEFAULT 10,
+  created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamptz DEFAULT CURRENT_TIMESTAMP 
 );
 
 CREATE TABLE IF NOT EXISTS "student_subject" (
     id SERIAL PRIMARY KEY,
     studentid INTEGER NOT NULL,
-    subjecttutorid INTEGER NOT NULL,
-    FOREIGN KEY (studentid) REFERENCES student(id) ON UPDATE CASCADE ON DELETE CASCADE,
-    FOREIGN KEY (subjecttutorid) REFERENCES subject_tutor(id) ON UPDATE CASCADE ON DELETE CASCADE
+    subjecttutorid INTEGER REFERENCES subject(id) ON UPDATE CASCADE ON DELETE CASCADE NOT NULL,
+    created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamptz DEFAULT CURRENT_TIMESTAMP ,
+    FOREIGN KEY (studentid) REFERENCES student(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS "chatroom" (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  message VARCHAR(2000) NOT NULL,
+  subjecttutorid INT NOT NULL,
+  created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamptz DEFAULT CURRENT_TIMESTAMP ,
+  FOREIGN KEY (subjecttutorid) REFERENCES subject_tutor(id) ON UPDATE CASCADE ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES student(id) ON UPDATE CASCADE ON DELETE CASCADE
+);
+
 
 CREATE TABLE IF NOT EXISTS timetable (
     id SERIAL PRIMARY KEY,
@@ -114,6 +148,8 @@ CREATE TABLE IF NOT EXISTS timetable (
     friday INT,
     saturday INT,
     sunday INT,
+    created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamptz DEFAULT CURRENT_TIMESTAMP ,
     FOREIGN KEY (classroomid) REFERENCES classroom(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
@@ -202,3 +238,11 @@ INSERT INTO "timetable" (timeslot, timeslotid,classroomid, monday, tuesday, wedn
 ('15.00-17.00',5,1,2,3,4,3,4,1,2),
 ('17.00-19.00',6,1,2,3,4,3,4,1,2),
 ('19.00-21.00',7,1,2,3,4,3,4,1,2);
+
+
+INSERT INTO "user" (username,user_type,user_type_id,is_active) VALUES
+	 ('student1','STUDENT',1,true),
+	 ('admin1','ADMIN',2,true),
+	 ('student2','STUDENT',3,true),
+	 ('staff1','STAFF',4,true),
+	 ('student3','STUDENT',5,true);

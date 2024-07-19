@@ -20,6 +20,15 @@ const StudentSubject = (sequelize) => {
         },
         allowNull: false,
       },
+      createdAt: {
+        type: DataTypes.DATE,
+        field: 'created_at'
+      },
+
+      updatedAt: {
+        type: DataTypes.DATE,
+        field: 'updated_at'
+      }
   }, {
     tableName: 'student_subject', 
     timestamps: false,
