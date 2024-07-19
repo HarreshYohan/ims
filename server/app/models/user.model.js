@@ -1,20 +1,8 @@
 const { DataTypes } = require('sequelize');
 
 const User = (sequelize) => {
-  const User = sequelize.define("User", {
+  return sequelize.define("User", {
     username: {
-      type: DataTypes.STRING,
-      allowNull: false, 
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false, 
-      unique: true,
-      validate: {
-        isEmail: true, 
-      },
-    },
-    password: {
       type: DataTypes.STRING,
       allowNull: false, 
     },
@@ -31,13 +19,24 @@ const User = (sequelize) => {
       },
       allowNull: false,
     },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      field: 'created_at'
+    },
+
+    updatedAt: {
+      type: DataTypes.DATE,
+      field: 'updated_at'
+    }
   }, {
     tableName: 'user',
     underscored: true,
     timestamps: false, 
   });
-
-  return User;
 };
 
 module.exports = User;

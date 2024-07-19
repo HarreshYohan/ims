@@ -6,6 +6,7 @@ if any issues with net/http: TLS handshake timeout
 run unset http_proxy
 unset https_proxy
 this will fix the above
+for windows run netsh winhttp reset proxy
 
 if any issue with This version of npm is compatible with lockfileVersion@1, but package-lock.json was generated for lockfileVersion@3
 rename the package.json file and run again compose up build command and revert the file name back again

@@ -1,8 +1,9 @@
 
-const { User, Student } = require('../models');
+const { User, Student, StudentSubject , SubjectTutor, Subject} = require('../models');
 const bcrypt = require('bcryptjs');
 const { log } = require("console");
 const { check, validationResult } = require('express-validator');
+const { where } = require('sequelize');
 
 
 exports.validate = (method) => {
@@ -59,7 +60,6 @@ exports.create = async (req, res) => {
       throw new Error('Email or Student already exists');
     }
 
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newStudentData = async () => {
@@ -72,6 +72,13 @@ exports.create = async (req, res) => {
         lastname: lastname,
         grade: grade,
         contact: contact,
+      });
+
+      const newUser = await User.create({
+        username: username,
+        user_type: 'STUDENT',
+        user_type_id: newStudent.id,
+        is_active: true
       });
 
       return newStudent;
@@ -171,6 +178,57 @@ exports.update = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       message: err.message || 'Some error occurred while updating the Tutor.'
+    });
+  }
+};
+
+
+exports.student_subject = async (req, res) => {
+  const id = req.params.id;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const student = await StudentSubject.findAll({
+      where:{
+        studentid : id,
+      },
+      attributes: ['studentid'],
+      include: [
+        {
+          model: SubjectTutor,
+          as: 'subjectTutor',
+          include: [
+            {
+              model: Subject,
+              as: 'subject',
+              attributes: ['name']
+            }
+          ],
+          attributes: ['id']
+        }
+      ]
+    });
+
+    let subjects = student.map(item => ({
+      subject: item.subjectTutor.subject.name,
+      subject_id : item.subjectTutor.id
+    }));
+
+    const data= { student_id : id , subjects : subjects}
+
+    if (!data) {
+      return res.status(404).send({ message: `Cannot find Student with id=${id}.` });
+    }
+
+    console.log(data);
+    res.status(200).send({ data });
+  } catch (err) {
+    res.status(500).send({
+      message: err.message || 'Some error occurred while getting the Student subject.'
     });
   }
 };

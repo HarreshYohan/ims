@@ -49,7 +49,6 @@ exports.create = async (req, res) => {
   
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log(2434234234);
     return res.status(400).json({ errors: errors.array() });
   }
 
@@ -77,6 +76,13 @@ exports.create = async (req, res) => {
           position: position,
           title: title,
           contact: contact,
+        });
+
+        const newUser = await User.create({
+          username: username,
+          user_type: 'STAFF',
+          user_type_id: newStaff.id,
+          is_active: true
         });
 
         return newStaff
