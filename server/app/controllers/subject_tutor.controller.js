@@ -28,18 +28,30 @@ exports.findAll = async (req, res) => {
 
     const { count, rows }  = await SubjectTutor.findAndCountAll({
       include: [
-        { model: Tutor,  as: 'tutor' },
-        { model: Subject , as: 'subject' },
-        { model: Grade  , as: 'grade' }
+        { model: Subject, as: 'subject' , attributes: ['name']},
+        { model: Tutor, as: 'tutor' ,  attributes: ['title','firstname','lastname'] },
+        { model: Grade, as: 'grade' , attributes: ['name'] },
       ],
       limit,
       offset,
     });
 
+    const result = rows.map(item => ({
+      id: item.id,
+      tutorid: item.tutorid,
+      subjectid: item.subjectid,
+      gradeid: item.gradeid,
+      fees: item.fees,
+      tutor: item.tutor.title+" "+item.tutor.firstname+" "+item.tutor.lastname,
+      subject : item.subject.name,
+      grade : item.grade.name
+      
+    }));
+
     const totalPages = Math.ceil(count / limit);
 
     res.json({
-        data: rows,
+        data: result,
         totalPages,
       });
   } catch (error) {

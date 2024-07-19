@@ -1,26 +1,23 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../Header/Header';
-import './Student.css';
+import './SubjectTutor.css';
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
-import debounce from 'lodash/debounce'; // Import lodash debounce function
 
-export const Student = () => {
+export const SubjectTutor = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
+  const [grades, setGrades] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [selectedGrade, setSelectedGrade] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Number of items per page
+  const [itemsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filters, setFilters] = useState({
-    firstname: '',
-    lastname: '',
-    grade: '',
-  });
-  const [grades, setGrades] = useState([]);
   const navigate = useNavigate();
   const localToken = localStorage.getItem("authToken");
 
@@ -36,15 +33,18 @@ export const Student = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await api.get(`/api/student/all?page=${currentPage}&limit=${itemsPerPage}`);
+        const response = await api.get(`/api/subject-tutor/all?page=${currentPage}&limit=${itemsPerPage}`);
         if (response.status === 200) {
           const { data, totalPages } = response.data;
           setData(data);
-          setFilteredData(data); // Initialize filtered data
+          setFilteredData(data);
           setTotalPages(totalPages);
-          // Extract unique grades for the filter
+
+          // Extract unique grades and subjects
           const uniqueGrades = [...new Set(data.map(item => item.grade))];
+          const uniqueSubjects = [...new Set(data.map(item => item.subject))];
           setGrades(uniqueGrades);
+          setSubjects(uniqueSubjects);
         } else {
           setData([]);
           console.error('Failed to fetch data');
@@ -62,25 +62,24 @@ export const Student = () => {
     fetchData();
   }, [currentPage, itemsPerPage, navigate, localToken]);
 
-  const applyFilters = useCallback(() => {
-    const { firstname, lastname, grade } = filters;
-    const newFilteredData = data.filter(item =>
-      (firstname ? item.firstname.toLowerCase().includes(firstname.toLowerCase()) : true) &&
-      (lastname ? item.lastname.toLowerCase().includes(lastname.toLowerCase()) : true) &&
-      (grade ? item.grade === grade : true)
-    );
-    setFilteredData(newFilteredData);
-    setTotalPages(Math.ceil(newFilteredData.length / itemsPerPage));
-    setCurrentPage(1); // Reset to the first page
-  }, [filters, data, itemsPerPage]);
-
-  const debouncedApplyFilters = useCallback(debounce(() => {
-    applyFilters();
-  }, 300), [applyFilters]); // Debounce for 300ms
-
   useEffect(() => {
-    debouncedApplyFilters();
-  }, [filters, debouncedApplyFilters]);
+    // Filter data based on selected grade and subject
+    const filtered = data.filter(item => {
+      return (
+        (selectedGrade ? item.grade === selectedGrade : true) &&
+        (selectedSubject ? item.subject === selectedSubject : true)
+      );
+    });
+    setFilteredData(filtered);
+
+    // Update subjects based on selected grade
+    if (selectedGrade) {
+      const filteredSubjects = [...new Set(data.filter(item => item.grade === selectedGrade).map(item => item.subject))];
+      setSubjects(filteredSubjects);
+    } else {
+      setSubjects([...new Set(data.map(item => item.subject))]);
+    }
+  }, [selectedGrade, selectedSubject, data]);
 
   const handlePageChange = (pageNumber) => {
     if (pageNumber > 0 && pageNumber <= totalPages) {
@@ -88,14 +87,9 @@ export const Student = () => {
     }
   };
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prevFilters => ({ ...prevFilters, [name]: value }));
-  };
-
   const handleEdit = (id) => {
     console.log(`Edit user with ID: ${id}`);
-    // Implement your edit logic here, e.g., navigate to an edit page
+    // Implement your edit logic here
   };
 
   const handleDelete = (id) => {
@@ -103,63 +97,50 @@ export const Student = () => {
     // Implement your delete logic here
   };
 
-  const Table = ({ data, currentPage, totalPages }) => (
+  const handleGradeChange = (e) => {
+    setSelectedGrade(e.target.value);
+    setSelectedSubject(''); // Reset subject filter when grade changes
+  };
+
+  const handleSubjectChange = (e) => {
+    setSelectedSubject(e.target.value);
+  };
+
+  const Table = ({ data }) => (
     <table className="data-table">
       <thead>
         <tr>
           <th>ID</th>
-          <th>
-            First Name
-            <input
-              type="text"
-              name="firstname"
-              value={filters.firstname}
-              onChange={handleFilterChange}
-              placeholder="Filter by first name"
-              className="filter-input"
-            />
-          </th>
-          <th >
-            Last Name
-            <input
-              type="text"
-              name="lastname"
-              value={filters.lastname}
-              onChange={handleFilterChange}
-              placeholder="Filter by last name"
-              className="filter-input"
-            />
-          </th>
           <th className="filter-header">
-            Grade
-            <select
-              name="grade"
-              value={filters.grade}
-              onChange={handleFilterChange}
-              className="filter-select"
-            >
+            Grade  
+            <select value={selectedGrade} onChange={handleGradeChange}>
               <option value="">All Grades</option>
               {grades.map((grade, index) => (
                 <option key={index} value={grade}>{grade}</option>
               ))}
             </select>
           </th>
-          <th>Contact</th>
-          <th>Actions</th>
+          <th className="filter-header">
+            Subject  
+            <select value={selectedSubject} onChange={handleSubjectChange}>
+              <option value="">All Subjects</option>
+              {subjects.map((subject, index) => (
+                <option key={index} value={subject}>{subject}</option>
+              ))}
+            </select>
+          </th>
+          <th>Tutor</th>
+          <th>Fees</th>
         </tr>
       </thead>
       <tbody>
-        {data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
+        {data.map((item) => (
           <tr key={item.id}>
             <td>{item.id}</td>
-            <td>{item.firstname}</td>
-            <td>{item.lastname}</td>
             <td>{item.grade}</td>
-            <td>{item.contact}</td>
-            <td>
-              <button className="editBtn" onClick={() => handleEdit(item.id)}>Edit</button>
-              <button className="deleteBtn" onClick={() => handleDelete(item.id)}>Delete</button>
-            </td>
+            <td>{item.subject}</td>
+            <td>{item.tutor}</td>
+            <td>{item.fees}</td>
           </tr>
         ))}
         <tr>
@@ -189,11 +170,11 @@ export const Student = () => {
     <div>
       <Header type={'dashboard'} action={"Logout"} />
       <Navbar />
-      <SectionHeader section={'Student'} is_create={true} />
+      <SectionHeader section={'Subject Tutor'} is_create={true} />
       <div className='main'>
         {loading && <p>Loading...</p>}
         {error && <p className="error">{error}</p>}
-        <Table data={filteredData} currentPage={currentPage} totalPages={totalPages} />
+        <Table data={filteredData} />
       </div>
     </div>
   );
