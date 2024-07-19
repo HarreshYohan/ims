@@ -31,6 +31,7 @@ export const Welcome = () => {
       <div id="why-us" className="section">
         <h2>Why Us</h2>
         <p>Content for Why Us section.</p>
+        <img src="C:\Users\Mishtika\Downloads\assign\ims\client\src\images\welcom pg\img_1 about.jpeg" className='img_1'></img>
       </div>
       <div id="contact-us" className="section">
         <h2>Contact Us</h2>

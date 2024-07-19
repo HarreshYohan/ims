@@ -1,0 +1,103 @@
+
+.chatsend{
+    height: 60px;
+    width: 30%;
+    margin-left: 50%;
+    background-color: burlywood;
+    border-radius: 15px 50px;
+    margin-top: 8%;
+    border-color:black;
+    text-align: center;
+    color:seagreen;
+}
+.chatreceive{
+    height: 60px;
+    width: 30%;
+    margin-left: 10%;
+    background-color: burlywood;
+    border-radius: 15px 50px;
+    margin-top: 2%;
+    text-align: center;
+    color:teal;
+
+}
+#Txtbox{
+     width: 75%;
+     height:198px;
+     margin-left:15%;
+     padding-top: 1px;
+     border-radius: 15px;
+
+}
+.sub{
+    width: 10%;
+    height: 38px;
+    margin-left:50% ;
+    margin-top:1px;
+    background-color:darkcyan;
+    border-radius: 15px;
+    color:tan;
+    font-size: 18px;
+    font-family:Arial, Helvetica, sans-serif;
+    padding-top: 1px;
+    padding-bottom: 1px;
+
+}
+.mainchat {
+position: absolute;
+background-color:#CCAA71;
+width: 85%;
+/* margin-top: 2%; */
+margin-left: 16.7%;
+overflow-y:scroll;
+height: 70%;
+}
+.mainchat_2{
+position:absolute;
+background-color:#CCAA71;
+width: 85%;
+height: 29%;
+/* overflow-y:scroll; */
+margin-top: 32%;
+margin-left: 16.7%;
+}
+.dropdown {
+    position: relative;
+    display: inline-block;
+    margin-left: 12px;
+    margin-top: 12px;
+   
+}
+
+
+.dropbtn {
+    background-color: #3498db;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    width: 150px;
+    cursor: pointer;
+}
+
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 170px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.dropdown:hover .dropbtn {
+    background-color: #2980b9;
+}
+

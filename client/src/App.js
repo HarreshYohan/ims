@@ -5,13 +5,14 @@ import HomePage from './components/HomePage';
 import { LoginSignup } from "./components/LoginSignup/LoginSignup";
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { Welcome } from './components/Welcome/Welcome';
-import { Timetable } from "./components/Timetable/Timetable";
+import { Timetable } from "./components/TimeTable/Timetable";
 import { Student } from "./components/Student/Student";
 import { Staff } from "./components/Staff/Staff";
 import { Report } from "./components/Report/Report";
 import { Tutor } from "./components/Tutor/Tutor";
 import { News } from "./components/News/News";
 import { Classroom } from "./components/Classroom/Classroom";
+import { Chatroom } from "./components/Chatroom/Chatroom";
 
 
 function App() {
@@ -28,6 +29,7 @@ return (
     <Route path="/news" element={<News />} />
     <Route path="/report" element={<Report />} />
     <Route path="/classroom" element={<Classroom />} />
+    <Route path="/chatroom" element={<Chatroom />} />
     </Routes>
   </Router>
 );
