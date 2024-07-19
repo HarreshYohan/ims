@@ -59,6 +59,11 @@ export const Navbar = () => {
             Classroom
           </NavLink>
         </li>
+        <li>
+              <NavLink to="/subject-tutor">
+                Subjects
+              </NavLink>
+            </li>
         {userType !== 'STUDENT' && userType !== 'TUTOR' && (
           <>
             <li onClick={toggleReports}>

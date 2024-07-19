@@ -13,7 +13,10 @@ import { Tutor } from "./components/Tutor/Tutor";
 import { News } from "./components/News/News";
 import { Classroom } from "./components/Classroom/Classroom";
 import { Chatroom } from "./components/Chatroom/Chatroom";
-import { NewStudent } from "./components/Student/StudentCreate";
+import { NewStudent } from "./components/Student/NewStudent";
+import { NewTutor } from "./components/Tutor/NewTutor";
+import { NewStaff} from "./components/Staff/NewStaff";
+import { SubjectTutor} from "./components/SubjectTutor/SubjectTutor";
 
 
 function App() {
@@ -32,6 +35,9 @@ return (
     <Route path="/classroom" element={<Classroom />} />
     <Route path="/chatroom" element={<Chatroom />} />
     <Route path="/new-student" element={<NewStudent />} />
+    <Route path="/new-tutor" element={<NewTutor />} />
+    <Route path="/new-staff" element={<NewStaff />} />
+    <Route path="/subject-tutor" element={<SubjectTutor />} />
     </Routes>
   </Router>
 );
