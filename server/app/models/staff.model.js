@@ -46,6 +46,15 @@ const Staff = (sequelize) => {
     salary: {
       type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      field: 'created_at'
+    },
+
+    updatedAt: {
+      type: DataTypes.DATE,
+      field: 'updated_at'
     }
 
   }, {

@@ -18,14 +18,14 @@ const Timetable = (sequelize) => {
           key: 'id',
       },
       allowNull: false,
-  },
+    },
     monday: {
         type: DataTypes.INTEGER,
         references: {
           model: 'SubjectTutor', 
           key: 'id',
       },
-
+        defaultValue: null,
         allowNull: true,
       },
     tuesday: {
@@ -34,7 +34,7 @@ const Timetable = (sequelize) => {
         model: 'SubjectTutor', 
         key: 'id',
     },
-
+      defaultValue: null,
       allowNull: true,
     },
     wednesday: {
@@ -43,7 +43,7 @@ const Timetable = (sequelize) => {
         model: 'SubjectTutor', 
         key: 'id',
     },
-
+      defaultValue: null,
       allowNull: true,
     },
     thursday: {
@@ -52,7 +52,7 @@ const Timetable = (sequelize) => {
         model: 'SubjectTutor', 
         key: 'id',
     },
-
+      defaultValue: null,
       allowNull: true,
     },
     friday: {
@@ -61,7 +61,7 @@ const Timetable = (sequelize) => {
         model: 'SubjectTutor', 
         key: 'id',
     },
-
+      defaultValue: null,
       allowNull: true,
     },
     saturday: {
@@ -70,8 +70,8 @@ const Timetable = (sequelize) => {
         model: 'SubjectTutor', 
         key: 'id',
     },
-
-      allowNull: true,
+    defaultValue: null,
+    allowNull: true,
     },
     sunday: {
       type: DataTypes.INTEGER,
@@ -79,9 +79,18 @@ const Timetable = (sequelize) => {
         model: 'SubjectTutor', 
         key: 'id',
     },
-
+      defaultValue: null,
       allowNull: true,
     },
+    createdAt: {
+      type: DataTypes.DATE,
+      field: 'created_at'
+    },
+
+    updatedAt: {
+      type: DataTypes.DATE,
+      field: 'updated_at'
+    }
   }, {
     tableName: 'timetable', 
     timestamps: false,

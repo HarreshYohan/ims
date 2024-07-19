@@ -5,4 +5,6 @@ body {
     justify-content: center;
     background-color: #ebe3da;
     overflow-x: hidden;
+    /* position: fixed; */
+    width: 100%;
   }
