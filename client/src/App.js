@@ -17,6 +17,7 @@ import { NewStudent } from "./components/Student/NewStudent";
 import { NewTutor } from "./components/Tutor/NewTutor";
 import { NewStaff} from "./components/Staff/NewStaff";
 import { SubjectTutor} from "./components/SubjectTutor/SubjectTutor";
+import { Transaction} from "./components/Transaction/Transaction";
 
 
 function App() {
@@ -38,6 +39,7 @@ return (
     <Route path="/new-tutor" element={<NewTutor />} />
     <Route path="/new-staff" element={<NewStaff />} />
     <Route path="/subject-tutor" element={<SubjectTutor />} />
+    <Route path="/transaction" element={<Transaction />} />
     </Routes>
   </Router>
 );

@@ -14,6 +14,7 @@ DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_type') THEN
     CREATE TYPE user_type AS ENUM ('STUDENT', 'TUTOR', 'ADMIN', 'STAFF', 'NA');
+    CREATE TYPE transaction_type AS ENUM ('SALARY', 'FEES', 'INCOME', 'EXPENSE', 'OTHER');
   END IF;
 END $$;
 
@@ -135,8 +136,19 @@ CREATE TABLE IF NOT EXISTS "chatroom" (
   FOREIGN KEY (user_id) REFERENCES student(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS "transaction" (
+  id SERIAL PRIMARY KEY,
+  transaction_type transaction_type  NOT NULL DEFAULT 'OTHER',
+  amount INTEGER NOT NULL,
+  description VARCHAR(255) NOT NULL,
+  user_id INTEGER NOT NULL,
+  participant_id INTEGER,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+);
 
-CREATE TABLE IF NOT EXISTS timetable (
+
+CREATE TABLE IF NOT EXISTS "timetable" (
     id SERIAL PRIMARY KEY,
     timeslot VARCHAR(255) NOT NULL,
     timeslotid VARCHAR(255) NOT NULL,
@@ -217,15 +229,15 @@ VALUES
 INSERT INTO "subject_tutor" ( tutorid, subjectid, gradeid, fees)
 VALUES
   (1,1,1, 3000),
-  (1,1,1, 4000),
-  (2,2,1, 5000),
+  (1,2,1, 4000),
+  (2,3,1, 5000),
   (3,1,5, 2500);
 
 INSERT INTO "student_subject" ( studentid, subjecttutorid)
 VALUES
   (1,2),
   (2,4),
-  (1,2),
+  (1,3),
   (2,3),
   (1,4),
   (3,4);
@@ -246,3 +258,44 @@ INSERT INTO "user" (username,user_type,user_type_id,is_active) VALUES
 	 ('student2','STUDENT',3,true),
 	 ('staff1','STAFF',4,true),
 	 ('student3','STUDENT',5,true);
+
+
+INSERT INTO chatroom (user_id, message, subjecttutorid, created_at, updated_at) VALUES
+(1, 'Hello, I need help with the math homework.', 1, '2024-07-01 09:00:00', '2024-07-01 09:00:00'),
+(2, 'Can we reschedule the physics class?', 1, '2024-07-02 10:00:00', '2024-07-02 10:00:00'),
+(3, 'Is there any additional material for the history exam?', 1, '2024-07-03 11:00:00', '2024-07-03 11:00:00'),
+(4, 'I have a question about the science project.', 1, '2024-07-04 12:00:00', '2024-07-04 12:00:00'),
+(5, 'When is the next English class?', 1, '2024-07-05 13:00:00', '2024-07-05 13:00:00'),
+
+(1, 'Can you explain the math problem on page 32?', 2, '2024-07-06 09:00:00', '2024-07-06 09:00:00'),
+(2, 'I will be late for the chemistry class.', 2, '2024-07-07 10:00:00', '2024-07-07 10:00:00'),
+(2, 'Is there any assignment due tomorrow?', 2, '2024-07-08 11:00:00', '2024-07-08 11:00:00'),
+(1, 'What chapters will be covered in the test?', 2, '2024-07-09 12:00:00', '2024-07-09 12:00:00'),
+(3, 'Can we have a revision class?', 2, '2024-07-10 13:00:00', '2024-07-10 13:00:00'),
+
+(1, 'I am struggling with the physics concepts.', 3, '2024-07-11 09:00:00', '2024-07-11 09:00:00'),
+(2, 'Can you recommend any extra reading material?', 3, '2024-07-12 10:00:00', '2024-07-12 10:00:00'),
+(2, 'When is the next test?', 3, '2024-07-13 11:00:00', '2024-07-13 11:00:00'),
+(4, 'I have completed the assignment.', 3, '2024-07-14 12:00:00', '2024-07-14 12:00:00'),
+(5, 'What is the homework for this week?', 3, '2024-07-15 13:00:00', '2024-07-15 13:00:00'),
+
+(3, 'Can you review my project draft?', 4, '2024-07-16 09:00:00', '2024-07-16 09:00:00'),
+(5, 'I need help with the algebra problems.', 4, '2024-07-17 10:00:00', '2024-07-17 10:00:00'),
+(2, 'When will the results be announced?', 4, '2024-07-18 11:00:00', '2024-07-18 11:00:00'),
+(1, 'Is there a make-up class for the missed lecture?', 4, '2024-07-19 12:00:00', '2024-07-19 12:00:00'),
+(2, 'Can you explain the experiment procedure again?', 4, '2024-07-20 13:00:00', '2024-07-20 13:00:00'),
+
+(1, 'What topics will be covered in the next session?', 2, '2024-07-21 09:00:00', '2024-07-21 09:00:00'),
+(2, 'I need clarification on the last lecture.', 3, '2024-07-22 10:00:00', '2024-07-22 10:00:00'),
+(3, 'Can you suggest any study tips?',2, '2024-07-23 11:00:00', '2024-07-23 11:00:00'),
+(4, 'When is the submission deadline for the project?', 4, '2024-07-24 12:00:00', '2024-07-24 12:00:00'),
+(5, 'I need help with my homework.', 3, '2024-07-25 13:00:00', '2024-07-25 13:00:00');
+
+
+INSERT INTO "transaction" (transaction_type, amount, description, user_id, participant_id, created_at, updated_at) VALUES
+('SALARY', 5000, 'Monthly salary', 1, 2, '2024-07-01 09:00:00', '2024-07-01 09:00:00'),
+('FEES', 200, 'Library fees', 2, 3, '2024-07-02 10:00:00', '2024-07-02 10:00:00'),
+('INCOME', 1500, 'Freelance project payment', 1, 4, '2024-07-03 11:00:00', '2024-07-03 11:00:00'),
+('EXPENSE', 300, 'Office supplies', 3, NULL, '2024-07-04 12:00:00', '2024-07-04 12:00:00'),
+('OTHER', 100, 'Miscellaneous', 4, 1, '2024-07-05 13:00:00', '2024-07-05 13:00:00');
+

@@ -28,6 +28,7 @@ const SubjectTutor = require('./subject_tutor.model')(sequelize, Sequelize.DataT
 const StudentSubject = require('./student_subject.model')(sequelize, Sequelize.DataTypes);
 const Timetable = require('./timetable.model')(sequelize, Sequelize.DataTypes);
 const Chatroom = require('./chatroom.model')(sequelize, Sequelize.DataTypes);
+const Transaction = require('./transaction.model')(sequelize, Sequelize.DataTypes);
 
 SubjectTutor.belongsTo(Tutor, { foreignKey: 'tutorid', as: 'tutor' });
 SubjectTutor.belongsTo(Subject, { foreignKey: 'subjectid', as: 'subject' });
@@ -60,6 +61,7 @@ module.exports = {
   SubjectTutor,
   StudentSubject,
   Timetable,
-  Chatroom
+  Chatroom,
+  Transaction
 
 };

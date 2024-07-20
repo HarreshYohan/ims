@@ -51,7 +51,7 @@ export const Navbar = () => {
         </li>
         <li>
           <NavLink to="/chatroom">
-            chatroom
+            Chatroom
           </NavLink>
         </li>
         <li>
@@ -60,11 +60,16 @@ export const Navbar = () => {
           </NavLink>
         </li>
         <li>
+          <NavLink to="/transaction">
+            Transaction
+          </NavLink>
+        </li>
+        <li>
               <NavLink to="/subject-tutor">
                 Subjects
               </NavLink>
             </li>
-        {userType !== 'STUDENT' && userType !== 'TUTOR' && (
+        {/* {userType !== 'STUDENT' && userType !== 'TUTOR' && ( */}
           <>
             <li onClick={toggleReports}>
               <NavLink>
@@ -92,7 +97,7 @@ export const Navbar = () => {
               </NavLink>
             </li>
           </>
-        )}
+        {/* )} */}
       </ul>
     </nav>
   );
