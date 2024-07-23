@@ -5,7 +5,7 @@ import HomePage from './components/HomePage';
 import { LoginSignup } from "./components/LoginSignup/LoginSignup";
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { Welcome } from './components/Welcome/Welcome';
-import { Timetable } from "./components/TimeTable/Timetable";
+import { Timetable } from "./components/Timetable/Timetable";
 import { Student } from "./components/Student/Student";
 import { Staff } from "./components/Staff/Staff";
 import { Report } from "./components/Report/Report";
@@ -13,13 +13,10 @@ import { Tutor } from "./components/Tutor/Tutor";
 import { News } from "./components/News/News";
 import { Classroom } from "./components/Classroom/Classroom";
 import { Chatroom } from "./components/Chatroom/Chatroom";
-import { NewStudent } from "./components/Student/StudentCreate";
-import { NewTutor } from "./components/Tutor/TutorCreate";
-import { NewStaff } from "./components/Staff/StaffCreate";
-
-
-
-
+import { NewStudent } from "./components/Student/NewStudent";
+import { NewTutor } from "./components/Tutor/NewTutor";
+import { NewStaff} from "./components/Staff/NewStaff";
+import { SubjectTutor} from "./components/SubjectTutor/SubjectTutor";
 
 
 function App() {
@@ -40,9 +37,7 @@ return (
     <Route path="/new-student" element={<NewStudent />} />
     <Route path="/new-tutor" element={<NewTutor />} />
     <Route path="/new-staff" element={<NewStaff />} />
-
-  
-
+    <Route path="/subject-tutor" element={<SubjectTutor />} />
     </Routes>
   </Router>
 );

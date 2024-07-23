@@ -22,6 +22,40 @@ margin-top: 2%;
 margin-left: 16.15%;
 }
 
+/* Dropdown styling */
+.data-table select {
+  width: 40%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.filter-input,
+.filter-select {
+  margin-left: 5px;
+  padding: 5px;
+  box-sizing: border-box; 
+}
+
+.data-table select:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
+
+.filter-header {
+  align-items: center;
+  gap: 10px; /* Adjust the spacing here */
+}
+
+.filter-header select {
+  margin-left: 10px; /* Adds margin to the left of the select dropdown */
+}
+
 .data-table {
 height: 70%;
 width: 97%;

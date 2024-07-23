@@ -1,5 +1,6 @@
 const { Timetable, Classroom , SubjectTutor, Subject, Grade, Tutor} = require('../models');
 const { check, validationResult } = require('express-validator');
+const { TimetableData } = require('../helpers/helpers')
 
 // Validation rules
 exports.validate = (method) => {
@@ -13,23 +14,53 @@ exports.validate = (method) => {
   }
 };
 
-
 exports.create = async (req, res) => {
-
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { timeslot, classroomid,  } = req.body;
+  const { timeslotid, classroomid, subjecttutorid, day } = req.body;
 
   try {
-    const timetable = await Timetable.create({ name });
+    const timeslot = TimetableData.find(slot => slot.id == timeslotid)?.timeslot || null;
+
+    if (!timeslot) {
+      return res.status(400).send({ message: 'Invalid timeslotid.' });
+    }
+
+    const subjectTutor = await SubjectTutor.findByPk(subjecttutorid);
+    if (!subjectTutor) {
+      return res.status(400).send({ message: 'Invalid subjecttutorid.' });
+    }
+
+
+    let timetable = await Timetable.findOne({
+      where: {
+        classroomid: classroomid,
+        timeslotid: timeslotid
+      }
+    });
+
+    if (timetable) {
+      timetable[day] = subjecttutorid;
+      await timetable.save();
+    } 
+    else {
+      const newTimetable = {
+        timeslotid: timeslotid,
+        timeslot: timeslot,
+        classroomid: classroomid,
+        [day]: subjecttutorid
+      };
+      timetable = await Timetable.create(newTimetable);
+    }
+
     res.status(201).send(timetable);
   } catch (err) {
     if (err.name === 'SequelizeUniqueConstraintError') {
       res.status(400).send({
-        message: 'Timetable name already exists.'
+        message: 'Timetable entry already exists.'
       });
     } else {
       res.status(500).send({
@@ -38,6 +69,8 @@ exports.create = async (req, res) => {
     }
   }
 };
+
+
 
 exports.findAll = async (req, res) => {
   try {
@@ -183,10 +216,10 @@ exports.update = async (req, res) => {
 
 exports.delete = async (req, res) => {
   const id = req.params.id;
-  const { day } = req.body;
-
+  const { day, timeslotid } = req.query;
+console.log(day, timeslotid);
   try {
-    const timetable = await Timetable.findOne({ where: { timeslotid: id } });
+    const timetable = await Timetable.findOne({ where: { classroomid: id, timeslotid: timeslotid } });
     if (!timetable) {
       return res.status(404).send({ message: `Cannot find Timetable with id=${id}.` });
     }

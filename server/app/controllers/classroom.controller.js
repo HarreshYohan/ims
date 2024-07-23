@@ -1,5 +1,6 @@
 const { Classroom, Timetable } = require('../models');
 const { check, validationResult } = require('express-validator');
+const { TimetableData } = require('../helpers/helpers.js')
 
 
 exports.validate = (method) => {
@@ -28,7 +29,7 @@ exports.create = async (req, res) => {
       const existingClassroom = await Classroom.findOne({ where: { name } });
 
       if (existingClassroom) {
-        throw new Error('Email or Staff already exists');
+        throw new Error('Classroom already exists');
       }
 
       const newClassroom = async () => {
@@ -37,19 +38,9 @@ exports.create = async (req, res) => {
           name: name,
           capacity: capacity
         });
+        console.log(TimetableData);
 
-        const timtableData = [
-          {id:1, timeslot:"7.00-9.00"},
-          {id:2, timeslot:"9.00-11.00"},
-          {id:3, timeslot:"11.00-13.00"},
-          {id:4, timeslot:"13.00-15.00"},
-          {id:5, timeslot:"15.00-17.00"},
-          {id:6, timeslot:"17.00-19.00"},
-          {id:7, timeslot:"19.00-21.00"}]
-
-          timtableData.forEach(async slot => { 
-              // let timeslotid = slot.id
-              // let timeslot =  slot.timeslot;
+        TimetableData.forEach(async slot => { 
              await Timetable.create({
               timeslotid : slot.id,
               timeslot: slot.timeslot,
@@ -65,7 +56,7 @@ exports.create = async (req, res) => {
     res.status(201).send(result);
   } catch (err) {
     res.status(500).send({
-      message: err.message || 'Some error occurred while creating the User.'
+      message: err.message || 'Some error occurred while creating the Classroom.'
     });
   }
 };

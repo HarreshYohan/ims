@@ -51,6 +51,10 @@
     color: #000000;
   }
 
+  .createClass:hover{
+    transform: scale(1.2);
+  }
+
   .editClass{
     color: #6a6a6a;
   }
@@ -128,3 +132,49 @@
   .error {
     color: red;
   }
+
+
+
+  .modal {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+  }
+  
+  .modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 400px;
+  }
+  
+  .modal-content h2 {
+    margin-top: 0;
+  }
+  
+  .modal-content label {
+    display: block;
+    margin: 10px 0;
+  }
+  
+  .modal-content select {
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+  }
+  
+  .modal-content button {
+    padding: 10px;
+    margin: 10px 5px 0 0;
+  }
+  
