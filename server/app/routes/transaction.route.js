@@ -8,6 +8,8 @@ module.exports = (app) => {
     router.get("/:id", transaction.findOne);
   
     router.post("/", transaction.create);
+
+    router.get("/download/all", transaction.downloadAll); //
   
     app.use('/api/transaction', router);
   };

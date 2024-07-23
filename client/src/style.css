@@ -22,7 +22,6 @@ margin-top: 2%;
 margin-left: 16.15%;
 }
 
-/* Dropdown styling */
 .data-table select {
   width: 40%;
   padding: 8px;
@@ -42,6 +41,32 @@ margin-left: 16.15%;
   box-sizing: border-box; 
 }
 
+.download-all-btn {
+  background-color: #d0b635; 
+  border:#333; 
+  padding: 10px 20px; 
+  text-align: center; 
+  text-decoration: none; 
+  display: inline-block;
+  font-size: 16px; 
+  margin: 4px 2px; 
+  cursor: pointer;
+  border-radius: 5px; 
+  box-shadow: 0 0 0 1px rgba(38, 143, 255, 0.3);
+  transition: background-color 0.3s ease; 
+}
+
+.download-all-btn:hover {
+  background-color: #fffb22; 
+  color: #2c3e50;
+}
+
+.download-all-btn:focus {
+  outline: none; 
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.5); 
+}
+
+
 .data-table select:focus {
   border-color: #4CAF50;
   outline: none;
@@ -49,11 +74,11 @@ margin-left: 16.15%;
 
 .filter-header {
   align-items: center;
-  gap: 10px; /* Adjust the spacing here */
+  gap: 10px;
 }
 
 .filter-header select {
-  margin-left: 10px; /* Adds margin to the left of the select dropdown */
+  margin-left: 10px;
 }
 
 .data-table {
@@ -99,15 +124,6 @@ transition: background-color 0.3s, color 0.3s, transform 0.3s;
 color: #555;
 font-size: 14px;
 }
-
-/* .data-table td:first-child {
-border-radius: 8px;
-}
-
-.data-table td:last-child {
-border-radius: 8px;
-} */
-
 
 .data-table button {
 margin: 0 15px; 

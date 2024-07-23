@@ -15,6 +15,7 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_type') THEN
     CREATE TYPE user_type AS ENUM ('STUDENT', 'TUTOR', 'ADMIN', 'STAFF', 'NA');
     CREATE TYPE transaction_type AS ENUM ('SALARY', 'FEES', 'INCOME', 'EXPENSE', 'OTHER');
+    CREATE TYPE fees_status AS ENUM('PAID', 'WAIVED_OFF', 'PENDING', 'OVERDUE')
   END IF;
 END $$;
 
@@ -30,6 +31,8 @@ DROP TABLE IF EXISTS "classroom";
 DROP TABLE IF EXISTS "timetable";
 DROP TABLE IF EXISTS "chatroom";
 DROP TABLE IF EXISTS "user";
+DROP TABLE IF EXISTS "transaction";
+DROP TABLE IF EXISTS "student_fees";
 
 -- Create student table
 CREATE TABLE IF NOT EXISTS "student" (
@@ -165,6 +168,17 @@ CREATE TABLE IF NOT EXISTS "timetable" (
     FOREIGN KEY (classroomid) REFERENCES classroom(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS "student_fees" (
+    id SERIAL PRIMARY KEY,
+    studentid INT NOT NULL,
+    month VARCHAR(255) NOT NULL,
+    year INT NOT NULL,
+    totalAmount FLOAT NOT NULL,
+    status fees_status NOT NULL DEFAULT 'PENDING',
+    created_at DATETIME,
+    updated_at DATETIME,
+    FOREIGN KEY (studentid) REFERENCES student(id)
+);
 
 
 -- Insert records into student table

@@ -95,7 +95,7 @@ export const Chatroom = () => {
       const response = await api.post('/api/chatroom', postData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${token}`,//
         },
       });
 

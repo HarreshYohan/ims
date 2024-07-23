@@ -210,7 +210,7 @@ export const Timetable = () => {
     <div>
       <Header type={'dashboard'} action={"Logout"} />
       <Navbar />
-      <SectionHeader section={'Classroom & Timetable'} is_create={true} />
+      <SectionHeader section={'Classroom & Timetable'} />
       <div className='main'>
         {loading && <p>Loading...</p>}
         {error && <p className="error">{error}</p>}

@@ -16,8 +16,10 @@ import { Chatroom } from "./components/Chatroom/Chatroom";
 import { NewStudent } from "./components/Student/NewStudent";
 import { NewTutor } from "./components/Tutor/NewTutor";
 import { NewStaff} from "./components/Staff/NewStaff";
+import { NewClassroom} from "./components/Classroom/NewClassroom";
 import { SubjectTutor} from "./components/SubjectTutor/SubjectTutor";
 import { Transaction} from "./components/Transaction/Transaction";
+import { EditStudent } from "./components/Student/EditStudent";
 
 
 function App() {
@@ -38,8 +40,10 @@ return (
     <Route path="/new-student" element={<NewStudent />} />
     <Route path="/new-tutor" element={<NewTutor />} />
     <Route path="/new-staff" element={<NewStaff />} />
+    <Route path="/new-classroom" element={<NewClassroom />} />
     <Route path="/subject-tutor" element={<SubjectTutor />} />
     <Route path="/transaction" element={<Transaction />} />
+    <Route path="/edit-student/:id" element={<EditStudent />} />
     </Routes>
   </Router>
 );

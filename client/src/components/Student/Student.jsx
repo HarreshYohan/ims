@@ -5,7 +5,8 @@ import { Header } from '../Header/Header';
 import './Student.css';
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
-import debounce from 'lodash/debounce'; // Import lodash debounce function
+import debounce from 'lodash/debounce'; 
+import { format } from 'date-fns';
 
 export const Student = () => {
   const [data, setData] = useState([]);
@@ -40,9 +41,8 @@ export const Student = () => {
         if (response.status === 200) {
           const { data, totalPages } = response.data;
           setData(data);
-          setFilteredData(data); // Initialize filtered data
+          setFilteredData(data); 
           setTotalPages(totalPages);
-          // Extract unique grades for the filter
           const uniqueGrades = [...new Set(data.map(item => item.grade))];
           setGrades(uniqueGrades);
         } else {
@@ -95,12 +95,37 @@ export const Student = () => {
 
   const handleEdit = (id) => {
     console.log(`Edit user with ID: ${id}`);
-    // Implement your edit logic here, e.g., navigate to an edit page
+    navigate(`/edit-student/${id}`)
   };
 
   const handleDelete = (id) => {
     console.log(`Delete user with ID: ${id}`);
     // Implement your delete logic here
+  };
+
+  const handleDownload = async () => {
+    try {
+
+      const query = new URLSearchParams(filters).toString();
+
+      const response = await api.get(`/api/student/download/all?${query}`, {
+        headers: {
+          Authorization: `Bearer ${localToken}`
+        },
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      const time = format(new Date(), 'MM/dd/yyyy_hh:mm:ss');
+      link.setAttribute('download', 'student_report_'+time+'.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading students:', error);
+    }
   };
 
   const Table = ({ data, currentPage, totalPages }) => (
@@ -145,7 +170,9 @@ export const Student = () => {
             </select>
           </th>
           <th>Contact</th>
-          <th>Actions</th>
+          <th>Actions 
+            <button className="download-all-btn" onClick={handleDownload}>Download</button>
+          </th>
         </tr>
       </thead>
       <tbody>

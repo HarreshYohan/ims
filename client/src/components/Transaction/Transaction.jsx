@@ -39,10 +39,9 @@ export const Transaction = () => {
         if (response.status === 200) {
           const { data, totalPages } = response.data;
           setData(data);
-          setFilteredData(data); // Initialize filtered data
+          setFilteredData(data); 
           setTotalPages(totalPages);
 
-          // Extract unique transaction types for the filter
           const uniqueTransactionTypes = [...new Set(data.map(item => item.transaction_type))];
           setTransactionTypes(uniqueTransactionTypes);
         } else {
@@ -69,7 +68,7 @@ export const Transaction = () => {
     );
     setFilteredData(newFilteredData);
     setTotalPages(Math.ceil(newFilteredData.length / itemsPerPage));
-    setCurrentPage(1); // Reset to the first page
+    setCurrentPage(1); 
   }, [filters, data, itemsPerPage]);
 
   const debouncedApplyFilters = useCallback(debounce(() => {
@@ -93,12 +92,36 @@ export const Transaction = () => {
 
   const handleEdit = (id) => {
     console.log(`Edit transaction with ID: ${id}`);
-    // Implement your edit logic here, e.g., navigate to an edit page
   };
 
   const handleDelete = (id) => {
     console.log(`Delete transaction with ID: ${id}`);
     // Implement your delete logic here
+  };
+
+  const handleDownload = async () => {
+    try {
+      // Construct query string from filters
+      const query = new URLSearchParams(filters).toString();
+
+      // Make API request to download filtered data
+      const response = await api.get(`/api/transaction/download/all?${query}`, {
+        headers: {
+          Authorization: `Bearer ${localToken}`
+        },
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'transactions.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove(); // Clean up
+    } catch (error) {
+      console.error('Error downloading transactions:', error);
+    }
   };
 
   const formatDate = (date) => {
@@ -128,7 +151,9 @@ export const Transaction = () => {
           <th>User ID</th>
           <th>Participant ID</th>
           <th>Created At</th>
-          <th>Actions</th>
+          <th>Actions 
+            <button className="download-all-btn" onClick={handleDownload}>Download</button>
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -174,7 +199,7 @@ export const Transaction = () => {
     <div>
       <Header type={'dashboard'} action={"Logout"} />
       <Navbar />
-      <SectionHeader section={'Transactions'} is_create={true} />
+      <SectionHeader section={'Transactions'} is_create={true} is_download={true}/>
       <div className='main'>
         {loading && <p>Loading...</p>}
         {error && <p className="error">{error}</p>}

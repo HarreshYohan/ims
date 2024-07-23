@@ -13,7 +13,12 @@
     margin: 0;
     width: 80%;
   }
-  
+  .nav-icon {
+    margin-right: 15px;
+    font-size: 1.2rem;
+    color: #fff; 
+  }
+
   .vertical-navbar li {
     margin-bottom: 10px;
   }
@@ -36,6 +41,7 @@
   .nested-nav li{
     list-style-type: none;
     padding: 0 15px; 
+    width: 130%;
   }
   
   .nested-nav li a {

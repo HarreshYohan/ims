@@ -1,10 +1,10 @@
-
-const { User, Student, StudentSubject , SubjectTutor, Subject} = require('../models');
+const { User, Student, StudentSubject, SubjectTutor, Subject } = require('../models');
 const bcrypt = require('bcryptjs');
 const { log } = require("console");
 const { check, validationResult } = require('express-validator');
-const { where } = require('sequelize');
-
+const { Parser } = require('json2csv');
+const fs = require('fs');
+const path = require('path');
 
 exports.validate = (method) => {
   switch (method) {
@@ -43,9 +43,7 @@ exports.findAll = async (req, res) => {
   }
 };
 
-
 exports.create = async (req, res) => {
-
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -54,39 +52,32 @@ exports.create = async (req, res) => {
   const { username, password, email, firstname, lastname, grade, contact } = req.body;
 
   try {
-    const existingStudent = await Student.findOne({ where: { firstname, lastname }});
+    const existingStudent = await Student.findOne({ where: { firstname, lastname } });
 
-    if ( existingStudent) {
-      throw new Error('Email or Student already exists');
+    if (existingStudent) {
+      throw new Error('Student already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newStudentData = async () => {
+    const newStudent = await Student.create({
+      username,
+      email,
+      password: hashedPassword,
+      firstname,
+      lastname,
+      grade,
+      contact,
+    });
 
-      const newStudent = await Student.create({
-        username: username,
-        email: email,
-        password: hashedPassword,
-        firstname: firstname,
-        lastname: lastname,
-        grade: grade,
-        contact: contact,
-      });
+    await User.create({
+      username,
+      user_type: 'STUDENT',
+      user_type_id: newStudent.id,
+      is_active: true
+    });
 
-      const newUser = await User.create({
-        username: username,
-        user_type: 'STUDENT',
-        user_type_id: newStudent.id,
-        is_active: true
-      });
-
-      return newStudent;
-      }
-
-    const result = await newStudentData();
-
-    res.status(201).send(result);
+    res.status(201).send(newStudent);
   } catch (err) {
     res.status(500).send({
       message: err.message || 'Some error occurred while creating the User.'
@@ -114,18 +105,17 @@ exports.findOne = (req, res) => {
     });
 };
 
-
 exports.delete = async (req, res) => {
   const id = req.params.id;
   const errors = validationResult(req);
-  
+
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
   try {
     const student = await Student.findByPk(id);
-    
+
     if (!student) {
       return res.status(404).send({ message: `Cannot find Student with id=${id}.` });
     }
@@ -151,22 +141,22 @@ exports.update = async (req, res) => {
 
   try {
     const student = await Student.findByPk(id);
-    
+
     if (!student) {
       return res.status(404).send({ message: `Cannot find Student with id=${id}.` });
     }
 
     const existingStudent = await Student.findOne({ where: { firstname, lastname } });
 
-    if ( existingStudent && existingStudent.id !== student.id) {
-      throw new Error('Email or Tutor name already exists');
+    if (existingStudent && existingStudent.id !== student.id) {
+      throw new Error('Student name already exists');
     }
 
     const hashedPassword = password ? await bcrypt.hash(password, 10) : student.password;
 
     await student.update({
-      username: username ,
-      email: email ,
+      username,
+      email,
       password: hashedPassword,
       firstname: firstname || student.firstname,
       lastname: lastname || student.lastname,
@@ -177,11 +167,10 @@ exports.update = async (req, res) => {
     res.status(200).send({ message: "Student was updated successfully!", student });
   } catch (err) {
     res.status(500).send({
-      message: err.message || 'Some error occurred while updating the Tutor.'
+      message: err.message || 'Some error occurred while updating the Student.'
     });
   }
 };
-
 
 exports.student_subject = async (req, res) => {
   const id = req.params.id;
@@ -192,10 +181,8 @@ exports.student_subject = async (req, res) => {
   }
 
   try {
-    const student = await StudentSubject.findAll({
-      where:{
-        studentid : id,
-      },
+    const studentSubjects = await StudentSubject.findAll({
+      where: { studentid: id },
       attributes: ['studentid'],
       include: [
         {
@@ -213,22 +200,58 @@ exports.student_subject = async (req, res) => {
       ]
     });
 
-    let subjects = student.map(item => ({
+    const subjects = studentSubjects.map(item => ({
       subject: item.subjectTutor.subject.name,
-      subject_id : item.subjectTutor.id
+      subject_id: item.subjectTutor.id
     }));
 
-    const data= { student_id : id , subjects : subjects}
+    const data = { student_id: id, subjects: subjects };
 
     if (!data) {
       return res.status(404).send({ message: `Cannot find Student with id=${id}.` });
     }
 
-    console.log(data);
     res.status(200).send({ data });
   } catch (err) {
     res.status(500).send({
       message: err.message || 'Some error occurred while getting the Student subject.'
     });
+  }
+};
+
+exports.downloadAll = async (req, res) => {
+  try {
+    const { columns, ...filters } = req.query; 
+
+    const selectedColumns = columns ? columns.split(',') : ['id', 'username', 'email', 'firstname', 'lastname', 'grade', 'contact', 'createdAt', 'updatedAt'];
+
+    const filterConditions = {};
+    Object.keys(filters).forEach(key => {
+      if (filters[key]) {
+        filterConditions[key] = filters[key];
+      }
+    });
+
+    const students = await Student.findAll({
+      where: filterConditions,
+      order: [['createdAt', 'DESC']]
+    });
+
+    const json2csvParser = new Parser({ fields: selectedColumns });
+    const csv = json2csvParser.parse(students.map(student => student.toJSON()));
+
+    // Write CSV to file
+    const filePath = path.join(__dirname, 'students.csv');
+    fs.writeFileSync(filePath, csv);
+
+
+    res.download(filePath, 'students.csv', (err) => {
+      if (err) {
+        res.status(500).json({ message: 'Error downloading file', error: err.message });
+      }
+      fs.unlinkSync(filePath); // delete the file after download
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error generating CSV', error: error.message });
   }
 };
