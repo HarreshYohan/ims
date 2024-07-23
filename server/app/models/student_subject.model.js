@@ -32,7 +32,6 @@ const StudentSubject = (sequelize) => {
   }, {
     tableName: 'student_subject', 
     timestamps: false,
-    // underscored: true
   });
 };
 
