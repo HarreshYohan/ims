@@ -141,4 +141,43 @@ body, html {
   margin-left: 5%;
 }
 
+/* Existing CSS remains unchanged */
 
+.section {
+  padding: 100px 20px;
+  text-align: center;
+  opacity: 0.9;
+  background-color: rgba(0, 0, 0, 0.6); /* Darkened background with transparency */
+  border-radius: 15px; /* Rounded corners */
+  margin: 450px 0;
+}
+
+.section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  color: #ff4757; /* Highlight color for headings */
+}
+
+.section p {
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: #fff; /* White text color */
+  margin: 0 auto; /* Centering the text */
+  max-width: 70%; /* Max width for readability */
+  padding: 0 10px; /* Padding for text */
+}
+
+/* Additional styles for responsive design */
+@media (max-width: 768px) {
+  .section {
+    padding: 50px 10px;
+  }
+
+  .section h2 {
+    font-size: 2rem;
+  }
+
+  .section p {
+    font-size: 1rem;
+  }
+}

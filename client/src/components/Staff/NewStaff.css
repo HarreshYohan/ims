@@ -1,62 +1,65 @@
-main {
-    font-family: 'Georgia', 'Times New Roman', Times, serif;
-    text-align: left;
-    margin-right: 2%;
-    background-color: #f0f4f8; /* Lighter background color */
-    color: #333; /* Darker text color for better readability */
-    font-weight: bold; 
-    padding: 20px; /* Add some padding for spacing */
-}
 
-.student-form {
-    padding-left: 10%;
-    padding-top: 5%;
-}
-
-.form-group {
-    margin-bottom: 20px; /* Add spacing between form groups */
-}
-
-.form-group input {
-    color: #333; /* Dark text color for better readability */
-    padding: 12px; /* Slightly increased padding */
-    border-radius: 8px; /* Softer, rounded corners */
-    box-sizing: border-box;
-    height: 50px; /* Increased height for better input */
-    width: 50%; /* Wider input field */
-    background-color: #e8f0fe; /* Light background color */
-    font-size: 18px; /* Slightly smaller font size */
-    border: 1px solid #ccc; /* Light border for better visibility */
-    transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition effect */
-}
-
-.form-group input:focus {
-    background-color: #f1faff; /* Even lighter background on focus */
-    border-color: #b3d9ff; /* Slightly darker border on focus */
-    outline: none; /* Remove default outline */
-}
-
-#userName {
-    background-color: #e8f0fe; /* Match with form inputs */
-}
-
-.submit-btn {
-    width: 15%; /* Slightly wider button */
-    height: 50px; /* Adjusted height */
-    color: #fff; /* White text color */
-    background-color: #4a90e2; /* Soft blue background */
-    border-radius: 8px; /* Softer corners */
-    font-size: 18px; /* Slightly smaller font size */
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
-    margin-left: 85%; /* Adjusted margin for alignment */
-    margin-bottom: 2%;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    border: none; /* Remove default border */
-    cursor: pointer; /* Change cursor to pointer on hover */
-    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transition effect */
-}
-
-.submit-btn:hover {
-    background-color: #357abd; /* Darker blue on hover */
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); /* Slightly darker shadow on hover */
-}
+  
+  .student-form {
+    background-color: #f9f9f9;
+    padding: 20px;
+    width: 50%;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-left: 5%;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    width: 80%;
+    font-weight: bold;
+    display: block; /* Ensure labels are on top of each input */
+    margin-bottom: 5px; /* Space between label and input */
+  }
+  
+  .form-group input {
+    width: 80%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .submit-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .submit-btn:hover {
+    background-color: #45a049;
+  }
+  
+  .error {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+  }
+  
+  @media (max-width: 768px) {
+    .main {
+      width: 100%;
+      padding: 10px;
+    }
+  
+    .student-form {
+      padding: 15px;
+    }
+  
+    .form-group input {
+      font-size: 14px;
+    }
+  }
+  

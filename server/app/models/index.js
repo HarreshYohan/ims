@@ -28,6 +28,8 @@ const SubjectTutor = require('./subject_tutor.model')(sequelize, Sequelize.DataT
 const StudentSubject = require('./student_subject.model')(sequelize, Sequelize.DataTypes);
 const Timetable = require('./timetable.model')(sequelize, Sequelize.DataTypes);
 const Chatroom = require('./chatroom.model')(sequelize, Sequelize.DataTypes);
+const Transaction = require('./transaction.model')(sequelize, Sequelize.DataTypes);
+const StudentFees = require('./student_fees.model')(sequelize, Sequelize.DataTypes);
 
 SubjectTutor.belongsTo(Tutor, { foreignKey: 'tutorid', as: 'tutor' });
 SubjectTutor.belongsTo(Subject, { foreignKey: 'subjectid', as: 'subject' });
@@ -48,6 +50,8 @@ Timetable.belongsTo(SubjectTutor, { foreignKey: 'sunday', as: 'sundaycls' });
 Chatroom.belongsTo(SubjectTutor, { foreignKey: 'subjecttutorid', as: 'subjectTutor' });
 Chatroom.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
+StudentFees.belongsTo(Student, { foreignKey: 'studentid', as: 'student' });
+
 module.exports = {
   sequelize,
   User,
@@ -60,6 +64,9 @@ module.exports = {
   SubjectTutor,
   StudentSubject,
   Timetable,
-  Chatroom
+  Chatroom,
+  Transaction,
+  StudentFees
+
 
 };

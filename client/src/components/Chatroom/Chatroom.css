@@ -1,7 +1,7 @@
 
 .mainchat {
     position: absolute;
-    background-color: #f0eadf;
+    background-color: #f4f4f4;
     width: 100%;
     margin-left: 16.7%;
     margin-top: -5%;
@@ -29,43 +29,52 @@
     height: 20%;
   }
   
-  .dropdown {
-    position: relative;
-    margin-left: 12px;
-    margin-top: 12px;
-    background-color: #e3d3b4;
-    border: #4e4c48 1px solid;
-  }
-  
-  .dropdown .dropbtn {
-    background-color: #737f87;
-    color: white;
-    /* padding: 16px; */
-    font-size: 16px;
-    width: 150px;
-    cursor: pointer;
-  }
-  
-  .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #f9f9f9;
-    min-width: 170px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
-  }
-  
-  .dropdown-content a:hover {
-    background-color: #f1f1f1;
-  }
-  
-  .dropdown:hover .dropdown-content {
-    display: block;
-  }
-  
-  .dropdown:hover .dropbtn {
-    background-color: #2980b9;
-  }
+ /* Dropdown Container */
+.dropdown {
+  position: relative;
+  margin-left: 12px;
+  margin-top: 12px;
+  background-color: #78e853;
+  border-radius: 20px;
+  padding: 5px;
+  width: 200px;
+}
+
+/* Select Element */
+.dropdown select {
+  background-color: #78e853;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  width: 100%;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+/* Dropdown Options */
+.dropdown option {
+  background-color: #ffffff;
+  color: #333;
+  padding: 10px;
+}
+
+/* Change Button Background on Hover */
+.dropdown select:hover {
+  background-color: #3edd63;
+  transform: scale(1.05);
+}
+
+/* Additional Button Hover Effect */
+.dropdown select:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
   
   /* Chat message styles */
   .chatsend, .chatreceive {
@@ -85,7 +94,7 @@
   }
   
   .chatreceive {
-    background-color: rgb(166, 178, 178);
+    background-color: rgb(224, 229, 229);
     color: black;
     margin-left: 10%;
   }

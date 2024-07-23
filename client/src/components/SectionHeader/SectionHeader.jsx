@@ -16,6 +16,9 @@ export const SectionHeader = ({ section, is_create }) => {
       case 'Staff':
         navigate('/new-staff');
         break
+      case 'Classroom':
+        navigate('/new-classroom');
+        break
     }
     
   };

@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../Header/Header';
-import './NewStudent.css'; // Create a new CSS file for styling
+import './NewStudent.css'; // Import your CSS file for styling
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
 
 
 export const NewStudent = () => {
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [grade, setGrade] = useState('');
@@ -25,9 +25,10 @@ export const NewStudent = () => {
     setError(null);
     
     try {
-      const response = await api.post('/api/student/create', {
-        userName: userName,
-        password:password,
+      const response = await api.post('/api/student', {
+        username,
+        password,
+        email,
         firstname: firstName,
         lastname: lastName,
         grade,
@@ -35,13 +36,13 @@ export const NewStudent = () => {
       });
 
       if (response.status === 201) {
-        navigate('/students'); // Redirect to the students list page
+        navigate('/Student');
       } else {
-        setError('Failed to create student');
+        setError('Failed to create Student');
       }
     } catch (error) {
-      setError('Error during student creation');
-      console.error('Error during student creation:', error);
+      setError('Error during Student creation');
+      console.error('Error during Student creation:', error);
     } finally {
       setLoading(false);
     }
@@ -56,7 +57,41 @@ export const NewStudent = () => {
       <div className='main'>
         <form className='student-form' onSubmit={handleSubmit}>
           <div className='form-group'>
-            <label htmlFor='userName'>UserName:</label><br></br>
+            <label htmlFor='username'>Username:</label>
+            <input
+              type='text'
+              id='username'
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+          <div className='form-group'>
+            <label htmlFor='password'>Password:</label>
+            <input
+                type='password'
+                id='password'
+                value={password}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setPassword(value);
+                }}
+                minLength={8} // Ensure HTML5 validation for minimum length
+                required
+              />
+          </div>
+          <div className='form-group'>
+            <label htmlFor='email'>Email:</label>
+            <input
+              type='email'
+              id='email'
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className='form-group'>
+            <label htmlFor='firstName'>First Name:</label>
             <input
               type='text'
               id='userName'
@@ -116,7 +151,11 @@ export const NewStudent = () => {
               type='text'
               id='contact'
               value={contact}
-              onChange={(e) => setContact(e.target.value)}
+              onChange={(e) => {
+                const re = /^[0-9\b]+$/; // Regular expression to allow only numbers
+                if (e.target.value === '' || re.test(e.target.value)) {
+                  setContact(e.target.value);
+                }}}
               required
             />
           </div>

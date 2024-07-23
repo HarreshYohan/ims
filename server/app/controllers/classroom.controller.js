@@ -38,7 +38,6 @@ exports.create = async (req, res) => {
           name: name,
           capacity: capacity
         });
-        console.log(TimetableData);
 
         TimetableData.forEach(async slot => { 
              await Timetable.create({

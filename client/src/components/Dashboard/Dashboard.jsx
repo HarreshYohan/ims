@@ -1,125 +1,115 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import {useAuth}  from '../../services/authContex';
 import { useNavigate } from 'react-router-dom';
-import {Header } from '../Header/Header'
-import './Dashboard.css';
-import {Navbar} from '../Navbar/Navbar';
-import {SectionHeader} from '../SectionHeader/SectionHeader';
+import { Header } from '../Header/Header';
+import './Dashboard.css';  // Ensure this CSS file is created
+import { Navbar } from '../Navbar/Navbar';
+import { SectionHeader } from '../SectionHeader/SectionHeader';
 
 export const Dashboard = () => {
+  const [totalStudents, setTotalStudents] = useState(0);
+  const [studentsByGrade, setStudentsByGrade] = useState([]);
+  const [totalTeachers, setTotalTeachers] = useState(0);
+  const [totalStaff, setTotalStaff] = useState(0);
+  const [classesByGrade, setClassesByGrade] = useState({});
 
-  const [data, setData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Number of items per page
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const localToken = localStorage.getItem("authToken");
-
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
+    const fetchDashboardData = async () => {
       try {
-        const response = await api.get(`/api/user/all?page=${currentPage}&limit=${itemsPerPage}`);
-        if (response.status === 200) {
-          const { data, totalPages } = response.data; 
-          setData(data);
-          setTotalPages(totalPages); 
-        } else {
-          setData([]);
-          console.error('Failed to fetch data');
-        }
+        const response = await api.get('api/dashboard');
+        const data = response.data;
+
+        setTotalStudents(data.totalStudents);
+        setStudentsByGrade(data.studentsByGrade);
+        setTotalTeachers(data.totalTeachers);
+        setTotalStaff(data.totalStaff);
+        setClassesByGrade(data.nextClasses);
       } catch (error) {
-        setError('Error during data fetch');
-        console.error('Error during data fetch:', error);
-        localStorage.removeItem('authToken');
-        navigate('/login');
-      } finally {
-        setLoading(false);
+        console.error('Error fetching dashboard data:', error);
       }
     };
 
-    fetchData();
-  }, [currentPage, itemsPerPage, navigate, localToken]);
+    fetchDashboardData();
+  }, []);
 
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber > 0 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
-
-  const Table = ({ data }) => {
-    return (
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item) => (
-            <tr key={item.id}>
-              <td>{item.id}</td>
-              <td>{item.username}</td>
-              <td>{item.email}</td>
-              <td>{item.user_type}</td>
-              <td>
-                <button className="editBtn" onClick={() => handleEdit(item.id)}>Edit</button>
-                <button className="deleteBtn" onClick={() => handleDelete(item.id)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-        <tfoot>
-      <div className="pagination">
-          <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-            Previous
-          </button>
-          {[...Array(totalPages).keys()].map((pageNumber) => (
-            <button
-              key={pageNumber + 1}
-              onClick={() => handlePageChange(pageNumber + 1)}
-              className={currentPage === pageNumber + 1 ? 'active' : ''}
-            >
-              {pageNumber + 1}
-            </button>
-          ))}
-          <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-            Next
-          </button>
-        </div>
-      </tfoot>
-      </table>
-    );
-  };
-
-  const handleEdit = (id) => {
-    console.log(`Edit user with ID: ${id}`);
-    // Implement your edit logic here, e.g., navigate to an edit page
-  };
-  
-  const handleDelete = (id) => {
-    console.log(`Delete user with ID: ${id}`);
-    // Implement your delete logic here
+  const handleLogin = () => {
+    navigate('/login');
   };
 
   return (
     <div>
-      <Header type={'dashboard'} action = {"Logout"}/>
-      <Navbar /> 
-      <SectionHeader section={'Dashboard'} />
+      <Header type={'dashboard'} action={"Logout"} />
+      <Navbar />
+      <SectionHeader section={'Dashboard'} is_create={false} />
       <div className='main'>
-        <Table data={data} />
+        <div className='dashboard-cards-container'>
+          <div className='dashboard-card'>
+            <h2>Total Students</h2>
+            <p>{totalStudents}</p>
+          </div>
+          <div className='dashboard-card'>
+            <h2>Total Teachers</h2>
+            <p>{totalTeachers}</p>
+          </div>
+          <div className='dashboard-card'>
+            <h2>Total Staff</h2>
+            <p>{totalStaff}</p>
+          </div>
+        </div>
+        <div className='table-container'>
+          <div className='table-card-grade'>
+            <h2>Students by Grade</h2>
+            <table className="grade-table">
+              <thead>
+                <tr>
+                  <th className="header-cell">Grade</th>
+                  <th className="header-cell">Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                {studentsByGrade.map((grade, index) => (
+                  <tr key={index}>
+                    <td className="table-cell">{grade.grade}</td>
+                    <td className="table-cell">{grade.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div  className='table-card'>
+          <h2>Today Classes</h2>
+          {Object.entries(classesByGrade).map(([grade, classes], index) => (
+            <>
+            <br />
+            <span />
+              <h2>{grade}</h2>
+              <table className="class-table">
+                <thead className="table-header">
+                  <tr>
+                    <th className="header-cell">Timeslot</th>
+                    <th className="header-cell">Classroom</th>
+                    <th className="header-cell">Subject</th>
+                    <th className="header-cell">Tutor</th>
+                  </tr>
+                </thead>
+                <tbody className="table-body">
+                  {classes.map((classInfo, index) => (
+                    <tr key={index} className="table-row">
+                      <td className="table-cell">{classInfo.timeslot}</td>
+                      <td className="table-cell">{classInfo.classroom}</td>
+                      <td className="table-cell">{classInfo.subject}</td>
+                      <td className="table-cell">{classInfo.tutor}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
+          ))}
+          </div>
+        </div>
       </div>
     </div>
   );
-
 };

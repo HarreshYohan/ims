@@ -37,7 +37,7 @@ export const LoginSignup = () => {
       setMessage({ type: 'success', text: 'Login successful!' });
       const authToken = data.token;
       localStorage.setItem('authToken', authToken);
-      navigate('/student');
+      navigate('/dashboard');
       
     } else {
       const error = await response.json();

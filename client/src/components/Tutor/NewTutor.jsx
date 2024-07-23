@@ -9,10 +9,13 @@ import { SectionHeader } from '../SectionHeader/SectionHeader';
 export const NewTutor = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [grade, setGrade] = useState('');
-  const [contact, setContact] = useState('');
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [title, setTitle] = useState('');
+  const [contact, setContact] = useState(null);
+  const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
@@ -24,12 +27,15 @@ export const NewTutor = () => {
       const response = await api.post('/api/tutor/create', {
         firstname: firstName,
         lastname: lastName,
-        grade,
+        username,
+        email,
+        password,
+        title,
         contact,
       });
 
       if (response.status === 201) {
-        navigate('/tutor'); // Redirect to the students list page
+        navigate('/tutor');
       } else {
         setError('Failed to create student');
       }
@@ -49,6 +55,16 @@ export const NewTutor = () => {
 
       <div className='main'>
         <form className='student-form' onSubmit={handleSubmit}>
+          <div className='form-group'>
+            <label htmlFor='title'>Title:</label>
+            <input
+              type='text'
+              id='title'
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+            />
+          </div>
           <div className='form-group'>
             <label htmlFor='firstName'>First Name:</label>
             <input
@@ -70,12 +86,32 @@ export const NewTutor = () => {
             />
           </div>
           <div className='form-group'>
-            <label htmlFor='grade'>Grade:</label>
+            <label htmlFor='username'>Username:</label>
             <input
               type='text'
-              id='grade'
-              value={grade}
-              onChange={(e) => setGrade(e.target.value)}
+              id='username'
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+          <div className='form-group'>
+            <label htmlFor='email'>Email:</label>
+            <input
+              type='email'
+              id='email'
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className='form-group'>
+            <label htmlFor='password'>Password:</label>
+            <input
+              type='password'
+              id='password'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>

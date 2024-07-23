@@ -1,0 +1,125 @@
+
+
+/* Dashboard Cards Container */
+.dashboard-cards-container {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 20px;
+}
+
+.dashboard-card {
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  text-align: center;
+  width: 20%;
+}
+
+.dashboard-card:hover {
+  transform: scale(1.2);
+  transition: background-color 0.3s, transform 0.3s;
+  background-color: #7b7875;
+
+}
+
+.dashboard-card h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+  color: #4CAF50;
+}
+
+.dashboard-card p {
+  font-size: 3rem;
+  color: #333333;
+  margin: 10px 0 0;
+}
+
+.dashboard-card:hover p {
+  color: #ffffff;
+}
+.dashboard-card:hover h2 {
+  color: #00ff55;
+}
+
+/* Table Container */
+.table-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+/* Table Cards */
+.table-card, .table-card-grade {
+  background-color: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 10px;
+  flex: 1;
+  min-width: 45%;
+  box-sizing: border-box;
+}
+
+.table-card h2, .table-card-grade h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+  color: #333;
+  border-bottom: 2px solid #4CAF50;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.table-card-grade h2 {
+  border-bottom: 2px solid #4CAF50;
+}
+
+/* Tables */
+.grade-table, .class-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.grade-table thead, .class-table thead {
+  background-color: #f4f4f4;
+}
+
+.header-cell {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 2px solid #4CAF50;
+  color: #555;
+}
+
+.table-cell {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #dddddd;
+  color: #666;
+}
+
+.table-body {
+  background-color: #ffffff;
+}
+
+.table-row:hover {
+  background-color: #f1f1f1;
+}
+
+.classroom-section {
+  margin-bottom: 20px;
+}
+
+.classroom-section h3 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  color: #4CAF50;
+}
+
+.table-card-grade, .table-card {
+  max-height: 500px; 
+  overflow-y:scroll; 
+  width: 50%;
+}

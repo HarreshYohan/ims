@@ -2,27 +2,24 @@ import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../Header/Header';
-import './Student.css';
+import './Transaction.css';
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
-import debounce from 'lodash/debounce'; 
+import debounce from 'lodash/debounce';
 import { format } from 'date-fns';
 
-
-export const Student = () => {
+export const Transaction = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Number of items per page
+  const [itemsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
-    firstname: '',
-    lastname: '',
-    grade: '',
+    transaction_type: '',
   });
-  const [grades, setGrades] = useState([]);
+  const [transactionTypes, setTransactionTypes] = useState([]);
   const navigate = useNavigate();
   const localToken = localStorage.getItem("authToken");
 
@@ -38,14 +35,15 @@ export const Student = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await api.get(`/api/student/all?page=${currentPage}&limit=${itemsPerPage}`);
+        const response = await api.get(`/api/transaction/all?page=${currentPage}&limit=${itemsPerPage}`);
         if (response.status === 200) {
           const { data, totalPages } = response.data;
           setData(data);
           setFilteredData(data); 
           setTotalPages(totalPages);
-          const uniqueGrades = [...new Set(data.map(item => item.grade))];
-          setGrades(uniqueGrades);
+
+          const uniqueTransactionTypes = [...new Set(data.map(item => item.transaction_type))];
+          setTransactionTypes(uniqueTransactionTypes);
         } else {
           setData([]);
           console.error('Failed to fetch data');
@@ -64,20 +62,18 @@ export const Student = () => {
   }, [currentPage, itemsPerPage, navigate, localToken]);
 
   const applyFilters = useCallback(() => {
-    const { firstname, lastname, grade } = filters;
+    const { transaction_type } = filters;
     const newFilteredData = data.filter(item =>
-      (firstname ? item.firstname.toLowerCase().includes(firstname.toLowerCase()) : true) &&
-      (lastname ? item.lastname.toLowerCase().includes(lastname.toLowerCase()) : true) &&
-      (grade ? item.grade === grade : true)
+      (transaction_type ? item.transaction_type === transaction_type : true)
     );
     setFilteredData(newFilteredData);
     setTotalPages(Math.ceil(newFilteredData.length / itemsPerPage));
-    setCurrentPage(1); // Reset to the first page
+    setCurrentPage(1); 
   }, [filters, data, itemsPerPage]);
 
   const debouncedApplyFilters = useCallback(debounce(() => {
     applyFilters();
-  }, 300), [applyFilters]); // Debounce for 300ms
+  }, 300), [applyFilters]);
 
   useEffect(() => {
     debouncedApplyFilters();
@@ -95,21 +91,21 @@ export const Student = () => {
   };
 
   const handleEdit = (id) => {
-    console.log(`Edit user with ID: ${id}`);
-    navigate(`/edit-student/${id}`)
+    console.log(`Edit transaction with ID: ${id}`);
   };
 
   const handleDelete = (id) => {
-    console.log(`Delete user with ID: ${id}`);
+    console.log(`Delete transaction with ID: ${id}`);
     // Implement your delete logic here
   };
 
   const handleDownload = async () => {
     try {
-
+      // Construct query string from filters
       const query = new URLSearchParams(filters).toString();
 
-      const response = await api.get(`/api/student/download/all?${query}`, {
+      // Make API request to download filtered data
+      const response = await api.get(`/api/transaction/download/all?${query}`, {
         headers: {
           Authorization: `Bearer ${localToken}`
         },
@@ -119,14 +115,17 @@ export const Student = () => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      const time = format(new Date(), 'MM/dd/yyyy_hh:mm:ss');
-      link.setAttribute('download', 'student_report_'+time+'.csv');
+      link.setAttribute('download', 'transactions.csv');
       document.body.appendChild(link);
       link.click();
-      link.remove();
+      link.remove(); // Clean up
     } catch (error) {
-      console.error('Error downloading students:', error);
+      console.error('Error downloading transactions:', error);
     }
+  };
+
+  const formatDate = (date) => {
+    return format(new Date(date), 'MM/dd/yyyy hh:mm a');
   };
 
   const Table = ({ data, currentPage, totalPages }) => (
@@ -134,43 +133,24 @@ export const Student = () => {
       <thead>
         <tr>
           <th>ID</th>
-          <th>
-            First Name
-            <input
-              type="text"
-              name="firstname"
-              value={filters.firstname}
-              onChange={handleFilterChange}
-              placeholder="Filter by first name"
-              className="filter-input"
-            />
-          </th>
-          <th >
-            Last Name
-            <input
-              type="text"
-              name="lastname"
-              value={filters.lastname}
-              onChange={handleFilterChange}
-              placeholder="Filter by last name"
-              className="filter-input"
-            />
-          </th>
-          <th className="filter-header">
-            Grade
+          <th>Transaction Type
             <select
-              name="grade"
-              value={filters.grade}
+              name="transaction_type"
+              value={filters.transaction_type}
               onChange={handleFilterChange}
               className="filter-select"
             >
-              <option value="">All Grades</option>
-              {grades.map((grade, index) => (
-                <option key={index} value={grade}>{grade}</option>
+              <option value="">All Types</option>
+              {transactionTypes.map((type, index) => (
+                <option key={index} value={type}>{type}</option>
               ))}
             </select>
           </th>
-          <th>Contact</th>
+          <th>Amount</th>
+          <th>Description</th>
+          <th>User ID</th>
+          <th>Participant ID</th>
+          <th>Created At</th>
           <th>Actions 
             <button className="download-all-btn" onClick={handleDownload}>Download</button>
           </th>
@@ -180,10 +160,12 @@ export const Student = () => {
         {data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
           <tr key={item.id}>
             <td>{item.id}</td>
-            <td>{item.firstname}</td>
-            <td>{item.lastname}</td>
-            <td>{item.grade}</td>
-            <td>{item.contact}</td>
+            <td>{item.transaction_type}</td>
+            <td>{item.amount}</td>
+            <td>{item.description}</td>
+            <td>{item.user_id}</td>
+            <td>{item.participant_id}</td>
+            <td>{formatDate(item.createdAt)}</td>
             <td>
               <button className="editBtn" onClick={() => handleEdit(item.id)}>Edit</button>
               <button className="deleteBtn" onClick={() => handleDelete(item.id)}>Delete</button>
@@ -191,7 +173,7 @@ export const Student = () => {
           </tr>
         ))}
         <tr>
-          <td colSpan="7" className='pagination'>
+          <td colSpan="8" className='pagination'>
             <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
               Previous
             </button >
@@ -217,7 +199,7 @@ export const Student = () => {
     <div>
       <Header type={'dashboard'} action={"Logout"} />
       <Navbar />
-      <SectionHeader section={'Student'} is_create={true} />
+      <SectionHeader section={'Transactions'} is_create={true} is_download={true}/>
       <div className='main'>
         {loading && <p>Loading...</p>}
         {error && <p className="error">{error}</p>}

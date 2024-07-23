@@ -88,13 +88,21 @@ export const SubjectTutor = () => {
   };
 
   const handleEdit = (id) => {
-    console.log(`Edit user with ID: ${id}`);
-    // Implement your edit logic here
+    navigate(`/subject-tutor/edit/${id}`);
   };
 
-  const handleDelete = (id) => {
-    console.log(`Delete user with ID: ${id}`);
-    // Implement your delete logic here
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this item?')) {
+      try {
+        await api.delete(`/api/subject-tutor/${id}`);
+        // Refresh data after delete
+        setData(data.filter(item => item.id !== id));
+        setFilteredData(filteredData.filter(item => item.id !== id));
+      } catch (error) {
+        setError('Error deleting item');
+        console.error('Error deleting item:', error);
+      }
+    }
   };
 
   const handleGradeChange = (e) => {
@@ -131,6 +139,7 @@ export const SubjectTutor = () => {
           </th>
           <th>Tutor</th>
           <th>Fees</th>
+          <th>Actions</th> {/* New column for actions */}
         </tr>
       </thead>
       <tbody>
@@ -141,13 +150,17 @@ export const SubjectTutor = () => {
             <td>{item.subject}</td>
             <td>{item.tutor}</td>
             <td>{item.fees}</td>
+            <td>
+            <button className="editBtn" onClick={() => handleEdit(item.id)}>Edit</button>
+            <button className="deleteBtn" onClick={() => handleDelete(item.id)}>Delete</button>
+            </td>
           </tr>
         ))}
         <tr>
           <td colSpan="7" className='pagination'>
             <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
               Previous
-            </button >
+            </button>
             {[...Array(totalPages).keys()].map((pageNumber) => (
               <button
                 key={pageNumber + 1}
