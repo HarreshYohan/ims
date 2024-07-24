@@ -53,25 +53,27 @@ exports.findAll = async (req, res) => {
 
 exports.findOne = async (req, res) => {
   const id = req.params.id;
-
+console.log(id);
   try {
-    const StudentSubject = await StudentSubject.findByPk(id, {
+    const studentSubject = await StudentSubject.findAll( {
+      where: { studentid: id }, 
       include: [
-        { model: Student,  as: 'student' },
+        { model: Student,  as: 'student' , attributes: ['id'] },
         {
             model: SubjectTutor,
             as: 'subjectTutor',
             include: [
-                { model: Subject, as: 'subject' },
-                { model: Tutor, as: 'tutor' },
-                { model: Grade, as: 'grade' },
+                { model: Subject, as: 'subject' , attributes: ['id', 'name']},
+                { model: Tutor, as: 'tutor', attributes: ['id', 'title', 'firstname', 'lastname'] },
+                { model: Grade, as: 'grade', attributes: ['id', 'name'] },
             ],
+            attributes: ['id', 'fees']
         },
       ]
     });
 
-    if (StudentSubject) {
-      res.send(StudentSubject);
+    if (studentSubject) {
+      res.send(studentSubject);
     } else {
       res.status(404).send({
         message: `Cannot find StudentSubject with id=${id}.`

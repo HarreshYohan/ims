@@ -10,6 +10,7 @@ import { format } from 'date-fns';
 export const EditStudent = () => {
   const [studentData, setStudentData] = useState({});
   const [feesData, setFeesData] = useState([]);
+  const [subjectsData, setSubjectsData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id } = useParams();
@@ -30,9 +31,11 @@ export const EditStudent = () => {
       try {
         const studentResponse = await api.get(`/api/student/${id}`);
         const feesResponse = await api.get(`/api/student-fees/${id}`);
-        if (studentResponse.status === 200 && feesResponse.status === 200) {
+        const subjectsResponse = await api.get(`/api/student-subject/${id}`);
+        if (studentResponse.status === 200 && feesResponse.status === 200 && subjectsResponse.status === 200) {
           setStudentData(studentResponse.data);
           setFeesData(feesResponse.data);
+          setSubjectsData(subjectsResponse.data);
         } else {
           console.error('Failed to fetch data');
         }
@@ -45,9 +48,10 @@ export const EditStudent = () => {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, [id, navigate, localToken]);
+  
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -93,6 +97,33 @@ export const EditStudent = () => {
       </table>
     </div>
   );
+
+  const SubjectsCard = ({ subjects }) => (
+    <div className="subjects-card">
+      <h3>Subjects</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Tutor</th>
+            <th>Grade</th>
+            <th>Fees</th>
+          </tr>
+        </thead>
+        <tbody>
+          {subjects.map(subject => (
+            <tr key={subject.subjectTutor.id}>
+              <td>{subject.subjectTutor.subject.name}</td>
+              <td>{`${subject.subjectTutor.tutor.title} ${subject.subjectTutor.tutor.firstname} ${subject.subjectTutor.tutor.lastname}`}</td>
+              <td>{subject.subjectTutor.grade.name}</td>
+              <td>{subject.subjectTutor.fees}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+  
 
   return (
     <div>
@@ -145,6 +176,7 @@ export const EditStudent = () => {
               <button className="saveBtn" onClick={handleSave}>Save</button>
             </div>
             <FeesCard fees={feesData} />
+            <SubjectsCard subjects={subjectsData} />
           </div>
         )}
       </div>
