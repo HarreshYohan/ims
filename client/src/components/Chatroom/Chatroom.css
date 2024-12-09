@@ -1,103 +1,154 @@
 
-.chatsend{
-    height: 60px;
-    width: 30%;
-    margin-left: 50%;
-    background-color: burlywood;
-    border-radius: 15px 50px;
-    margin-top: 8%;
-    border-color:black;
-    text-align: center;
-    color:seagreen;
-}
-.chatreceive{
-    height: 60px;
-    width: 30%;
-    margin-left: 10%;
-    background-color: burlywood;
-    border-radius: 15px 50px;
-    margin-top: 2%;
-    text-align: center;
-    color:teal;
-
-}
-#Txtbox{
-     width: 75%;
-     height:198px;
-     margin-left:15%;
-     padding-top: 1px;
-     border-radius: 15px;
-
-}
-.sub{
-    width: 10%;
-    height: 38px;
-    margin-left:50% ;
-    margin-top:1px;
-    background-color:darkcyan;
-    border-radius: 15px;
-    color:tan;
-    font-size: 18px;
-    font-family:Arial, Helvetica, sans-serif;
-    padding-top: 1px;
-    padding-bottom: 1px;
-
-}
 .mainchat {
-position: absolute;
-background-color:#CCAA71;
-width: 85%;
-/* margin-top: 2%; */
-margin-left: 16.7%;
-overflow-y:scroll;
-height: 70%;
-}
-.mainchat_2{
-position:absolute;
-background-color:#CCAA71;
-width: 85%;
-height: 29%;
-/* overflow-y:scroll; */
-margin-top: 32%;
-margin-left: 16.7%;
-}
-.dropdown {
-    position: relative;
-    display: inline-block;
-    margin-left: 12px;
-    margin-top: 12px;
-   
-}
-
-
-.dropbtn {
-    background-color: #3498db;
-    color: white;
-    padding: 16px;
-    font-size: 16px;
-    width: 150px;
-    cursor: pointer;
-}
-
-
-.dropdown-content {
-    display: none;
     position: absolute;
-    background-color: #f9f9f9;
-    min-width: 170px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1;
+    background-color: #f4f4f4;
+    width: 100%;
+    margin-left: 16.7%;
+    margin-top: -5%;
+    margin-top: 1px;
+    height: 75%;
+    overflow-y: scroll;
+  }
+
+  .mainchat_2 {
+    position:absolute;
+    background-color: #4e4c48;
+    width: 85%;
+    margin-left: 16.7%;
+    height: 20px;
+    margin-top: -28px;
+    overflow-y: hidden;
+  }
+
+  .chatsend{
+    margin-left: 46.7%;
+  }
+  
+  .mainchat_2 {
+    margin-top: 38%;
+    height: 20%;
+  }
+  
+ /* Dropdown Container */
+.dropdown {
+  position: relative;
+  margin-left: 12px;
+  margin-top: 12px;
+  background-color: #78e853;
+  border-radius: 20px;
+  padding: 5px;
+  width: 200px;
 }
 
-.dropdown-content a:hover {
-    background-color: #f1f1f1;
+/* Select Element */
+.dropdown select {
+  background-color: #78e853;
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 20px;
+  padding: 10px 20px;
+  width: 100%;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: none;
+  transition: background-color 0.3s, transform 0.3s;
 }
 
-.dropdown:hover .dropdown-content {
-    display: block;
+/* Dropdown Options */
+.dropdown option {
+  background-color: #ffffff;
+  color: #333;
+  padding: 10px;
 }
 
-.dropdown:hover .dropbtn {
-    background-color: #2980b9;
+/* Change Button Background on Hover */
+.dropdown select:hover {
+  background-color: #3edd63;
+  transform: scale(1.05);
 }
 
+/* Additional Button Hover Effect */
+.dropdown select:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+  
+  /* Chat message styles */
+  .chatsend, .chatreceive {
+    width: 30%;
+    border-radius: 15px 50px;
+    margin-top: 1%;
+    text-align: left;
+    padding: 10px;
+    
+    
+  }
+  
+  .chatsend {
+    background-color: rgb(27, 186, 226);
+    color: rgb(255, 255, 255);
+    margin-left: 50%;
+  }
+  
+  .chatreceive {
+    background-color: rgb(224, 229, 229);
+    color: black;
+    margin-left: 10%;
+  }
+  
+  .message {
+    margin-top: 1px;
+    font-size: medium;
+    font-weight: 100;
+  }
+  
+  .time {
+    font-size: 10px;
+    margin-top: 5px;
+    margin-left: 70%;
+  }
+  
+  .username {
+    font-size: 10px;
+    margin-top: -5px;
+  }
+  
+  /* Input and submit button styles */
+  #Txtbox {
+    width: 45%;
+    height: 45px;
+    margin-left: 45%;
+    margin-top: 40px;
+    font-size: large;
+    border-radius: 15px;
+    padding: 10px;
+  }
+  
+  .sub {
+    width: 140px;
+    height: 50px;
+    margin-left: 80%;
+    margin-top: 10px;
+    background: linear-gradient(45deg, #ff6f61, #d96c06);
+    color: #fff;
+    border: none;
+    border-radius: 45px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+  }
+  
+  .sub:hover {
+    background: linear-gradient(45deg, #e65c50, #d44a0a);
+    transform: scale(1.05);
+  }
+  
+  .sub:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 21, 0, 0.3);
+  }
+  

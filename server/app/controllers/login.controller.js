@@ -39,7 +39,7 @@ exports.login = async (req, res) => {
       if (user && ( await bcrypt.compare(password, user.password))) {
 
         const token = jwt.sign(
-          { user_id: user.id, email:user.email, user_type :type },
+          { user_id: user.id, username: user.username,email:user.email, user_type :selectedRole },
           process.env.SECRET_KEY,
           {
             expiresIn: "3h",
@@ -88,7 +88,7 @@ exports.signup = async (req, res) => {
 
     if (createdUser) {
       var token = jwt.sign(
-        { user_id: createdUser.id, email:createdUser.email, user_type :createdUser.user_type },
+        { user_id: createdUser.id, usernmae: createdUser.username,email:createdUser.email, user_type :createdUser.user_type },
         process.env.SECRET_KEY,
         {
           expiresIn: "2h",
