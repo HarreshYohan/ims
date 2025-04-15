@@ -1,48 +1,56 @@
+/* Base styles */
 body, html {
   margin: 0;
   padding: 0;
   font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
 }
 
 .home {
   width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
   background-size: cover;
   background-position: center;
   position: relative;
   color: #fff;
-  overflow-y: scroll; 
+  overflow-y: auto;
   scroll-behavior: smooth;
+  padding-top: 15vh; /* prevent content hidden behind fixed top bar */
 }
 
+/* Top navigation bar */
 .top-bar {
   width: 100%;
   height: 15vh;
+  display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 20px;
-  background-color: rgba(0, 0, 0, 0.5);
+  padding: 0 40px;
+  background-color: rgba(0, 0, 0, 1);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   position: fixed;
   top: 0;
+  left: 0;
   z-index: 1000;
 }
 
+/* Header branding */
 .header-name {
-  font-size: 5rem;
+  font-size: 3rem;
   font-weight: 700;
-  margin-top: 10px;
-  margin-left: 50px;
-
 }
 
+/* Navigation buttons */
 .nav-buttons {
   display: flex;
   gap: 15px;
-  margin-left: 1200px;
-  margin-top: -130px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-right: 50px;
+  flex-wrap: wrap;
 }
 
+/* Ghost Button */
 .ghost-button {
   padding: 10px 20px;
   background-color: transparent;
@@ -53,6 +61,7 @@ body, html {
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  overflow: hidden;
 }
 
 .ghost-button::before {
@@ -78,17 +87,18 @@ body, html {
   border-color: #fff;
 }
 
+/* Login Button */
 .login-button {
   padding: 10px 20px;
-  background-color: #ff4757; 
-  border: 2px solid #c41c2a; 
+  background-color: #ff4757;
+  border: 2px solid #c41c2a;
   border-radius: 25px;
   color: #fff;
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  width: 130px;
+  overflow: hidden;
 }
 
 .login-button::before {
@@ -109,64 +119,82 @@ body, html {
 }
 
 .login-button:hover {
-  color: #fff;
-  background-color: #e84118; 
+  background-color: #e84118;
   border-color: #e84118;
 }
 
+/* Content Section */
 .section {
-  padding: 100px 20px;
+  padding: 80px 20px;
+  margin: 60px auto;
   text-align: center;
-  opacity: 0.9;
+  background-color: rgba(0, 0, 0, 0.6);
+  border-radius: 15px;
+  max-width: 900px;
+  opacity: 0.95;
 }
 
 .section h2 {
   font-size: 2.5rem;
   margin-bottom: 20px;
+  color: #ff4757;
 }
 
 .section p {
   font-size: 1.25rem;
-  line-height: 1.5;
+  line-height: 1.6;
+  color: #fff;
+  margin: 0 auto;
+  max-width: 85%;
 }
 
-/* Existing CSS remains unchanged */
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .header-name {
+    font-size: 2.5rem;
+  }
 
-.section {
-  padding: 100px 20px;
-  text-align: center;
-  opacity: 0.9;
-  background-color: rgba(0, 0, 0, 0.6); /* Darkened background with transparency */
-  border-radius: 15px; /* Rounded corners */
-  margin: 450px 0;
+  .nav-buttons {
+    gap: 10px;
+  }
 }
 
-.section h2 {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-  color: #ff4757; /* Highlight color for headings */
-}
-
-.section p {
-  font-size: 1.25rem;
-  line-height: 1.5;
-  color: #fff; /* White text color */
-  margin: 0 auto; /* Centering the text */
-  max-width: 70%; /* Max width for readability */
-  padding: 0 10px; /* Padding for text */
-}
-
-/* Additional styles for responsive design */
 @media (max-width: 768px) {
-  .section {
-    padding: 50px 10px;
+  .top-bar {
+    flex-direction: column;
+    align-items: center;
+    height: auto;
+    padding: 10px 20px;
+    text-align: center;
   }
 
-  .section h2 {
+  .nav-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    margin-top: 10px;
+    gap: 10px;
+  }
+
+  .ghost-button,
+  .login-button {
+    width: auto;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+
+  .header-name {
     font-size: 2rem;
+    margin: 0;
   }
-
-  .section p {
-    font-size: 1rem;
+  .main-content {
+    margin-top: 30vh; /* Push down to avoid being hidden behind fixed header */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 80px; /* Space between sections */
+    padding-bottom: 100px;
+    
   }
 }

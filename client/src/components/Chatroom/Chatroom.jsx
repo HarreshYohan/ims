@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef  } from 'react';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../Header/Header';
@@ -18,6 +18,7 @@ export const Chatroom = () => {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const localToken = localStorage.getItem("authToken");
+  const chatEndRef = useRef(null);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -49,6 +50,10 @@ export const Chatroom = () => {
     }
   }, [localToken]);
 
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }; 
+
   const fetchMessages = async (subjectId) => {
     setLoading(true);
     setError(null);
@@ -56,6 +61,7 @@ export const Chatroom = () => {
       const response = await api.get(`/api/chatroom/${subjectId}`);
       if (response.status === 200) {
         setData(response.data);
+        setTimeout(() => scrollToBottom(), 100);
       } else {
         setData([]);
         console.error('Failed to fetch chat data');
@@ -102,7 +108,8 @@ export const Chatroom = () => {
       if (response.status === 201) {
         setMessage("");
         await fetchMessages(selectedSubject);
-      } else {
+        setTimeout(() => scrollToBottom(), 100);
+      }else {
         console.error('Failed to send message');
       }
     } catch (error) {
@@ -117,32 +124,39 @@ export const Chatroom = () => {
       <SectionHeader section={'Chatroom'} />
 
       <div className='mainchat'>
-        <select className='dropdown' value={selectedSubject} onChange={handleSubjectChange}>
+      <div className='dropdown'>
+        <select value={selectedSubject} onChange={handleSubjectChange}>
           <option value="" default>Select a subject</option>
           {subjects.map(subject => (
             <option key={subject.subject_id} value={subject.subject_id}>{subject.subject}</option>
           ))}
         </select>
+      </div>
 
         {data.length > 0 ? (
           data.map((item) => (
             userType === item.user.username ? (
               <div className='chatsend' key={item.id}>
-                <h3 className='message'>{item.message}</h3>
-                <p className='username'>{item.user.username}</p>
-                <p className='time'>{format(new Date(item.createdAt), 'dd MMM yyyy HH:mm:ss')}</p>
+              <h3 className='message'>{item.message}</h3>
+              <div className='meta'>
+                <span>{item.user.username}</span>
+                <span>{format(new Date(item.createdAt), 'dd MMM yyyy HH:mm')}</span>
+              </div>
               </div>
             ) : (
-              <div className='chatreceive' key={item.id}>
-                <h3 className='message'>{item.message}</h3>
-                <p className='username'>{item.user.username}</p>
-                <p className='time'>{format(new Date(item.createdAt), 'dd MMM yyyy HH:mm:ss')}</p>
+            <div className='chatreceive' key={item.id}>
+              <h3 className='message'>{item.message}</h3>
+              <div className='meta'>
+                <span>{item.user.username}</span>
+                <span>{format(new Date(item.createdAt), 'dd MMM yyyy HH:mm')}</span>
               </div>
+            </div>
             )
           ))
         ) : (
           <p>No messages to display</p>
         )}
+        <div ref={chatEndRef} />
       </div>
       
       <div className='mainchat_2'>
@@ -154,6 +168,12 @@ export const Chatroom = () => {
           value={message} 
           onChange={(e) => setMessage(e.target.value)} 
           disabled={!selectedSubject} 
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSendMessage();
+            }
+          }}
         />
         <button className='sub' onClick={handleSendMessage} disabled={!selectedSubject}>Send</button>
       </div>

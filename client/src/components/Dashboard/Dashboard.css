@@ -1,10 +1,17 @@
-
+/* Main container */
+.main {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
 
 /* Dashboard Cards Container */
 .dashboard-cards-container {
   display: flex;
-  justify-content: space-around;
-  margin-bottom: 20px;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
 }
 
 .dashboard-card {
@@ -12,33 +19,33 @@
   border: 1px solid #dddddd;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 10px;
+  padding: 20px;
   text-align: center;
-  width: 20%;
+  width: 220px;
+  transition: transform 0.3s, background-color 0.3s;
 }
 
 .dashboard-card:hover {
-  transform: scale(1.2);
-  transition: background-color 0.3s, transform 0.3s;
+  transform: scale(1.05);
   background-color: #7b7875;
-
 }
 
 .dashboard-card h2 {
-  margin-top: 0;
-  font-size: 1.5rem;
+  margin: 0;
+  font-size: 1.2rem;
   color: #4CAF50;
 }
 
 .dashboard-card p {
-  font-size: 3rem;
+  font-size: 2.5rem;
   color: #333333;
-  margin: 10px 0 0;
+  margin-top: 10px;
 }
 
 .dashboard-card:hover p {
   color: #ffffff;
 }
+
 .dashboard-card:hover h2 {
   color: #00ff55;
 }
@@ -46,8 +53,9 @@
 /* Table Container */
 .table-container {
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
 }
 
 /* Table Cards */
@@ -57,10 +65,11 @@
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  margin: 10px;
-  flex: 1;
-  min-width: 45%;
   box-sizing: border-box;
+  width: 100%;
+  max-width: 600px;
+  max-height: 500px;
+  overflow-y: auto;
 }
 
 .table-card h2, .table-card-grade h2 {
@@ -70,10 +79,6 @@
   border-bottom: 2px solid #4CAF50;
   padding-bottom: 10px;
   margin-bottom: 15px;
-}
-
-.table-card-grade h2 {
-  border-bottom: 2px solid #4CAF50;
 }
 
 /* Tables */
@@ -91,6 +96,7 @@
   text-align: left;
   border-bottom: 2px solid #4CAF50;
   color: #555;
+  font-weight: bold;
 }
 
 .table-cell {
@@ -108,18 +114,19 @@
   background-color: #f1f1f1;
 }
 
-.classroom-section {
-  margin-bottom: 20px;
-}
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-cards-container {
+    flex-direction: column;
+    align-items: center;
+  }
 
-.classroom-section h3 {
-  margin-top: 0;
-  font-size: 1.2rem;
-  color: #4CAF50;
-}
+  .dashboard-card {
+    width: 90%;
+  }
 
-.table-card-grade, .table-card {
-  max-height: 500px; 
-  overflow-y:scroll; 
-  width: 50%;
+  .table-card, .table-card-grade {
+    width: 100%;
+    max-width: 100%;
+  }
 }

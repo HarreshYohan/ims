@@ -28,6 +28,7 @@ export const Welcome = () => {
           <button className="login-button" onClick={handleLogin}>Log In</button>
         </div>
       </div>
+      <div class="main-content">
       <div id="why-us" className="section">
         <h2>Why Us</h2>
         <p>we are committed to providing an unparalleled learning experience tailored to meet the diverse needs of our students. <br/><br/>Our team of highly qualified and experienced educators brings a passion for teaching and a deep understanding of their subjects, ensuring that each student receives the best guidance and support. We offer a personalized approach to learning, with small class sizes and customized lesson plans designed to help students achieve their academic goals and build confidence in their abilities.</p>
@@ -55,6 +56,7 @@ Sunday: Closed</p>
         <h2>About Us</h2>
         <p>we are dedicated to fostering a learning environment that empowers students to achieve their full potential. Our mission is to provide high-quality, personalized education tailored to each student's unique needs and learning style.<br/><br/> With a team of passionate and experienced educators, we offer a comprehensive curriculum designed to build confidence, encourage critical thinking, and enhance academic performance. <br/><br/>We believe in the power of education to transform lives, and we are committed to supporting our students every step of the way. </p>
       </div>
+    </div>
     </div>
   );
 };

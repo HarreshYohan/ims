@@ -15,7 +15,7 @@ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_type') THEN
     CREATE TYPE user_type AS ENUM ('STUDENT', 'TUTOR', 'ADMIN', 'STAFF', 'NA');
     CREATE TYPE transaction_type AS ENUM ('SALARY', 'FEES', 'INCOME', 'EXPENSE', 'OTHER');
-    CREATE TYPE fees_status AS ENUM('PAID', 'WAIVED_OFF', 'PENDING', 'OVERDUE')
+    CREATE TYPE fees_status AS ENUM('PAID', 'WAIVED_OFF', 'PENDING', 'OVERDUE');
   END IF;
 END $$;
 
@@ -175,8 +175,8 @@ CREATE TABLE IF NOT EXISTS "student_fees" (
     year INT NOT NULL,
     totalAmount FLOAT NOT NULL,
     status fees_status NOT NULL DEFAULT 'PENDING',
-    created_at DATETIME,
-    updated_at DATETIME,
+    created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamptz DEFAULT CURRENT_TIMESTAMP ,
     FOREIGN KEY (studentid) REFERENCES student(id)
 );
 

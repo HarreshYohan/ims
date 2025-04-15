@@ -1,58 +1,70 @@
 .vertical-navbar {
-    width: 15%;
-    height: 100%;
-    background-color: #333; 
-    padding: 15px;
-    position:absolute;
-    display: flex;
-  }
-  
-  .vertical-navbar ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    width: 80%;
-  }
-  .nav-icon {
-    margin-right: 15px;
-    font-size: 1.2rem;
-    color: #fff; 
-  }
+  position: fixed;
+  top: 13%; /* below the fixed header */
+  left: 0;
+  width: 15%;
+  height: 87vh; /* remaining viewport height */
+  background-color: #333;
+  padding: 15px 10px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  z-index: 99;
+}
 
-  .vertical-navbar li {
-    margin-bottom: 10px;
-  }
-  
-  .vertical-navbar a {
-    text-decoration: none;
-    color: #fff;
-    font-weight: bold;
-    display: block;
-    padding: 10px;
-    border-radius: 5px;
-    width: 80%;
-    transition: background-color 0.3s;
-  }
-  
-  .vertical-navbar a:hover {
-    background-color: #555;
-  }
-  
-  .nested-nav li{
-    list-style-type: none;
-    padding: 0 15px; 
-    width: 130%;
-  }
-  
-  .nested-nav li a {
-    color: #ddd; 
-    text-decoration: none;
-  }
-  
-  .nested-nav li a:hover {
-    color: white; 
-  }
+.vertical-navbar ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
 
-  .reports-arrow {
-    padding-left: 10px;
-  }
+.nav-icon {
+  margin-right: 15px;
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.vertical-navbar li {
+  margin-bottom: 10px;
+}
+
+.vertical-navbar a {
+  text-decoration: none;
+  color: #fff;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.vertical-navbar a:hover {
+  background-color: #555;
+}
+
+.nested-nav {
+  margin-left: 10px;
+}
+
+.nested-nav li {
+  list-style-type: none;
+  padding: 5px 0 5px 20px;
+  width: 100%;
+}
+
+.nested-nav li a {
+  color: #ddd;
+  text-decoration: none;
+  font-weight: normal;
+}
+
+.nested-nav li a:hover {
+  color: white;
+}
+
+.reports-arrow {
+  padding-left: 10px;
+  color: white;
+}
