@@ -1,0 +1,15 @@
+{
+    "student": {
+      "ADMIN": { "can_edit": true, "can_delete": true },
+      "STAFF": { "can_edit": true, "can_delete": true },
+      "TUTOR": { "can_edit": false, "can_delete": false },
+      "STUDENT": { "can_edit": false, "can_delete": false }
+    },
+    "tutor": {
+      "ADMIN": { "can_edit": true, "can_delete": true },
+      "STAFF": { "can_edit": true, "can_delete": true },
+      "TUTOR": { "can_edit": false, "can_delete": false },
+      "STUDENT": { "can_edit": false, "can_delete": false }
+    }
+  }
+  

@@ -18,7 +18,7 @@ export const Header = ({type ,action}) => {
     <header className="fixed-header">
       <div className="logo">
         <Link to={link}>
-          <img src={logo_icon} alt="Logo" />
+          {/* <img src={logo_icon} alt="Logo" /> */}
         </Link> 
       </div>
       { (

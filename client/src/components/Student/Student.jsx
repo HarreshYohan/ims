@@ -5,8 +5,9 @@ import { Header } from '../Header/Header';
 import './Student.css';
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
-import debounce from 'lodash/debounce'; 
 import { format } from 'date-fns';
+import {jwtDecode} from 'jwt-decode';
+import { useRolePermissions } from '../../utils/useRolePermissions';
 
 export const Student = () => {
   const [data, setData] = useState([]);
@@ -23,26 +24,28 @@ export const Student = () => {
   });
   const [grades, setGrades] = useState([]);
   const navigate = useNavigate();
+  const [role, setRole] = useState('');
   const localToken = localStorage.getItem("authToken");
+  const { can_edit, can_delete } = useRolePermissions('student');
 
   useEffect(() => {
     if (!localToken) {
       localStorage.removeItem('authToken');
       navigate('/login');
     }
-  }, [localToken, navigate]);
-
-  useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
       try {
         const response = await api.get(`/api/student/all?page=${currentPage}&limit=${itemsPerPage}`);
         if (response.status === 200) {
+          const decodedToken = jwtDecode(localToken);
           const { data, totalPages } = response.data;
           setData(data);
           setFilteredData(data); 
           setTotalPages(totalPages);
+          console.log("sss "+decodedToken.user_type )
+          setRole(decodedToken.user_type);
           const uniqueGrades = [...new Set(data.map(item => item.grade))];
           setGrades(uniqueGrades);
         } else {
@@ -60,7 +63,7 @@ export const Student = () => {
     };
 
     fetchData();
-  }, [currentPage, itemsPerPage, navigate, localToken]);
+  }, [currentPage, itemsPerPage, navigate, localToken, navigate]);
 
   const applyFilters = useCallback(() => {
     const { firstname, lastname, grade } = filters;
@@ -74,13 +77,9 @@ export const Student = () => {
     setCurrentPage(1); // Reset to the first page
   }, [filters, data, itemsPerPage]);
 
-  const debouncedApplyFilters = useCallback(debounce(() => {
-    applyFilters();
-  }, 300), [applyFilters]); // Debounce for 300ms
-
   useEffect(() => {
-    debouncedApplyFilters();
-  }, [filters, debouncedApplyFilters]);
+    applyFilters();
+  }, [filters, applyFilters]);
 
   const handlePageChange = (pageNumber) => {
     if (pageNumber > 0 && pageNumber <= totalPages) {
@@ -170,9 +169,13 @@ export const Student = () => {
             </select>
           </th>
           <th>Contact</th>
-          <th>Actions 
+         
+          {role !== 'STUDENT' && role !== 'TUTOR' && (
+             <th>Actions 
             <button className="download-all-btn" onClick={handleDownload}>Download</button>
-          </th>
+            </th>
+          )}
+         
         </tr>
       </thead>
       <tbody>
@@ -183,10 +186,16 @@ export const Student = () => {
             <td>{item.lastname}</td>
             <td>{item.grade}</td>
             <td>{item.contact}</td>
+            {/* {role !== 'STUDENT' && role !== 'TUTOR' && (
             <td>
               <button className="editBtn" onClick={() => handleEdit(item.id)}>Edit</button>
               <button className="deleteBtn" onClick={() => handleDelete(item.id)}>Delete</button>
             </td>
+            )} */}
+            <td>
+              {can_edit && <button className="editBtn" onClick={() => handleEdit(item.id)}>Edit</button>}
+              {can_delete && <button className="deleteBtn" onClick={() => handleDelete(item.id)}>Delete</button>}
+          </td>
           </tr>
         ))}
         <tr>

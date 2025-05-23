@@ -57,32 +57,33 @@ exports.create = async (req, res) => {
   try {
 
       const existingStaff = await Staff.findOne({ where: { firstname, lastname } });
+      const existingUser = await User.findOne({ where: { email } });
 
-      if (existingStaff) {
+      if (existingStaff || existingUser) {
         throw new Error('Email or Staff already exists');
       }
-
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const newStaffData = async () => {
+        const newUser = await User.create({
+          username: username,
+          email: email,
+          password: hashedPassword,
+          user_type: 'STAFF',
+          is_active: true
+        });
 
         const newStaff = await Staff.create({
           username: username,
           email: email,
+          user_id: newUser.id,
           password: hashedPassword,
           firstname: firstname,
           lastname: lastname,
           position: position,
           title: title,
           contact: contact,
-        });
-
-        const newUser = await User.create({
-          username: username,
-          user_type: 'STAFF',
-          user_type_id: newStaff.id,
-          is_active: true
         });
 
         return newStaff

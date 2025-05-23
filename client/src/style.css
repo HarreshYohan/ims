@@ -30,7 +30,6 @@ margin-left: 16.15%;
   background-color: #fff;
   color: #333;
   font-size: 14px;
-  cursor: pointer;
   transition: border-color 0.3s;
 }
 
@@ -101,8 +100,8 @@ transition: background-color 0.3s, color 0.3s;
 }
 
 .data-table th {
-background-color: #4CAF50;
-color: #fff;
+background-color: #a7b99e;
+color: #242121;
 text-align: center;
 font-weight: bold;
 font-size: 18px;
@@ -144,9 +143,9 @@ width: 80px;
 }
 
 .deleteBtn{
-  background-color: #c85858;
+  background-color: #f03737;
   outline: none;
-  box-shadow: 0 0 0 1px rgba(255, 67, 38, 0.3);
+  box-shadow: 0 0 0 1px rgba(230, 50, 50, 0.938);
 }
 
 .data-table button:hover {
@@ -183,8 +182,4 @@ transform: scale(1.15);
 .pagination .active {
   background-color: #0056b3;
   font-weight: bold;
-}
-
-.error {
-  color: red;
 }

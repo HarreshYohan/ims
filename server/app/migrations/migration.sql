@@ -37,6 +37,7 @@ DROP TABLE IF EXISTS "student_fees";
 -- Create student table
 CREATE TABLE IF NOT EXISTS "student" (
   id SERIAL PRIMARY KEY,
+  user_id INTEGER,
   username VARCHAR(255) NOT NULL UNIQUE,
   email VARCHAR(255) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
@@ -50,6 +51,7 @@ CREATE TABLE IF NOT EXISTS "student" (
 
 CREATE TABLE IF NOT EXISTS "tutor" (
   id SERIAL PRIMARY KEY,
+  user_id INTEGER,
   username VARCHAR(255) NOT NULL UNIQUE,
   email VARCHAR(255) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
@@ -63,6 +65,7 @@ CREATE TABLE IF NOT EXISTS "tutor" (
 
 CREATE TABLE IF NOT EXISTS "staff" (
   id SERIAL PRIMARY KEY,
+  user_id INTEGER,
   username VARCHAR(255) NOT NULL UNIQUE,
   email VARCHAR(255) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
@@ -80,8 +83,9 @@ CREATE TABLE IF NOT EXISTS "staff" (
 CREATE TABLE IF NOT EXISTS "user" (
   id SERIAL PRIMARY KEY,
   username VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
   user_type user_type NOT NULL DEFAULT 'NA',
-  user_type_id INT NOT NULL,
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
   created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
   updated_at timestamptz DEFAULT CURRENT_TIMESTAMP 
@@ -181,34 +185,40 @@ CREATE TABLE IF NOT EXISTS "student_fees" (
 );
 
 
+INSERT INTO "user" (username,email, password,user_type,is_active) VALUES
+	 ('student1','student1@gmail.com', crypt('123', gen_salt('bf', 10)),'STUDENT',true),
+	 ('tutor1','tutor1@gmail.com', crypt('123', gen_salt('bf', 10)),'TUTOR',true),
+	 ('staff1', 'staff1@gmail.com', crypt('123', gen_salt('bf', 10)),'STAFF',true);
+
+
 -- Insert records into student table
-INSERT INTO "student" (username, email, password, firstname, lastname, contact, grade)
+INSERT INTO "student" (user_id, username, email, password, firstname, lastname, contact, grade)
 VALUES
-  ('student1', 'student1@gmail.com', crypt('123', gen_salt('bf', 10)), 'John', 'Doe', '123456789', 'Grade 10'),
-  ('student2', 'student2@gmail.com', crypt('123', gen_salt('bf', 10)), 'Jane', 'Smith', '987654321', 'Grade 11'),
-  ('student3', 'student3@gmail.com', crypt('123', gen_salt('bf', 10)), 'Michael', 'Johnson', '555123456', 'Grade 9'),
-  ('student4', 'student4@gmail.com', crypt('123', gen_salt('bf', 10)), 'Emily', 'Brown', '777888999', 'Grade 12'),
-  ('student5', 'student5@gmail.com', crypt('123', gen_salt('bf', 10)), 'David', 'Lee', '111222333', 'Grade 11');
+  (1,'student1', 'student1@gmail.com', crypt('123', gen_salt('bf', 10)), 'John', 'Doe', '123456789', 'Grade 10'),
+  (5,'student2', 'student2@gmail.com', crypt('123', gen_salt('bf', 10)), 'Jane', 'Smith', '987654321', 'Grade 11'),
+  (6,'student3', 'student3@gmail.com', crypt('123', gen_salt('bf', 10)), 'Michael', 'Johnson', '555123456', 'Grade 9'),
+  (7,'student4', 'student4@gmail.com', crypt('123', gen_salt('bf', 10)), 'Emily', 'Brown', '777888999', 'Grade 12'),
+  (8,'student5', 'student5@gmail.com', crypt('123', gen_salt('bf', 10)), 'David', 'Lee', '111222333', 'Grade 11');
 
 
 -- Insert records into tutor table
-INSERT INTO "tutor" (username, email, password, title, firstname, lastname, contact)
+INSERT INTO "tutor" (user_id,username, email, password, title, firstname, lastname, contact)
 VALUES
-  ('tutor1', 'tutor1@gmail.com', crypt('123', gen_salt('bf', 10)), 'Professor', 'John', 'Smith', '555111222'),
-  ('tutor2', 'tutor2@gmail.com', crypt('123', gen_salt('bf', 10)), 'Instructor', 'Jane', 'Doe', '777888999'),
-  ('tutor3', 'tutor3@gmail.com', crypt('123', gen_salt('bf', 10)), 'Teacher', 'Michael', 'Johnson', '333444555'),
-  ('tutor4', 'tutor4@gmail.com', crypt('123', gen_salt('bf', 10)), 'Lecturer', 'Emily', 'Brown', '999888777'),
-  ('tutor5', 'tutor5@gmail.com', crypt('123', gen_salt('bf', 10)), 'Educator', 'David', 'Lee', '111222333');
+  (2,'tutor1', 'tutor1@gmail.com', crypt('123', gen_salt('bf', 10)), 'Professor', 'John', 'Smith', '555111222'),
+  (0,'tutor2', 'tutor2@gmail.com', crypt('123', gen_salt('bf', 10)), 'Instructor', 'Jane', 'Doe', '777888999'),
+  (0,'tutor3', 'tutor3@gmail.com', crypt('123', gen_salt('bf', 10)), 'Teacher', 'Michael', 'Johnson', '333444555'),
+  (0,'tutor4', 'tutor4@gmail.com', crypt('123', gen_salt('bf', 10)), 'Lecturer', 'Emily', 'Brown', '999888777'),
+  (0,'tutor5', 'tutor5@gmail.com', crypt('123', gen_salt('bf', 10)), 'Educator', 'David', 'Lee', '111222333');
 
 
 -- Insert records into staff table
-INSERT INTO "staff" (username, email, password, title, firstname, lastname, position, contact, salary)
+INSERT INTO "staff" (user_id,username, email, password, title, firstname, lastname, position, contact, salary)
 VALUES
-  ('staff1', 'staff1@gmail.com', crypt('123', gen_salt('bf', 10)), 'Manager', 'John', 'Smith', 'HR Manager', '555111222',122222),
-  ('staff2', 'staff2@gmail.com', crypt('123', gen_salt('bf', 10)), 'Supervisor', 'Jane', 'Doe', 'IT Supervisor', '777888999',123232),
-  ('staff3', 'staff3@gmail.com', crypt('123', gen_salt('bf', 10)), 'Coordinator', 'Michael', 'Johnson', 'Admin Coordinator', '333444555',234234),
-  ('staff4', 'staff4@gmail.com', crypt('123', gen_salt('bf', 10)), 'Assistant', 'Emily', 'Brown', 'Executive Assistant', '999888777',234234),
-  ('staff5', 'staff5@gmail.com', crypt('123', gen_salt('bf', 10)), 'Director', 'David', 'Lee', 'Technical Director', '111222333',2342344);
+  (3,'staff1', 'staff1@gmail.com', crypt('123', gen_salt('bf', 10)), 'Manager', 'John', 'Smith', 'HR Manager', '555111222',122222),
+  (0,'staff2', 'staff2@gmail.com', crypt('123', gen_salt('bf', 10)), 'Supervisor', 'Jane', 'Doe', 'IT Supervisor', '777888999',123232),
+  (0,'staff3', 'staff3@gmail.com', crypt('123', gen_salt('bf', 10)), 'Coordinator', 'Michael', 'Johnson', 'Admin Coordinator', '333444555',234234),
+  (0,'staff4', 'staff4@gmail.com', crypt('123', gen_salt('bf', 10)), 'Assistant', 'Emily', 'Brown', 'Executive Assistant', '999888777',234234),
+  (0,'staff5', 'staff5@gmail.com', crypt('123', gen_salt('bf', 10)), 'Director', 'David', 'Lee', 'Technical Director', '111222333',2342344);
 
 
 -- Insert records into subject table
@@ -264,15 +274,6 @@ INSERT INTO "timetable" (timeslot, timeslotid,classroomid, monday, tuesday, wedn
 ('15.00-17.00',5,1,2,3,4,3,4,1,2),
 ('17.00-19.00',6,1,2,3,4,3,4,1,2),
 ('19.00-21.00',7,1,2,3,4,3,4,1,2);
-
-
-INSERT INTO "user" (username,user_type,user_type_id,is_active) VALUES
-	 ('student1','STUDENT',1,true),
-	 ('admin1','ADMIN',2,true),
-	 ('student2','STUDENT',3,true),
-	 ('staff1','STAFF',4,true),
-	 ('student3','STUDENT',5,true);
-
 
 INSERT INTO chatroom (user_id, message, subjecttutorid, created_at, updated_at) VALUES
 (1, 'Hello, I need help with the math homework.', 1, '2024-07-01 09:00:00', '2024-07-01 09:00:00'),

@@ -20,8 +20,8 @@
   }
   
   .data-table-timetable th {
-  background-color: #4CAF50;
-  color: #fff;
+  background-color: #859c7a;
+  color: #242121;
   text-align: center;
   font-weight: bold;
   font-size: 18px;
@@ -92,9 +92,9 @@
   }
   
   .deleteBtn{
-    background-color: #c85858;
+    background-color: #ee4343;
     outline: none;
-    box-shadow: 0 0 0 1px rgba(255, 67, 38, 0.3);
+    box-shadow: 0 0 0 1px rgba(255, 67, 38, 0.74);
   }
 
   
@@ -129,9 +129,6 @@
     font-weight: bold;
   }
   
-  .error {
-    color: red;
-  }
 
 
 

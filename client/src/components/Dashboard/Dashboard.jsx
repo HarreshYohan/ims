@@ -34,10 +34,6 @@ export const Dashboard = () => {
     fetchDashboardData();
   }, []);
 
-  const handleLogin = () => {
-    navigate('/login');
-  };
-
   return (
     <div>
       <Header type={'dashboard'} action={"Logout"} />

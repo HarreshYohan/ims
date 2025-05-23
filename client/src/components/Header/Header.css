@@ -5,7 +5,7 @@
   right: 0;
   z-index: 1000;
   height: 100px;
-  background-color: #CCAA71;
+  background-color: #eff7d3;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -26,7 +26,7 @@
 .logout-btn-btn {
   width: 140px;
   height: 50px;
-  background: linear-gradient(45deg, #ff6f61, #d96c06);
+  background: linear-gradient(45deg, #535a3b);
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -37,7 +37,7 @@
 }
 
 .logout-btn-btn:hover {
-  background: linear-gradient(45deg, #e65c50, #d44a0a);
+  background: linear-gradient(45deg, #373b27);
   transform: scale(1.05);
 }
 

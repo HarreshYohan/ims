@@ -7,6 +7,7 @@ import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencilAlt, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
+import {jwtDecode} from 'jwt-decode';
 
 export const Timetable = () => {
   const [data, setData] = useState([]);
@@ -19,12 +20,8 @@ export const Timetable = () => {
   const [editData, setEditData] = useState({ id: null, day: null, timeslotid: null, gradeid: '', subjectid: '', tutorid: '' });
   const [classroomid, setClassroomid] = useState('');
   const [subjectTutorid, setSubjectTutorid] = useState('');
-  const [timeslotid, setTimeslotid] = useState('');
-
-  const [grades, setGrades] = useState([]);
-  const [subjects, setSubjects] = useState([]);
-  const [tutors, setTutors] = useState([]);
   const [subjectTutors, setSubjectTutors] = useState([]); // List of subject tutors
+  const [role, setRole] = useState(null);
 
   const navigate = useNavigate();
   const localToken = localStorage.getItem("authToken");
@@ -33,6 +30,16 @@ export const Timetable = () => {
     if (!localToken) {
       localStorage.removeItem('authToken');
       navigate('/login');
+    }
+    if (localToken) {
+      try {
+        const decoded = jwtDecode(localToken);
+        setRole(decoded.role); // Assuming the token has a 'role' field
+      } catch (error) {
+        console.error('Failed to decode token', error);
+        localStorage.removeItem('authToken');
+        navigate('/login');
+      }
     }
   }, [localToken, navigate]);
 
@@ -167,8 +174,12 @@ export const Timetable = () => {
                 {item[`${day}cls`] ? (
                   <>
                     <div style={{ position: 'absolute', top: '5px', right: '5px' }}>
-                      <FontAwesomeIcon icon={faPencilAlt} className="editClass" style={{ marginRight: '5px', cursor: 'pointer' }} onClick={() => handleEdit(item.classroomid, day, item.timeslotid)} />
-                      <FontAwesomeIcon icon={faTrash} className="deleteClass" style={{ marginRight: '5px', cursor: 'pointer' }} onClick={() => handleDelete(item.classroomid, item.timeslotid, day)} />
+                    {(role === 'ADMIN' || role === 'STAFF') && (
+                      <>
+                        <FontAwesomeIcon icon={faPencilAlt} className="editClass" style={{ marginRight: '5px', cursor: 'pointer' }} onClick={() => handleEdit(item.classroomid, day, item.timeslotid)} />
+                        <FontAwesomeIcon icon={faTrash} className="deleteClass" style={{ marginRight: '5px', cursor: 'pointer' }} onClick={() => handleDelete(item.classroomid, item.timeslotid, day)} />
+                      </>
+                    )}
                     </div>
                     <span>{item[`${day}cls`].grade.name}</span><br />
                     <span>{item[`${day}cls`].subject.name}</span><br />
@@ -176,7 +187,11 @@ export const Timetable = () => {
                   </>
                 ) : (
                   <div className="createClass" style={{ position: 'absolute', top: '5px', right: '5px' }}>
-                    <FontAwesomeIcon icon={faPlus} className="editClass" style={{ marginRight: '5px', cursor: 'pointer' }} onClick={() => handleEdit(item.classroomid, day, item.timeslotid)} />
+                    {(role === 'ADMIN' || role === 'STAFF') && (
+                      <>
+                        <FontAwesomeIcon icon={faPlus} className="editClass" style={{ marginRight: '5px', cursor: 'pointer' }} onClick={() => handleEdit(item.classroomid, day, item.timeslotid)} />
+                      </>
+                    )} 
                   </div>
                 )}
               </td>

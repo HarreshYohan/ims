@@ -15,8 +15,9 @@ exports.create = async (req, res) => {
 
   try {
       const existingTutor = await Tutor.findOne({ where: { firstname, lastname , email} });
+      const existingUser = await Tutor.findOne({ where: { email} });
 
-      if (existingTutor) {
+      if (existingTutor || existingUser) {
         throw new Error('Email or Tutor already exists');
       }
 
@@ -24,9 +25,19 @@ exports.create = async (req, res) => {
 
       const newTutorData = async () => {
 
+        const newUser = await User.create({
+          username: username,
+          email: email,
+          password: hashedPassword,
+          user_type: 'TUTOR',
+          is_active: true
+        });
+        
+
         const newTutor = await Tutor.create({
           firstname: firstname,
           username: username,
+          user_id: newUser.id,
           email: email,
           password: hashedPassword,
           lastname: lastname,
@@ -34,13 +45,6 @@ exports.create = async (req, res) => {
           contact: contact,
         });
 
-        const newUser = await User.create({
-          username: username,
-          user_type: 'TUTOR',
-          user_type_id: newTutor.id,
-          is_active: true
-        });
-        
         return newTutor
 
       }

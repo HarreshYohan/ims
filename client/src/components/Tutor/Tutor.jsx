@@ -5,6 +5,7 @@ import { Header } from '../Header/Header';
 import './Tutor.css';
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
+import {jwtDecode} from 'jwt-decode';
 
 export const Tutor = () => {
   const [data, setData] = useState([]);
@@ -15,13 +16,20 @@ export const Tutor = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const localToken = localStorage.getItem("authToken");
+  const [role, setRole] = useState(null);
 
   useEffect(() => {
-    if (!localToken) {
-      localStorage.removeItem('authToken');
-      navigate('/login');
+    if (localToken) {
+      try {
+        const decoded = jwtDecode(localToken);
+        setRole(decoded.role); // Assumes the token has a 'role' field
+      } catch (error) {
+        console.error('Failed to decode token', error);
+        localStorage.removeItem('authToken');
+        navigate('/login');
+      }
     }
-  }, [localToken, navigate]);
+  }, [localToken]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,7 +84,7 @@ export const Tutor = () => {
           <th>First Name</th>
           <th>Last Name</th>
           <th>Contact</th>
-          <th>Actions</th>
+          {(role == 'ADMIN' && role == 'STAFF') && <th>Actions</th>}
         </tr>
       </thead>
       <tbody>
@@ -87,10 +95,12 @@ export const Tutor = () => {
             <td>{item.firstname}</td>
             <td>{item.lastname}</td>
             <td>{item.contact}</td>
+            {(role == 'ADMIN' && role == 'STAFF') && (
             <td>
               <button className="editBtn" onClick={() => handleEdit(item.id)}>Edit</button>
               <button className="deleteBtn" onClick={() => handleDelete(item.id)}>Delete</button>
             </td>
+          )}
           </tr>
         ))}
       </tbody>

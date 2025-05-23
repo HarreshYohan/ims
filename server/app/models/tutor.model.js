@@ -7,6 +7,9 @@ const Tutor = (sequelize) => {
       autoIncrement: true,
       primaryKey: true,
     },
+    user_id: {
+      type: DataTypes.INTEGER,
+    },
     username: {
       type: DataTypes.STRING,
       allowNull: false, 

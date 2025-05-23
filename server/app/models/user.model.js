@@ -2,7 +2,24 @@ const { DataTypes } = require('sequelize');
 
 const User = (sequelize) => {
   return sequelize.define("User", {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     username: {
+      type: DataTypes.STRING,
+      allowNull: false, 
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false, 
+      unique: true,
+      validate: {
+        isEmail: true, 
+      },
+    },
+    password: {
       type: DataTypes.STRING,
       allowNull: false, 
     },
@@ -10,14 +27,6 @@ const User = (sequelize) => {
       type: DataTypes.ENUM('ADMIN', 'STUDENT', 'TUTOR', 'NA', 'STAFF'),
       allowNull: false, 
       defaultValue: 'NA', 
-    },
-    user_type_id: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: 'staff', 
-        key: 'id',
-      },
-      allowNull: false,
     },
     is_active: {
       type: DataTypes.BOOLEAN,
@@ -27,7 +36,6 @@ const User = (sequelize) => {
       type: DataTypes.DATE,
       field: 'created_at'
     },
-
     updatedAt: {
       type: DataTypes.DATE,
       field: 'updated_at'

@@ -1,6 +1,6 @@
 .message {
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 5px;
+    margin-bottom: 0px;
     border-radius: 5px;
     justify-content: space-between; 
 }
@@ -20,8 +20,8 @@
     text-align: right;
     border: none;
     cursor: pointer;
-    font-size: 16px;
-    color: #555;
-    margin-left: 95%;
+    font-size: 20px;
+    color: #222222;
+    margin-left: 35%;
 }
   

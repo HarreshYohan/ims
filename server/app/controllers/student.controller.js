@@ -60,21 +60,23 @@ exports.create = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const newUser = await User.create({
+      username: username,
+      email: email,
+      password: hashedPassword,
+      user_type: 'STUDENT',
+      is_active: true
+    });
+
     const newStudent = await Student.create({
       username,
+      user_id: newUser.id,
       email,
       password: hashedPassword,
       firstname,
       lastname,
       grade,
       contact,
-    });
-
-    await User.create({
-      username,
-      user_type: 'STUDENT',
-      user_type_id: newStudent.id,
-      is_active: true
     });
 
     res.status(201).send(newStudent);
