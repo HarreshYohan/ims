@@ -13,7 +13,7 @@ export const Student = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Number of items per page
+  const [itemsPerPage] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -39,13 +39,10 @@ export const Student = () => {
       try {
         const response = await api.get(`/api/student/all?page=${currentPage}&limit=${itemsPerPage}`);
         if (response.status === 200) {
-          const decodedToken = jwtDecode(localToken);
           const { data, totalPages } = response.data;
           setData(data);
           setFilteredData(data); 
           setTotalPages(totalPages);
-          console.log("sss "+decodedToken.user_type )
-          setRole(decodedToken.user_type);
           const uniqueGrades = [...new Set(data.map(item => item.grade))];
           setGrades(uniqueGrades);
         } else {
@@ -170,7 +167,7 @@ export const Student = () => {
           </th>
           <th>Contact</th>
          
-          {role !== 'STUDENT' && role !== 'TUTOR' && (
+          {(can_delete || can_edit) && (
              <th>Actions 
             <button className="download-all-btn" onClick={handleDownload}>Download</button>
             </th>
@@ -186,16 +183,12 @@ export const Student = () => {
             <td>{item.lastname}</td>
             <td>{item.grade}</td>
             <td>{item.contact}</td>
-            {/* {role !== 'STUDENT' && role !== 'TUTOR' && (
-            <td>
-              <button className="editBtn" onClick={() => handleEdit(item.id)}>Edit</button>
-              <button className="deleteBtn" onClick={() => handleDelete(item.id)}>Delete</button>
-            </td>
-            )} */}
+            { (can_edit || can_delete) &&
             <td>
               {can_edit && <button className="editBtn" onClick={() => handleEdit(item.id)}>Edit</button>}
               {can_delete && <button className="deleteBtn" onClick={() => handleDelete(item.id)}>Delete</button>}
-          </td>
+            </td>
+            }
           </tr>
         ))}
         <tr>

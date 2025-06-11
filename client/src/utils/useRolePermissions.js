@@ -1,5 +1,5 @@
 import roleAccess from '../config/roleAccessConfig.json';
-import jwtDecode from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 
 export const useRolePermissions = (pageKey) => {
   const token = localStorage.getItem("authToken");

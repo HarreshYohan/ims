@@ -45,3 +45,29 @@
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 21, 0, 0.3);
 }
+
+.profile-icon {
+  width: 50px;
+  height: 50px;
+  margin-right: 10px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* spacing between profile icon and logout button */
+}
+
+.profile-btn {
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  color: #333;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.3s;
+}

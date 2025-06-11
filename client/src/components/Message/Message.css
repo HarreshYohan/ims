@@ -3,6 +3,7 @@
     margin-bottom: 0px;
     border-radius: 5px;
     justify-content: space-between; 
+    width: 60%;
 }
   
 .error {
