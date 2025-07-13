@@ -96,3 +96,21 @@
     opacity: 1;
   }
 }
+
+
+.error-msg {
+  margin-top: 12px;
+  color: #b00020;
+  background-color: #fdecea;
+  border: 1px solid #f5c6cb;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  text-align: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}

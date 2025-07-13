@@ -1,25 +1,30 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import {jwtDecode} from 'jwt-decode';
 import './Dashboard.css';
 
 function Dashboard() {
-  const navigate = useNavigate();
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [studentName, setStudentName] = useState('Student');
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
-
-  const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
-  };
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setStudentName(decoded.username || decoded.email || 'Student');
+        console.log(decoded)
+      } catch (err) {
+        console.error('Invalid token:', err);
+        setStudentName('Student');
+      }
+    }
+  }, []);
 
   return (
     <div className="dashboard-container">
       <header className="dashboard-header">
         <div className="dashboard-header-left">
-          <h1>👋 Welcome, Student!</h1>
+          <h1>👋 Welcome, {studentName}!</h1>
           <p>Access all your academic tools below</p>
         </div>
       </header>

@@ -1,6 +1,7 @@
-const { Timetable, Classroom , SubjectTutor, Subject, Grade, Tutor} = require('../models');
+const { Timetable, Classroom , SubjectTutor, Subject, Grade, Tutor, Student, StudentSubject} = require('../models');
 const { check, validationResult } = require('express-validator');
-const { TimetableData } = require('../helpers/helpers')
+const { TimetableData } = require('../helpers/helpers');
+const { Op } = require('sequelize');
 
 // Validation rules
 exports.validate = (method) => {
@@ -217,7 +218,6 @@ exports.update = async (req, res) => {
 exports.delete = async (req, res) => {
   const id = req.params.id;
   const { day, timeslotid } = req.query;
-console.log(day, timeslotid);
   try {
     const timetable = await Timetable.findOne({ where: { classroomid: id, timeslotid: timeslotid } });
     if (!timetable) {
@@ -236,3 +236,148 @@ console.log(day, timeslotid);
     });
   }
 };
+
+exports.findForStudent = async (req, res) => {
+  const studentId = req.params.studentid;
+
+  try {
+    const student = await Student.findOne({
+      where: {
+        user_id: studentId,
+      }
+    });
+    if (!student ) {
+      return res.status(404).json({ message: 'Student or classroom not found.' });
+    }
+
+    const studentSubjects = await StudentSubject.findAll({
+      where: {
+        studentid: studentId,
+      },
+      attributes: ['subjecttutorid'], 
+    });
+const subjectTutorIds = studentSubjects.map(subject => subject.subjecttutorid);
+
+const rawTimetable = await Timetable.findAll({
+  include: [
+    {
+      model: SubjectTutor,
+      as: 'mondaycls',
+      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
+    },
+    {
+      model: SubjectTutor,
+      as: 'tuesdaycls',
+      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
+    },
+    {
+      model: SubjectTutor,
+      as: 'wednesdaycls',
+      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
+    },
+    {
+      model: SubjectTutor,
+      as: 'thursdaycls',
+      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
+    },
+    {
+      model: SubjectTutor,
+      as: 'fridaycls',
+      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
+    },
+    {
+      model: SubjectTutor,
+      as: 'saturdaycls',
+      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
+    },
+    {
+      model: SubjectTutor,
+      as: 'sundaycls',
+      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
+    },
+  ],
+  order: [['timeslotid', 'ASC']],
+    });
+
+
+    const result = [];
+
+    const days = [
+      { key: "monday", cls: "mondaycls" },
+      { key: "tuesday", cls: "tuesdaycls" },
+      { key: "wednesday", cls: "wednesdaycls" },
+      { key: "thursday", cls: "thursdaycls" },
+      { key: "friday", cls: "fridaycls" },
+      { key: "saturday", cls: "saturdaycls" },
+      { key: "sunday", cls: "sundaycls" },
+    ];
+
+    rawTimetable.forEach(entry => {
+    days.forEach(({ key, cls }) => {
+      const subjectTutorId = entry[key];
+      if (subjectTutorIds.includes(subjectTutorId)) {
+        const subjectName = entry[cls]?.subject?.name;
+        if (subjectName) {
+          result.push({
+            timeslot: entry.timeslot,
+            day: key,
+            subject: subjectName,
+          });
+        }
+      }
+    });
+    });
+
+
+    res.json({ data: result });
+  } catch (err) {
+    console.error('Student timetable fetch failed:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.findForTutor = async (req, res) => {
+  const tutorId = req.params.tutorid;
+
+  try {
+    const subjectTutors = await SubjectTutor.findAll({ where: { tutorid: tutorId } });
+    const subjectTutorIds = subjectTutors.map(st => st.id);
+
+    if (subjectTutorIds.length === 0) {
+      return res.status(404).json({ message: 'No subjects assigned to this tutor.' });
+    }
+
+    
+
+    const timetable = await Timetable.findAll({
+      where: {
+        [Op.or]: [
+          { monday: { [Op.in]: subjectTutorIds } },
+          { tuesday: { [Op.in]: subjectTutorIds } },
+          { wednesday: { [Op.in]: subjectTutorIds } },
+          { thursday: { [Op.in]: subjectTutorIds } },
+          { friday: { [Op.in]: subjectTutorIds } },
+          { saturday: { [Op.in]: subjectTutorIds } },
+          { sunday: { [Op.in]: subjectTutorIds } },
+        ],
+      },
+      include: [
+        { model: Classroom, as: 'classroom' },
+        { model: SubjectTutor, as: 'mondaycls', include: ['subject', 'tutor', 'grade'] },
+        { model: SubjectTutor, as: 'tuesdaycls', include: ['subject', 'tutor', 'grade'] },
+        { model: SubjectTutor, as: 'wednesdaycls', include: ['subject', 'tutor', 'grade'] },
+        { model: SubjectTutor, as: 'thursdaycls', include: ['subject', 'tutor', 'grade'] },
+        { model: SubjectTutor, as: 'fridaycls', include: ['subject', 'tutor', 'grade'] },
+        { model: SubjectTutor, as: 'saturdaycls', include: ['subject', 'tutor', 'grade'] },
+        { model: SubjectTutor, as: 'sundaycls', include: ['subject', 'tutor', 'grade'] },
+      ],
+      order: [['timeslotid', 'ASC']]
+    });
+
+    res.json({ data: timetable });
+  } catch (err) {
+    console.error('Tutor timetable fetch failed:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+

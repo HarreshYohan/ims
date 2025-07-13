@@ -11,6 +11,7 @@ import Layout from './components/Layout';
 
 function App() {
   const isAuthenticated = !!localStorage.getItem('token');
+  console.log(isAuthenticated)
 
   return (
     <Router>

@@ -40,8 +40,6 @@ const getStudentProfile = async (id, res) => {
         replacements: { userId: id },
         type: sequelize.QueryTypes.SELECT
       });
-  
-      console.log(student)
       if (!student) {
         return res.status(404).send({ message: 'Student not found' });
       }

@@ -1,21 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 import './Login.css';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (email === 'student1@gmail.com' && password === '1234') {
-      localStorage.setItem('token', 'faketoken123');
+  const handleLogin = async (e) => {
+  e.preventDefault();
+  setErrorMsg(''); // Clear previous error
+
+  try {
+    const res = await api.post('/login', { email, password });
+    const token = res.data.token;
+
+    if (token) {
+      localStorage.setItem('token', token);
+      console.log("here")
       navigate('/dashboard');
     } else {
-      alert('Invalid credentials');
+      setErrorMsg('Login failed: No token received.');
     }
-  };
+  } catch (err) {
+    const message = err.response?.data?.message || 'Network error. Please try again.';
+    setErrorMsg(message);
+    setTimeout(() => setErrorMsg(''), 3000);
+  }
+};
 
   return (
     <div className="login-page">
@@ -43,6 +57,9 @@ function Login() {
           />
 
           <button type="submit" className="login-button">Login</button>
+
+          {/* ✅ Error Message */}
+          {errorMsg && <div className="error-msg">{errorMsg}</div>}
         </form>
 
         <p className="login-hint">Hint: student1@gmail.com / 1234</p>

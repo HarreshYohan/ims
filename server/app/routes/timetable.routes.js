@@ -11,5 +11,10 @@ module.exports = (app) => {
 
   router.post("/", timetable.create);
 
+  router.get('/student/:studentid', timetable.findForStudent);
+
+  router.get('/tutor/:tutorid', timetable.findForTutor);
+
+
   app.use('/api/timetable', router);
 };
