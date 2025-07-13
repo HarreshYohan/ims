@@ -1,0 +1,73 @@
+.fees-container {
+  padding: 30px;
+  background: #f9f9f9;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.fees-container h2 {
+  margin-bottom: 10px;
+  text-align: center;
+  color: #333;
+}
+
+.fees-note {
+  text-align: center;
+  margin-bottom: 25px;
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: 1px solid #ffeeba;
+  font-size: 0.95rem;
+}
+
+.fees-table-wrapper {
+  overflow-x: auto;
+}
+
+.fees-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.fees-table th,
+.fees-table td {
+  padding: 15px;
+  text-align: center;
+  border: 1px solid #eee;
+  font-size: 0.95rem;
+}
+
+.fees-table th {
+  background-color: #6a82fb;
+  color: white;
+  font-weight: bold;
+}
+
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.status-badge.paid {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.overdue {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-badge.to-be-paid {
+  background-color: #fff3cd;
+  color: #856404;
+}

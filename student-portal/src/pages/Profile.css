@@ -1,0 +1,90 @@
+/* src/pages/Profile.css */
+
+.profile-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  background:  #f9f9f9;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.profile-card {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  max-width: 500px;
+  width: 100%;
+  animation: fadeIn 0.6s ease-in;
+}
+
+.profile-card h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.profile-card label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #444;
+}
+
+.profile-card input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background-color: #f3f3f3;
+  transition: border 0.3s, background-color 0.3s;
+  font-size: 1rem;
+}
+
+.profile-card input:focus {
+  border: 2px solid #6a82fb;
+  background-color: #fff;
+  outline: none;
+}
+
+.profile-card input:disabled {
+  background-color: #e0e0e0;
+  color: #666;
+}
+
+.save-button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(to right, #fb6a89, #f33b60);
+  color: white;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.3s, transform 0.2s;
+}
+
+.save-button:hover {
+  transform: translateY(-2px);
+}
+
+.save-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,172 @@
+/* src/pages/Dashboard.css */
+
+.dashboard-container {
+  padding: 30px;
+  min-height: 100vh;
+  background: #f4f4f4;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+/* Header */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: #343a40;
+}
+
+.dashboard-header p {
+  font-size: 1.2rem;
+  color: #6c757d;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 30px;
+}
+
+.dashboard-card {
+  background-color: white;
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+  transition: all 0.3s ease-in-out;
+  text-decoration: none;
+  color: #212529;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 150px;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-card h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #343a40;
+}
+
+.dashboard-card p {
+  margin-top: 10px;
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+
+/* Optional custom colors per card */
+.dashboard-card.timetable {
+  border-left: 6px solid #007bff;
+}
+.dashboard-card.notes {
+  border-left: 6px solid #17a2b8;
+}
+.dashboard-card.fees {
+  border-left: 6px solid #28a745;
+}
+.dashboard-card.profile {
+  border-left: 6px solid #ffc107;
+}
+
+.quote-card {
+  margin-top: 40px;
+  padding: 25px;
+  background: white;
+  border-left: 6px solid #007bff;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+.quote-card blockquote {
+  font-style: italic;
+  font-size: 1.3rem;
+  color: #343a40;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.quote-card .quote-author {
+  margin-top: 15px;
+  font-weight: bold;
+  color: #6c757d;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header layout split */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Profile dropdown */
+.profile-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-icon {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.profile-icon:hover {
+  transform: scale(1.05);
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 45px;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  z-index: 100;
+  min-width: 150px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.dropdown-menu button {
+  width: 100%;
+  padding: 10px 15px;
+  border: none;
+  background: none;
+  text-align: left;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.dropdown-menu button:hover {
+  background-color: #f1f1f1;
+}

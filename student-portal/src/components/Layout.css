@@ -1,0 +1,21 @@
+/* src/components/Layout.css */
+.layout {
+  display: flex;
+}
+
+.main-content {
+  margin-left: 200px;
+  padding: 30px;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f4f4f4;
+}
+
+.main-content {
+  margin-left: 200px; /* Matches sidebar width */
+  padding: 30px;
+  width: calc(100% - 200px); /* Prevents overflow */
+  min-height: 100vh;
+  background-color: #f4f4f4;
+  box-sizing: border-box;
+}

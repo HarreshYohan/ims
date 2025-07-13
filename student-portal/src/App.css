@@ -1,0 +1,33 @@
+body {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f5f5f5;
+}
+
+nav a {
+  margin-right: 10px;
+  text-decoration: none;
+  color: #333;
+}
+
+input, textarea {
+  display: block;
+  margin: 10px 0;
+  padding: 8px;
+  width: 300px;
+}
+
+/* src/App.css */
+
+.app-with-sidebar {
+  display: flex;
+}
+
+.main-content {
+  margin-left: 200px;
+  padding: 30px;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f4f4f4;
+}
