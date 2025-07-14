@@ -11,7 +11,7 @@ module.exports = (app) => {
 
   router.post("/", student.create);
 
-  router.get("/student_subject/:id", student.student_subject);
+  router.get("/student-subject/:id", student.student_subject);
 
   router.get("/download/all", student.downloadAll);
 

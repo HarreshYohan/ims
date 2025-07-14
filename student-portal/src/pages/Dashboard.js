@@ -45,6 +45,11 @@ function Dashboard() {
           <p>Track your payments</p>
         </Link>
 
+        <Link to="/goals" className="dashboard-card profile">
+          <h2>🎯 Goals</h2>
+          <p>Track your goals</p>
+        </Link>
+
         <Link to="/profile" className="dashboard-card profile">
           <h2>👤 Profile</h2>
           <p>Update your personal info</p>

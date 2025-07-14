@@ -184,6 +184,31 @@ CREATE TABLE IF NOT EXISTS "student_fees" (
     FOREIGN KEY (studentid) REFERENCES student(id)
 );
 
+CREATE TABLE IF NOT EXISTS "notes" (
+    id SERIAL PRIMARY KEY,
+    studentid INT NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    chapter VARCHAR(255) NOT NULL,
+    heading VARCHAR(255) NOT NULL,
+    note VARCHAR(255) NOT NULL,
+    created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
+    updated_at timestamptz DEFAULT CURRENT_TIMESTAMP ,
+    FOREIGN KEY (studentid) REFERENCES student(id)
+);
+
+create TABLE goals (
+  id SERIAL PRIMARY KEY,
+  studentid INT NOT NULL,
+  goaltitle VARCHAR(255) NOT NULL,
+  targetdate DATE NOT NULL,
+  progress FLOAT DEFAULT 0,
+  streak INT DEFAULT 0,
+  lastprogressupdate DATE DEFAULT NULL,
+  created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP ,
+  FOREIGN KEY (studentid) REFERENCES student(id)
+);
+
 
 INSERT INTO "user" (username,email, password,user_type,is_active) VALUES
 	 ('student1','student1@gmail.com', crypt('123', gen_salt('bf', 10)),'STUDENT',true),

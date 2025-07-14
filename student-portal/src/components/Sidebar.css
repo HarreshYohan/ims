@@ -50,26 +50,7 @@
   font-weight: bold;
 }
 
-/* Fixed logout at the bottom */
-.sidebar-logout {
-  margin-top: 20px;
-}
 
-.sidebar-logout button {
-  width: 100%;
-  padding: 10px;
-  background-color: #ffffff;
-  color: #333;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background 0.2s;
-}
-
-.sidebar-logout button:hover {
-  background-color: #eeeeee;
-}
 
 /* Make scrollbar less ugly on WebKit */
 .sidebar-nav::-webkit-scrollbar {

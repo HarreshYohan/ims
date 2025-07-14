@@ -1,134 +1,198 @@
+/* Base Container */
 .notes-container {
-  padding: 30px;
-  background: #f9f9f9;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #f8f9fa, #e9efff);
   min-height: 100vh;
   font-family: 'Segoe UI', sans-serif;
-}
-
-.notes-container h2 {
-  text-align: center;
-  margin-bottom: 25px;
   color: #333;
 }
 
-.subject-select {
-  margin-bottom: 30px;
+/* Heading */
+.notes-container h2 {
   text-align: center;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 2.2rem;
 }
 
+/* Subject Selector */
+.subject-select {
+  text-align: center;
+  margin-bottom: 30px;
+}
 .subject-select label {
-  font-weight: bold;
-  margin-right: 10px;
+  font-weight: 600;
+  margin-right: 12px;
+  font-size: 1.1rem;
 }
-
 .subject-select select {
-  padding: 8px 12px;
+  padding: 10px 16px;
   font-size: 1rem;
   border-radius: 8px;
   border: 1px solid #ccc;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.3s ease;
+}
+.subject-select select:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Add Note Form */
 .new-note-form {
-  background: white;
+  background: #fff;
   border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-  margin-bottom: 30px;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
+  padding: 25px;
+  max-width: 700px;
+  margin: 0 auto 40px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s;
 }
-
+.new-note-form:hover {
+  transform: translateY(-2px);
+}
 .new-note-form input,
 .new-note-form textarea {
-  width: 90%;
+  width: 100%;
   padding: 12px;
   margin-bottom: 15px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
   font-size: 1rem;
-  background-color: #fefefe;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: border 0.2s;
+}
+.new-note-form input:focus,
+.new-note-form textarea:focus {
+  border-color: #6a82fb;
+  outline: none;
 }
 
 .new-note-form button {
-  background-color: #6a82fb;
+  background: #6a82fb;
   color: white;
   padding: 10px 20px;
-  font-weight: bold;
+  font-weight: 600;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background 0.2s, transform 0.2s;
 }
-
 .new-note-form button:hover {
-  background-color: #5b6df7;
-}
-
-.notes-list {
-  display: grid;
-  gap: 20px;
-}
-
-.note-card {
-  background: white;
-  border-left: 5px solid #6a82fb;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
-  transition: transform 0.2s;
-}
-
-.note-card:hover {
+  background: #5b6df7;
   transform: translateY(-2px);
 }
 
-.note-card input,
-.note-card textarea {
-  width: 70%;
-  border: none;
-  font-size: 1rem;
-  margin-bottom: 10px;
-  border-bottom: 1px solid #ccc;
-  padding: 5px;
-  outline: none;
-  background-color: transparent;
+/* Notes List Layout */
+.notes-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  padding: 0 10px;
 }
 
-.note-topic {
-  font-weight: bold;
-  font-size: 1.1rem;
+/* Individual Note Card */
+.note-card {
+  background: #fff;
+  border-left: 5px solid #6a82fb;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
+  transition: transform 0.2s;
+}
+.note-card:hover {
+  transform: translateY(-5px);
+}
+.note-card input,
+.note-card textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  border: none;
+  border-bottom: 1px solid #ddd;
+  background: transparent;
+  transition: border-color 0.2s;
+}
+.note-card input:focus,
+.note-card textarea:focus {
+  border-color: #6a82fb;
+  outline: none;
 }
 
 .note-date {
   font-size: 0.85rem;
-  color: #777;
+  color: #888;
+  margin-top: 8px;
 }
 
 .note-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 12px;
 }
-
 .note-actions button {
-  background-color: #6a82fb;
+  background: #6a82fb;
   color: white;
+  border: none;
   padding: 6px 12px;
   border-radius: 6px;
-  border: none;
   cursor: pointer;
   font-size: 0.9rem;
+  transition: background 0.2s;
 }
-
 .note-actions button:hover {
-  background-color: #5466e0;
+  background: #4d5fe1;
+}
+.note-actions button:disabled {
+  background: #bbb;
+  cursor: not-allowed;
 }
 
-.no-notes {
+/* Make whole note-card clickable */
+.note-card {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.note-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+}
+
+/* Overlay a transparent button on the card */
+.note-card-button {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1;
+}
+
+/* Center aligned heading & chapter inside card */
+.note-content-center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
   text-align: center;
-  font-style: italic;
-  color: #888;
-  padding-top: 20px;
+  pointer-events: none; /* Allows click to pass to button */
+}
+
+.note-content-center .note-topic {
+  font-size: 1.4rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #2c3e50;
+}
+
+.note-content-center .note-chapter {
+  font-size: 1.1rem;
+  color: #555;
 }

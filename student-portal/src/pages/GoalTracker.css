@@ -1,0 +1,113 @@
+.goal-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.goal-container h2 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.goal-form {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.goal-form input[type="text"],
+.goal-form input[type="date"] {
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  min-width: 180px;
+  box-sizing: border-box;
+}
+
+.goal-form button {
+  background-color: #6a82fb;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.goal-form button:hover {
+  background-color: #5466e0;
+}
+
+.goal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.goal-card {
+  background: white;
+  border-radius: 12px;
+  padding: 25px 20px;
+  box-shadow: 0 12px 25px rgba(106, 130, 251, 0.25);
+  transition: box-shadow 0.3s ease;
+}
+
+.goal-card:hover {
+  box-shadow: 0 16px 40px rgba(106, 130, 251, 0.45);
+}
+
+.goal-card h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #222;
+}
+
+.progress-bar-container {
+  background: #e0e7ff;
+  border-radius: 10px;
+  height: 22px;
+  margin: 15px 0;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.progress-bar {
+  background: #6a82fb;
+  height: 100%;
+  border-radius: 10px 0 0 10px;
+  transition: width 0.4s ease;
+}
+
+.goal-actions {
+  margin-top: 15px;
+  display: flex;
+  gap: 15px;
+}
+
+.goal-actions button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #6a82fb;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.goal-actions button:disabled {
+  background: #bbb;
+  cursor: not-allowed;
+}
+
+.goal-actions button:hover:not(:disabled) {
+  background: #5466e0;
+}

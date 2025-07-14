@@ -1,5 +1,6 @@
 import React from 'react';
 import Sidebar from './Sidebar';
+import TopBar from './Topbar';
 import './Layout.css';
 
 function Layout({ children }) {
@@ -7,7 +8,10 @@ function Layout({ children }) {
     <div className="layout">
       <Sidebar />
       <div className="main-content">
-        {children}
+        <TopBar />
+        <div className="page-content">
+          {children}
+        </div>
       </div>
     </div>
   );
