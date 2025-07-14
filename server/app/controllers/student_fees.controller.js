@@ -1,5 +1,5 @@
 const { where } = require('sequelize');
-const { StudentFees } = require('../models');
+const { StudentFees, StudentSubject, SubjectTutor  } = require('../models');
 
 
 exports.create = async (req, res) => {
@@ -70,3 +70,35 @@ exports.delete = async (req, res) => {
   }
 };
 
+exports.getStudentFeesSummary = async (req, res) => {
+  const studentId = req.params.id;
+
+  try {
+    const studentFeeRecords = await StudentFees.findAll({
+      where: { studentid: studentId }
+    });
+
+    let totalPaid = 0;
+    let totalPending = 0;
+
+    studentFeeRecords.forEach((record) => {
+      const amount = parseFloat(record.totalamount) || 0;
+      if (record.status === 'PAID') {
+        totalPaid += amount;
+      } else if (record.status === 'PENDING') {
+        totalPending += amount;
+      }
+    })
+    //const totalPaid = studentFeeRecords.reduce((sum, sf) => sum + parseFloat(sf.amount), 0);
+
+    res.status(200).json({
+      studentid: studentId,
+      total_fees: studentFeeRecords,
+      pending_fees: totalPending,
+      paid_fees: totalPaid
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: error.message });
+  }
+};

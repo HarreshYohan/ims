@@ -13,6 +13,8 @@ module.exports = (app) => {
     router.put("/:id", student_fees.update);
     
     router.delete("/:id", student_fees.delete);
+
+    router.get("/summary/:id", student_fees.getStudentFeesSummary);
   
     app.use('/api/student-fees', router);
   };
