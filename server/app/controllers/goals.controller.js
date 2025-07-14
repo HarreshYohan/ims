@@ -11,7 +11,7 @@ exports.getGoalsByStudent = async (req, res) => {
   }
 };
 
-exports.createGoal = async (req, res) => {
+exports.createGoal = async (req, res) => {  
   try {
     const { studentid, goaltitle, targetdate } = req.body;
 

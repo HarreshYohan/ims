@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import api from '../services/api'; // your axios instance
-import {jwtDecode} from 'jwt-decode';
+import api from '../services/api';
+import { jwtDecode } from 'jwt-decode';
 import './GoalTracker.css';
 
 const GoalTracker = () => {
   const [studentid, setstudentid] = useState(null);
   const [goals, setGoals] = useState([]);
   const [newGoal, setNewGoal] = useState({ goaltitle: '', targetdate: '' });
+  const [customProgress, setCustomProgress] = useState({});
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -37,18 +38,29 @@ const GoalTracker = () => {
     }
   };
 
-  const handleProgressChange = async (goal, increment) => {
-    let newProgress = goal.progress + increment;
-    if (newProgress > 100) newProgress = 100;
-    if (newProgress < 0) newProgress = 0;
+const handleProgressChange = async (goal, newProgress, isIncrement = true) => {
+  if (newProgress > 100) newProgress = 100;
+  if (newProgress < 0) newProgress = 0;
 
-    try {
-      const res = await api.put(`/api/goals/${goal.id}`, { progress: newProgress });
-      setGoals(goals.map(g => (g.id === goal.id ? res.data : g)));
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  let newStreak = goal.streak;
+  if (isIncrement && newProgress > goal.progress) {
+    newStreak += 1;
+  } else if (!isIncrement && newProgress < goal.progress && newStreak > 0) {
+    newStreak -= 1;
+  }
+
+  try {
+    const res = await api.put(`/api/goals/${goal.id}`, {
+      progress: newProgress,
+      streak: newStreak
+    });
+    setGoals(goals.map(g => (g.id === goal.id ? res.data : g)));
+    setCustomProgress(prev => ({ ...prev, [goal.id]: '' }));
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 
   const handleDeleteGoal = async (id) => {
     if (!window.confirm('Delete this goal?')) return;
@@ -89,29 +101,40 @@ const GoalTracker = () => {
               <p>Target Date: {new Date(goal.targetdate).toLocaleDateString()}</p>
 
               <div className="progress-bar-container" aria-label={`Progress: ${goal.progress}%`}>
-                <div
-                  className="progress-bar"
-                  style={{ width: `${goal.progress}%` }}
-                ></div>
+                <div className="progress-bar" style={{ width: `${goal.progress}%` }}></div>
               </div>
 
               <p>Progress: {goal.progress.toFixed(0)}%</p>
               <p>Streak: {goal.streak} {goal.streak === 1 ? 'day' : 'days'}</p>
 
               <div className="goal-actions">
-                <button
-                  onClick={() => handleProgressChange(goal, +10)}
-                  disabled={goal.progress >= 100}
-                >
-                  +10%
+                <button className="button1" onClick={() => handleProgressChange(goal, goal.progress + 10, true)} disabled={goal.progress >= 100}>+10%</button>
+
+                <button className="button2" onClick={() => handleProgressChange(goal, goal.progress - 10, false)} disabled={goal.progress <= 0}>-10%</button>
+
+                <div className="custom-progress">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={customProgress[goal.id] || ''}
+                    placeholder="Set %"
+                    onChange={(e) => setCustomProgress(prev => ({ ...prev, [goal.id]: e.target.value }))}
+                  />
+                 <button
+                    className="save"
+                    onClick={() => {
+                        const inputVal = parseFloat(customProgress[goal.id] || 0);
+                        if (!isNaN(inputVal) && inputVal !== 0) {
+                        handleProgressChange(goal, goal.progress + inputVal);
+                        }
+                    }}
+                    >
+                    Save
                 </button>
-                <button
-                  onClick={() => handleProgressChange(goal, -10)}
-                  disabled={goal.progress <= 0}
-                >
-                  -10%
-                </button>
-                <button onClick={() => handleDeleteGoal(goal.id)}>Delete</button>
+                </div>
+
+                <button className="delete" onClick={() => handleDeleteGoal(goal.id)}>Delete</button>
               </div>
             </div>
           ))
