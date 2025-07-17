@@ -19,6 +19,7 @@ function TimeTable() {
   const [schedule, setSchedule] = useState({}); // { timeslot: { day: subject } }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [role, setRole] = useState();
 
   useEffect(() => {
     async function fetchTimetable() {
@@ -31,8 +32,14 @@ function TimeTable() {
 
         const decoded = jwtDecode(token);
         const studentId = decoded.user_id;
+        var role;
+        if (decoded.user_type === 'TUTOR') {
+          role = 'tutor';
+        } else {
+          role = 'student';
+        }
 
-        const res = await api.get(`/api/timetable/student/${studentId}`);
+        const res = await api.get(`//timetable/${role}/${studentId}`);
         const rawData = res.data.data;
         const timetableMap = {};
 

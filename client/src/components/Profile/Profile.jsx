@@ -25,7 +25,7 @@ export const Profile = () => {
 
   const fetchProfile = async (userId) => {
     try {
-      const response = await api.get(`/api/profile/${userId}`);
+      const response = await api.get(`//profile/${userId}`);
       const data = response.data;
       setRole(data.user_type || 'STUDENT');
       setUser(data);
@@ -77,7 +77,7 @@ export const Profile = () => {
     }
 
     try {
-      await api.post(`/api/profile/${user.id}`, user);
+      await api.post(`//profile/${user.id}`, user);
       setMessage({ type: 'success', text: 'Profile updated successfully' });
     } catch (err) {
       console.error('Update failed:', err);

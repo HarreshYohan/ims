@@ -33,7 +33,7 @@ export const SubjectTutor = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await api.get(`/api/subject-tutor/all?page=${currentPage}&limit=${itemsPerPage}`);
+        const response = await api.get(`//subject-tutor/all?page=${currentPage}&limit=${itemsPerPage}`);
         if (response.status === 200) {
           const { data, totalPages } = response.data;
           setData(data);
@@ -94,7 +94,7 @@ export const SubjectTutor = () => {
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this item?')) {
       try {
-        await api.delete(`/api/subject-tutor/${id}`);
+        await api.delete(`//subject-tutor/${id}`);
         // Refresh data after delete
         setData(data.filter(item => item.id !== id));
         setFilteredData(filteredData.filter(item => item.id !== id));

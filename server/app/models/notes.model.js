@@ -2,9 +2,13 @@ const { DataTypes, Sequelize } = require('sequelize');
 
 const Notes = (sequelize) => {
   return  sequelize.define('Notes', {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
     studentid: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
       references: {
         model: 'Student', 
         key: 'id',

@@ -36,7 +36,7 @@ export const Tutor = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await api.get(`/api/tutor/all?page=${currentPage}&limit=${itemsPerPage}`);
+        const response = await api.get(`//tutor/all?page=${currentPage}&limit=${itemsPerPage}`);
         if (response.status === 200) {
           const { data, totalPages } = response.data; 
           setData(data);

@@ -237,28 +237,61 @@ exports.delete = async (req, res) => {
   }
 };
 
-exports.findForStudent = async (req, res) => {
-  const studentId = req.params.studentid;
+// Internal helper to get timetable records for student (without res)
+const getStudentTimetableRecords = async (studentId) => {
+  const studentSubjects = await StudentSubject.findAll({
+    where: { studentid: studentId },
+    attributes: ['subjecttutorid'],
+  });
 
-  try {
-    const student = await Student.findOne({
-      where: {
-        user_id: studentId,
+  const subjectTutorIds = studentSubjects.map(subject => subject.subjecttutorid);
+
+  const rawTimetable = await Timetable.findAll();
+
+  const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+
+  const filtered = [];
+
+  rawTimetable.forEach(entry => {
+    days.forEach(day => {
+      if (subjectTutorIds.includes(entry[day])) {
+        filtered.push({
+          timeslot: entry.timeslot,
+          day: day,
+        });
       }
     });
-    if (!student ) {
-      return res.status(404).json({ message: 'Student or classroom not found.' });
+  });
+
+  return filtered;
+};
+
+
+exports.findForStudent = async (req, res) => {
+  const studentId = req.params.studentid;
+  try {
+    const records = await getStudentTimetableRecords(studentId);
+    res.json({ data: records });
+  } catch (err) {
+    console.error('Student timetable fetch failed:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.findForTutor = async (req, res) => {
+  const tutorId = req.params.tutorid;
+
+  try {
+    const subjectTutors = await SubjectTutor.findAll({ where: { tutorid: tutorId } });
+    const subjectTutorIds = subjectTutors.map(st => st.id);
+
+    if (subjectTutorIds.length === 0) {
+      return res.status(404).json({ message: 'No subjects assigned to this tutor.' });
     }
 
-    const studentSubjects = await StudentSubject.findAll({
-      where: {
-        studentid: studentId,
-      },
-      attributes: ['subjecttutorid'], 
-    });
-const subjectTutorIds = studentSubjects.map(subject => subject.subjecttutorid);
+    
 
-const rawTimetable = await Timetable.findAll({
+  const rawTimetable = await Timetable.findAll({
   include: [
     {
       model: SubjectTutor,
@@ -336,48 +369,15 @@ const rawTimetable = await Timetable.findAll({
   }
 };
 
-exports.findForTutor = async (req, res) => {
-  const tutorId = req.params.tutorid;
-
+exports.getClassCount = async (req, res) => {
+  const studentId = req.params.studentid;
   try {
-    const subjectTutors = await SubjectTutor.findAll({ where: { tutorid: tutorId } });
-    const subjectTutorIds = subjectTutors.map(st => st.id);
-
-    if (subjectTutorIds.length === 0) {
-      return res.status(404).json({ message: 'No subjects assigned to this tutor.' });
-    }
-
-    
-
-    const timetable = await Timetable.findAll({
-      where: {
-        [Op.or]: [
-          { monday: { [Op.in]: subjectTutorIds } },
-          { tuesday: { [Op.in]: subjectTutorIds } },
-          { wednesday: { [Op.in]: subjectTutorIds } },
-          { thursday: { [Op.in]: subjectTutorIds } },
-          { friday: { [Op.in]: subjectTutorIds } },
-          { saturday: { [Op.in]: subjectTutorIds } },
-          { sunday: { [Op.in]: subjectTutorIds } },
-        ],
-      },
-      include: [
-        { model: Classroom, as: 'classroom' },
-        { model: SubjectTutor, as: 'mondaycls', include: ['subject', 'tutor', 'grade'] },
-        { model: SubjectTutor, as: 'tuesdaycls', include: ['subject', 'tutor', 'grade'] },
-        { model: SubjectTutor, as: 'wednesdaycls', include: ['subject', 'tutor', 'grade'] },
-        { model: SubjectTutor, as: 'thursdaycls', include: ['subject', 'tutor', 'grade'] },
-        { model: SubjectTutor, as: 'fridaycls', include: ['subject', 'tutor', 'grade'] },
-        { model: SubjectTutor, as: 'saturdaycls', include: ['subject', 'tutor', 'grade'] },
-        { model: SubjectTutor, as: 'sundaycls', include: ['subject', 'tutor', 'grade'] },
-      ],
-      order: [['timeslotid', 'ASC']]
-    });
-
-    res.json({ data: timetable });
+    const records = await getStudentTimetableRecords(studentId);
+    res.json({ data: records.length });
   } catch (err) {
-    console.error('Tutor timetable fetch failed:', err);
+    console.error('Student timetable fetch failed:', err);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 

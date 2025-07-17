@@ -35,7 +35,7 @@ export const Transaction = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await api.get(`/api/transaction/all?page=${currentPage}&limit=${itemsPerPage}`);
+        const response = await api.get(`//transaction/all?page=${currentPage}&limit=${itemsPerPage}`);
         if (response.status === 200) {
           const { data, totalPages } = response.data;
           setData(data);
@@ -105,7 +105,7 @@ export const Transaction = () => {
       const query = new URLSearchParams(filters).toString();
 
       // Make API request to download filtered data
-      const response = await api.get(`/api/transaction/download/all?${query}`, {
+      const response = await api.get(`//transaction/download/all?${query}`, {
         headers: {
           Authorization: `Bearer ${localToken}`
         },

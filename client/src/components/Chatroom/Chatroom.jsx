@@ -35,7 +35,7 @@ export const Chatroom = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get(`/api/student/student-subject/${userId}`);
+      const res = await api.get(`//student/student-subject/${userId}`);
       if (res.status === 200) {
         setSubjects(res.data.data.subjects);
       } else {
@@ -54,7 +54,7 @@ export const Chatroom = () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get(`/api/chatroom/${subjectId}`);
+      const res = await api.get(`//chatroom/${subjectId}`);
       if (res.status === 200) {
         setData(res.data);
         setTimeout(scrollToBottom, 100);

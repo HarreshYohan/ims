@@ -48,7 +48,7 @@ export const Timetable = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get(`/api/timetable/all?page=${currentPage}&limit=${itemsPerPage}`);
+      const response = await api.get(`//timetable/all?page=${currentPage}&limit=${itemsPerPage}`);
       if (response.status === 200) {
         const { data, totalPages } = response.data;
         setData(data);
@@ -110,7 +110,7 @@ export const Timetable = () => {
   const handleDelete = async (id, timeslotid, day) => {
     console.log(`Delete user with ID: ${id} ${day} ${timeslotid}`);
     try {
-      const response = await api.delete(`/api/timetable/${id}`, {
+      const response = await api.delete(`//timetable/${id}`, {
         params: {
           day: day,
           timeslotid: timeslotid
@@ -125,7 +125,7 @@ export const Timetable = () => {
 
   const handleSave = async () => {
     try {
-      const response = await api.post(`/api/timetable`, {
+      const response = await api.post(`//timetable`, {
         subjecttutorid: subjectTutorid,
         classroomid: classroomid,
         timeslotid: editData.timeslotid,

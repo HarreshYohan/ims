@@ -2,9 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode';
 import './Dashboard.css';
+import api from '../services/api';
 
 function Dashboard() {
   const [studentName, setStudentName] = useState('Student');
+  const [studentId, setStudentId] = useState(null);
+  const [dashboardData, setDashboardData] = useState({
+    totalClasses: 0,
+    totalNotes: 0,
+    nextPaymentDate: '',
+    activeGoals: 0,
+  });
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -12,6 +21,7 @@ function Dashboard() {
       try {
         const decoded = jwtDecode(token);
         setStudentName(decoded.username || decoded.email || 'Student');
+        setStudentId(decoded.user_id);
         console.log(decoded)
       } catch (err) {
         console.error('Invalid token:', err);
@@ -19,6 +29,30 @@ function Dashboard() {
       }
     }
   }, []);
+
+    useEffect(() => {
+    if (!studentId) return;
+
+    const fetchData = async () => {
+      try {
+        const [classRes, notesRes, feesRes, goalsRes] = await Promise.all([
+          api.get(`/timetable/student-count/${studentId}`),
+          api.get(`/notes/count/${studentId}`),
+          api.get(`/student-fees/last-paid/${studentId}`),
+          // api.get(`/api/goals/active-count/${studentId}`),
+        ]);
+        setDashboardData({
+          totalClasses: classRes.data.data,
+          totalNotes: notesRes.data.totalNotes,
+          nextPaymentDate: feesRes.data.nextPaymentDate,
+          // activeGoals: goalsRes.data.activeGoals,
+        });
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+      }
+    };
+      fetchData();
+  }, [studentId]);
 
   return (
     <div className="dashboard-container">
@@ -32,17 +66,20 @@ function Dashboard() {
       <section className="dashboard-grid">
         <Link to="/timetable" className="dashboard-card timetable">
           <h2>📅 Time Table</h2>
-          <p>View your weekly schedule</p>
+          <h3>View your weekly schedule</h3>
+          <p>{dashboardData.totalClasses} classes this week</p>
         </Link>
 
         <Link to="/notes" className="dashboard-card notes">
           <h2>📝 Notes</h2>
-          <p>Manage your subject notes</p>
+          <h3>Manage your subject notes</h3>
+          <p>{dashboardData.totalNotes} notes saved</p>
         </Link>
 
         <Link to="/fees" className="dashboard-card fees">
           <h2>💰 Fees</h2>
-          <p>Track your payments</p>
+          <h3>Track your payments</h3>
+          <p>last payment done on {new Date(dashboardData.nextPaymentDate).toLocaleDateString()}</p>
         </Link>
 
         <Link to="/goals" className="dashboard-card profile">

@@ -18,7 +18,7 @@ const GoalTracker = () => {
 
   useEffect(() => {
     if (studentid) {
-      api.get(`/api/goals/${studentid}`)
+      api.get(`//goals/${studentid}`)
         .then(res => setGoals(res.data))
         .catch(err => console.error(err));
     }
@@ -39,6 +39,7 @@ const GoalTracker = () => {
   };
 
 const handleProgressChange = async (goal, newProgress, isIncrement = true) => {
+  console.log(goal)
   if (newProgress > 100) newProgress = 100;
   if (newProgress < 0) newProgress = 0;
 
@@ -46,11 +47,12 @@ const handleProgressChange = async (goal, newProgress, isIncrement = true) => {
   if (isIncrement && newProgress > goal.progress) {
     newStreak += 1;
   } else if (!isIncrement && newProgress < goal.progress && newStreak > 0) {
-    newStreak -= 1;
+    newStreak = newStreak - 1;
   }
 
+  console.log(newStreak)
   try {
-    const res = await api.put(`/api/goals/${goal.id}`, {
+    const res = await api.put(`//goals/${goal.id}`, {
       progress: newProgress,
       streak: newStreak
     });
@@ -65,7 +67,7 @@ const handleProgressChange = async (goal, newProgress, isIncrement = true) => {
   const handleDeleteGoal = async (id) => {
     if (!window.confirm('Delete this goal?')) return;
     try {
-      await api.delete(`/api/goals/${id}`);
+      await api.delete(`//goals/${id}`);
       setGoals(goals.filter(g => g.id !== id));
     } catch (err) {
       console.error(err);

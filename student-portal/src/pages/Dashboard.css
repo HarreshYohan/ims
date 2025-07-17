@@ -80,6 +80,12 @@
   border-left: 6px solid #ffc107;
 }
 
+.dashboard-card.fees p {
+ font-weight:600;
+  color: #1bad0e;
+}
+
+  
 .quote-card {
   margin-top: 40px;
   padding: 25px;
@@ -169,4 +175,14 @@
 
 .dropdown-menu button:hover {
   background-color: #f1f1f1;
+}
+
+.dashboard-card p {
+  font-weight:600;
+  color: #1cbac5;
+}
+
+.dashboard-card h3 {
+  font-weight:600;
+  color: #040b68;
 }

@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 exports.getGoalsByStudent = async (req, res) => {
   try {
     const { studentId } = req.params;
-    const goals = await Goals.findAll({ where: { studentid :studentId } });
+    const goals = await Goals.findAll({ where: { studentid :studentId } ,order: [['createdAt', 'DESC']]});
     res.json(goals);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -19,7 +19,10 @@ exports.createGoal = async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const newGoal = await Goals.create({ studentid, goaltitle, targetdate });
+    const lastprogressupdate = new Date().toISOString().slice(0, 10); 
+    console.log(lastprogressupdate)
+
+    const newGoal = await Goals.create({ studentid, goaltitle, targetdate, lastprogressupdate });
     res.status(201).json(newGoal);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -39,12 +42,9 @@ exports.updateGoal = async (req, res) => {
     let newStreak = goal.streak;
 
     if (progress !== undefined) {
-      if (goal.lastProgressUpdate !== today && progress > goal.progress) {
+      if (goal.lastProgressUpdate !== today) {
         // Increase streak by 1 only if progress improved today
         newStreak += 1;
-      } else if (goal.lastProgressUpdate !== today && progress <= goal.progress) {
-        // If no progress made today, reset streak
-        newStreak = 0;
       }
 
       await goal.update({

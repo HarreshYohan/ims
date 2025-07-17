@@ -102,3 +102,13 @@ exports.getStudentFeesSummary = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+exports.getNextPaymentDate = async (req, res) => {
+  const { id } = req.params;
+  const nextPayment = await StudentFees.findOne({
+    where: { studentid: id, status :'PAID' },
+    order: [['createdAt', 'DESC']],
+  });
+  console.log(nextPayment)
+  res.json({ nextPaymentDate: nextPayment ? nextPayment.createdAt : null });
+};

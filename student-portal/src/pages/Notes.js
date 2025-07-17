@@ -10,6 +10,8 @@ function Notes() {
   const [newNote, setNewNote] = useState({ heading: '', chapter: '', note: '' });
   const [studentId, setStudentId] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editedNote, setEditedNote] = useState({});
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -20,7 +22,7 @@ function Notes() {
 
   useEffect(() => {
     if (studentId) {
-      api.get(`/api/student/student-subject/${studentId}`)
+      api.get(`/student/student-subject/${studentId}`)
         .then((res) => {
           setSubjects(res.data.data?.subjects.map((s) => s.subject) || []);
         })
@@ -30,7 +32,7 @@ function Notes() {
 
   useEffect(() => {
     if (studentId && selectedSubject) {
-      api.get(`/api/notes/student/${studentId}/${selectedSubject}`)
+      api.get(`/notes/student/${studentId}/${selectedSubject}`)
         .then((res) => setNotes(res.data));
     } else {
       setNotes([]);
@@ -41,7 +43,7 @@ function Notes() {
   const handleAddNote = async () => {
     if (!newNote.heading || !newNote.note || !newNote.chapter) return;
     try {
-      const res = await api.post('/api/notes', {
+      const res = await api.post('/notes', {
         studentid: studentId,
         subject: selectedSubject,
         heading: newNote.heading,
@@ -56,6 +58,7 @@ function Notes() {
   };
 
   const handleDeleteNote = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this note?')) return;
     try {
       await api.delete(`/notes/${id}`);
       setNotes(notes.filter((n) => n.id !== id));
@@ -66,6 +69,7 @@ function Notes() {
   };
 
   const handleSaveNote = async (note) => {
+    if (!window.confirm('Are you sure you want to save the changes?')) return;
     try {
       await api.put(`/notes/${note.id}`, note);
     } catch (err) {
@@ -74,21 +78,10 @@ function Notes() {
   };
 
   const handleEditNote = (index, field, value) => {
+    if (!window.confirm(`Are you sure you want to change ${field}?`)) return;
     const updated = [...notes];
     updated[index][field] = value;
     setNotes(updated);
-  };
-
-  const handlePrev = () => {
-    if (activeIndex > 0) {
-      setActiveIndex((prev) => prev - 1);
-    }
-  };
-
-  const handleNext = () => {
-    if (activeIndex < notes.length - 1) {
-      setActiveIndex((prev) => prev + 1);
-    }
   };
 
   return (
@@ -108,10 +101,33 @@ function Notes() {
       {selectedSubject && (
         <div className="new-note-form">
           <h3>Add a New Note</h3>
-          <input type="text" placeholder="Heading" value={newNote.heading} onChange={(e) => setNewNote({ ...newNote, heading: e.target.value })} />
-          <input type="text" placeholder="Chapter" value={newNote.chapter} onChange={(e) => setNewNote({ ...newNote, chapter: e.target.value })} />
-          <textarea placeholder="Your Study Note" value={newNote.note} onChange={(e) => setNewNote({ ...newNote, note: e.target.value })} />
-          <button onClick={handleAddNote}>➕ Add Note</button>
+          <input
+            type="text"
+            placeholder="Heading"
+            value={newNote.heading}
+            onChange={(e) => setNewNote({ ...newNote, heading: e.target.value })}
+          />
+          <input
+            type="text"
+            placeholder="Chapter"
+            value={newNote.chapter}
+            onChange={(e) => setNewNote({ ...newNote, chapter: e.target.value })}
+          />
+          <textarea
+            placeholder="Your Study Note"
+            value={newNote.note}
+            onChange={(e) => setNewNote({ ...newNote, note: e.target.value })}
+          />
+          <button
+            onClick={handleAddNote}
+            disabled={!newNote.heading || !newNote.chapter || !newNote.note}
+            // disabled={false}
+          >
+            ➕ Add Note
+          </button>
+          {(!newNote.heading || !newNote.chapter || !newNote.note) && (
+            <p style={{ color: 'red', marginTop: '5px' }}>* All fields are required</p>
+          )}
         </div>
       )}
 
@@ -119,20 +135,54 @@ function Notes() {
         {notes.length === 0 && selectedSubject && <p>No notes yet for {selectedSubject}.</p>}
 
         {notes.map((note, idx) => (
-          <div key={note.id} className={`note-card ${activeIndex === idx ? 'flipped' : ''}`}>
+          <div key={note.id} className="note-card">
             <div className="note-inner">
               {activeIndex === idx ? (
                 <div className="note-back">
-                  <input value={note.heading} onChange={(e) => handleEditNote(idx, 'heading', e.target.value)} placeholder="Heading" />
-                  <input value={note.chapter} onChange={(e) => handleEditNote(idx, 'chapter', e.target.value)} placeholder="Chapter" />
-                  <textarea value={note.note} onChange={(e) => handleEditNote(idx, 'note', e.target.value)} placeholder="Note Content" />
+                  {editingIndex === idx ? (
+                    <>
+                      <input
+                        value={editedNote.heading}
+                        onChange={(e) => setEditedNote({ ...editedNote, heading: e.target.value })}
+                        placeholder="Heading"
+                      />
+                      <input
+                        value={editedNote.chapter}
+                        onChange={(e) => setEditedNote({ ...editedNote, chapter: e.target.value })}
+                        placeholder="Chapter"
+                      />
+                      <textarea
+                        value={editedNote.note}
+                        onChange={(e) => setEditedNote({ ...editedNote, note: e.target.value })}
+                        placeholder="Note Content"
+                      />
+                      <button
+                        onClick={() => {
+                          handleSaveNote({ ...note, ...editedNote });
+                          setEditingIndex(null);
+                        }}
+                      >
+                        💾 Save
+                      </button>
+                      <button onClick={() => setEditingIndex(null)}>❌ Cancel Edit</button>
+                    </>
+                  ) : (
+                    <>
+                      <div><strong>Heading:</strong> {note.heading}</div>
+                      <div><strong>Chapter:</strong> {note.chapter}</div>
+                      <div><strong>Note:</strong> {note.note}</div>
+                      <button onClick={() => {
+                        setEditingIndex(idx);
+                        setEditedNote({ heading: note.heading, chapter: note.chapter, note: note.note });
+                      }}>✏️ Edit</button>
+                    </>
+                  )}
+
                   <p className="note-date">📅 {new Date(note.createdAt).toLocaleString()}</p>
+
                   <div className="note-actions">
-                    <button onClick={() => handleSaveNote(note)}>💾 Save</button>
                     <button onClick={() => handleDeleteNote(note.id)}>🗑 Delete</button>
                     <button onClick={() => setActiveIndex(null)}>❌ Close</button>
-                    {/* <button onClick={handlePrev} disabled={idx === 0}>⬅ Prev</button>
-                    <button onClick={handleNext} disabled={idx === notes.length - 1}>Next ➡</button> */}
                   </div>
                 </div>
               ) : (
@@ -146,6 +196,7 @@ function Notes() {
             </div>
           </div>
         ))}
+
       </div>
     </div>
   );

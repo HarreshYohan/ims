@@ -37,7 +37,7 @@ export const Student = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await api.get(`/api/student/all?page=${currentPage}&limit=${itemsPerPage}`);
+        const response = await api.get(`//student/all?page=${currentPage}&limit=${itemsPerPage}`);
         if (response.status === 200) {
           const { data, totalPages } = response.data;
           setData(data);
@@ -104,7 +104,7 @@ export const Student = () => {
 
       const query = new URLSearchParams(filters).toString();
 
-      const response = await api.get(`/api/student/download/all?${query}`, {
+      const response = await api.get(`//student/download/all?${query}`, {
         headers: {
           Authorization: `Bearer ${localToken}`
         },

@@ -15,7 +15,7 @@ function Fees() {
         const decoded = jwtDecode(token);
         const studentId = decoded.user_id;
 
-        const res = await api.get(`/api/student-fees/summary/${studentId}`);
+        const res = await api.get(`//student-fees/summary/${studentId}`);
         setSummary(res.data);
       } catch (error) {
         console.error('Error fetching fees summary:', error);

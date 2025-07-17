@@ -94,8 +94,6 @@ exports.delete = async (req, res) => {
 
 exports.findByStudentAndSubject = async (req, res) => {
   const { studentid, subject } = req.params;
-
-  console.log(studentid, subject)
   try {
     const notes = await Notes.findAll({
       where: {
@@ -104,12 +102,14 @@ exports.findByStudentAndSubject = async (req, res) => {
       }
     });
 
-    // if (!notes.length) {
-    //   return res.status(404).json({ message: 'No notes found for this student and subject.' });
-    // }
-
     res.status(200).json(notes);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
+};
+
+exports.getNotesCount = async (req, res) => {
+  const { studentid } = req.params;
+  const count = await Notes.count({ where: { studentid : studentid } });
+  res.json({ totalNotes: count });
 };

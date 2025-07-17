@@ -28,7 +28,7 @@ export const Classroom = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await api.get(`/api/classroom/all?page=${currentPage}&limit=${itemsPerPage}`);
+        const response = await api.get(`//classroom/all?page=${currentPage}&limit=${itemsPerPage}`);
         if (response.status === 200) {
           const { data, totalPages } = response.data; 
           setData(data);

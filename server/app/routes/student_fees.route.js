@@ -15,6 +15,8 @@ module.exports = (app) => {
     router.delete("/:id", student_fees.delete);
 
     router.get("/summary/:id", student_fees.getStudentFeesSummary);
+
+    router.get("/last-paid/:id", student_fees.getNextPaymentDate);
   
     app.use('/api/student-fees', router);
   };
