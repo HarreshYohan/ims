@@ -15,7 +15,9 @@ module.exports = (app) => {
 
   router.get("/student/:studentid/:subject", notes.findByStudentAndSubject);
 
-  router.get("/count/:studentid", notes.getNotesCount);
+  router.get("/count/:studentid", notes.getNotesCountForStudent);
+
+  router.get("/count-tutor/:id", notes.getNotesCountForTutor);
 
   app.use('/api/notes', router);
 };

@@ -28,8 +28,8 @@ export const EditStudent = () => {
       setLoading(true);
       setError(null);
       try {
-        const studentResponse = await api.get(`//student/${id}`);
-        const feesResponse = await api.get(`//student-fees/${id}`);
+        const studentResponse = await api.get(`/api/student/${id}`);
+        const feesResponse = await api.get(`/api/student-fees/${id}`);
         if (studentResponse.status === 200 && feesResponse.status === 200) {
           setStudentData(studentResponse.data);
           setFeesData(feesResponse.data);
@@ -56,7 +56,7 @@ export const EditStudent = () => {
 
   const handleSave = async () => {
     try {
-      const response = await api.put(`//student/${id}`, studentData);
+      const response = await api.put(`/api/student/${id}`, studentData);
       if (response.status === 200) {
         alert('Student data updated successfully');
         navigate('/students');

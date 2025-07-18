@@ -13,7 +13,7 @@ exports.getGoalsByStudent = async (req, res) => {
 
 exports.createGoal = async (req, res) => {  
   try {
-    const { studentid, goaltitle, targetdate } = req.body;
+    const { studentid, goaltitle, targetdate, subjecttutorid } = req.body;
 
     if (!studentid || !goaltitle || !targetdate) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -22,7 +22,7 @@ exports.createGoal = async (req, res) => {
     const lastprogressupdate = new Date().toISOString().slice(0, 10); 
     console.log(lastprogressupdate)
 
-    const newGoal = await Goals.create({ studentid, goaltitle, targetdate, lastprogressupdate });
+    const newGoal = await Goals.create({ studentid, goaltitle, targetdate, lastprogressupdate , subjecttutorid});
     res.status(201).json(newGoal);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -37,13 +37,11 @@ exports.updateGoal = async (req, res) => {
     const goal = await Goals.findByPk(id);
     if (!goal) return res.status(404).json({ error: 'Goal not found' });
 
-    // Streak logic: update streak only if progress updated on a new day
-    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const today = new Date().toISOString().slice(0, 10);
     let newStreak = goal.streak;
 
     if (progress !== undefined) {
-      if (goal.lastProgressUpdate !== today) {
-        // Increase streak by 1 only if progress improved today
+      if (goal.lastprogressupdate !== today) {
         newStreak += 1;
       }
 
@@ -70,5 +68,31 @@ exports.deleteGoal = async (req, res) => {
     res.json({ message: 'Goal deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getActiveGoalsCount = async (req, res) => {
+  const { studentid } = req.params;
+  const count = await Goals.count({
+    where: { studentid : studentid, progress: { [Op.lt]: 100 } },
+  });
+  res.json({ activeGoals: count });
+};
+
+exports.getStreak = async (req, res) => {
+  const { studentid } = req.params;
+  try {
+    const goals = await Goals.findAll({ where: { studentid } });
+
+    if (!goals || goals.length === 0) {
+      return res.json({ average_streak: 0 });
+    }
+
+    const totalStreak = goals.reduce((sum, goal) => sum + (goal.streak || 0), 0);
+    const averageStreak = totalStreak / goals.length;
+
+    res.json({ average_streak: averageStreak.toFixed(2) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };

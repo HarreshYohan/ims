@@ -32,6 +32,7 @@ const Transaction = require('./transaction.model')(sequelize, Sequelize.DataType
 const StudentFees = require('./student_fees.model')(sequelize, Sequelize.DataTypes);
 const Notes = require('./notes.model')(sequelize, Sequelize.DataTypes);
 const Goals = require('./goals.model')(sequelize, Sequelize.DataTypes);
+const TutorPayment = require('./tutor_payment.model')(sequelize, Sequelize.DataTypes);
 
 SubjectTutor.belongsTo(Tutor, { foreignKey: 'tutorid', as: 'tutor' });
 SubjectTutor.belongsTo(Subject, { foreignKey: 'subjectid', as: 'subject' });
@@ -58,6 +59,8 @@ Notes.belongsTo(Student, { foreignKey: 'studentid', as: 'student' });
 
 Goals.belongsTo(Student, { foreignKey: 'studentid', as: 'student' });
 
+TutorPayment.belongsTo(Tutor, {foreignKey: 'tutorid',as: 'tutor'})
+
 module.exports = {
   sequelize,
   User,
@@ -74,7 +77,8 @@ module.exports = {
   Transaction,
   StudentFees,
   Notes,
-  Goals
+  Goals,
+  TutorPayment
 
 
 };

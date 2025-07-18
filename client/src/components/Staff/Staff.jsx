@@ -36,14 +36,13 @@ export const Staff = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await api.get(`//staff/all?page=${currentPage}&limit=${itemsPerPage}`);
+        const response = await api.get(`/api/staff/all?page=${currentPage}&limit=${itemsPerPage}`);
         if (response.status === 200) {
           const { data, totalPages } = response.data;
           setData(data);
-          setFilteredData(data); // Initialize filtered data
+          setFilteredData(data);
           setTotalPages(totalPages);
 
-          // Extract unique positions for the filter
           const uniquePositions = [...new Set(data.map(item => item.position))];
           setPositions(uniquePositions);
         } else {
@@ -72,7 +71,7 @@ export const Staff = () => {
     );
     setFilteredData(newFilteredData);
     setTotalPages(Math.ceil(newFilteredData.length / itemsPerPage));
-    setCurrentPage(1); // Reset to the first page
+    setCurrentPage(1); 
   }, [filters, data, itemsPerPage]);
 
   const debouncedApplyFilters = useCallback(debounce(() => {

@@ -32,9 +32,13 @@ function Sidebar() {
         <NavLink to="/dashboard" className={({ isActive }) => isActive ? 'active' : ''}>🏠 Dashboard</NavLink>
         <NavLink to="/timetable" className={({ isActive }) => isActive ? 'active' : ''}>📅 Time Table</NavLink>
         {role === 'Student' && (
+          <>
           <NavLink to="/notes" className={({ isActive }) => isActive ? 'active' : ''}>📝 Notes</NavLink>
+          <NavLink to="/fees" className={({ isActive }) => isActive ? 'active' : ''}>💰 Fees</NavLink>
+          </>
         )}
-        <NavLink to="/fees" className={({ isActive }) => isActive ? 'active' : ''}>💰 Fees</NavLink>
+        
+        <NavLink to="/tutor-fees" className={({ isActive }) => isActive ? 'active' : ''}>💰Salary</NavLink>
         <NavLink to="/goals" className={({ isActive }) => isActive ? 'active' : ''}>🎯 Goals</NavLink>
         <NavLink to="/profile" className={({ isActive }) => isActive ? 'active' : ''}>👤 Profile</NavLink>
       </nav>

@@ -5,7 +5,8 @@ import { jwtDecode } from 'jwt-decode';
 
 function Notes() {
   const [subjects, setSubjects] = useState([]);
-  const [selectedSubject, setSelectedSubject] = useState('');
+  const [selectedSubjectId, setSelectedSubjectId] = useState('');
+  const [selectedSubjectName, setSelectedSubjectName] = useState('');
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState({ heading: '', chapter: '', note: '' });
   const [studentId, setStudentId] = useState(null);
@@ -24,31 +25,35 @@ function Notes() {
     if (studentId) {
       api.get(`/student/student-subject/${studentId}`)
         .then((res) => {
-          setSubjects(res.data.data?.subjects.map((s) => s.subject) || []);
+          setSubjects(res.data.data?.subjects || []);
         })
         .catch(() => setSubjects([]));
     }
   }, [studentId]);
 
   useEffect(() => {
-    if (studentId && selectedSubject) {
-      api.get(`/notes/student/${studentId}/${selectedSubject}`)
-        .then((res) => setNotes(res.data));
+    if (studentId && selectedSubjectName) {
+      api.get(`/notes/student/${studentId}/${selectedSubjectName}`)
+        .then((res) => setNotes(res.data))
+        .catch(() => setNotes([]));
     } else {
       setNotes([]);
     }
     setActiveIndex(null);
-  }, [studentId, selectedSubject]);
+  }, [studentId, selectedSubjectName]);
 
   const handleAddNote = async () => {
     if (!newNote.heading || !newNote.note || !newNote.chapter) return;
+    const subjectSelected = subjects.find((s) => s.subject_id === parseInt(selectedSubjectId));
+    if (!subjectSelected) return;
     try {
       const res = await api.post('/notes', {
         studentid: studentId,
-        subject: selectedSubject,
         heading: newNote.heading,
         chapter: newNote.chapter,
         note: newNote.note,
+        subject: subjectSelected.subject,
+        subjecttutorid: selectedSubjectId,
       });
       setNotes([...notes, res.data]);
       setNewNote({ heading: '', chapter: '', note: '' });
@@ -72,16 +77,13 @@ function Notes() {
     if (!window.confirm('Are you sure you want to save the changes?')) return;
     try {
       await api.put(`/notes/${note.id}`, note);
+      const updated = [...notes];
+      updated[editingIndex] = { ...note };
+      setNotes(updated);
+      setEditingIndex(null);
     } catch (err) {
       console.error('Error saving note:', err);
     }
-  };
-
-  const handleEditNote = (index, field, value) => {
-    if (!window.confirm(`Are you sure you want to change ${field}?`)) return;
-    const updated = [...notes];
-    updated[index][field] = value;
-    setNotes(updated);
   };
 
   return (
@@ -90,15 +92,24 @@ function Notes() {
 
       <div className="subject-select">
         <label>Select Subject:</label>
-        <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
+        <select
+          value={selectedSubjectId}
+          onChange={(e) => {
+            setSelectedSubjectId(e.target.value);
+            const selected = subjects.find((s) => s.subject_id === parseInt(e.target.value));
+            setSelectedSubjectName(selected ? selected.subject : '');
+          }}
+        >
           <option value="">-- Select --</option>
-          {subjects.map((sub, idx) => (
-            <option key={idx} value={sub}>{sub}</option>
+          {subjects.map((sub) => (
+            <option key={sub.subject_id} value={sub.subject_id}>
+              {sub.subject}
+            </option>
           ))}
         </select>
       </div>
 
-      {selectedSubject && (
+      {selectedSubjectId && (
         <div className="new-note-form">
           <h3>Add a New Note</h3>
           <input
@@ -121,7 +132,6 @@ function Notes() {
           <button
             onClick={handleAddNote}
             disabled={!newNote.heading || !newNote.chapter || !newNote.note}
-            // disabled={false}
           >
             ➕ Add Note
           </button>
@@ -132,7 +142,7 @@ function Notes() {
       )}
 
       <div className="notes-list">
-        {notes.length === 0 && selectedSubject && <p>No notes yet for {selectedSubject}.</p>}
+        {notes.length === 0 && selectedSubjectName && <p>No notes yet for {selectedSubjectName}.</p>}
 
         {notes.map((note, idx) => (
           <div key={note.id} className="note-card">
@@ -141,48 +151,60 @@ function Notes() {
                 <div className="note-back">
                   {editingIndex === idx ? (
                     <>
-                      <input
-                        value={editedNote.heading}
-                        onChange={(e) => setEditedNote({ ...editedNote, heading: e.target.value })}
-                        placeholder="Heading"
-                      />
-                      <input
-                        value={editedNote.chapter}
-                        onChange={(e) => setEditedNote({ ...editedNote, chapter: e.target.value })}
-                        placeholder="Chapter"
-                      />
-                      <textarea
-                        value={editedNote.note}
-                        onChange={(e) => setEditedNote({ ...editedNote, note: e.target.value })}
-                        placeholder="Note Content"
-                      />
-                      <button
-                        onClick={() => {
-                          handleSaveNote({ ...note, ...editedNote });
-                          setEditingIndex(null);
-                        }}
-                      >
-                        💾 Save
-                      </button>
-                      <button onClick={() => setEditingIndex(null)}>❌ Cancel Edit</button>
+                      <div className="note-field">
+                        <label>Heading</label>
+                        <input
+                          value={editedNote.heading}
+                          onChange={(e) => setEditedNote({ ...editedNote, heading: e.target.value })}
+                          placeholder="Heading"
+                        />
+                      </div>
+                      <div className="note-field">
+                        <label>Chapter</label>
+                        <input
+                          value={editedNote.chapter}
+                          onChange={(e) => setEditedNote({ ...editedNote, chapter: e.target.value })}
+                          placeholder="Chapter"
+                        />
+                      </div>
+                      <div className="note-field">
+                        <label>Note</label>
+                        <textarea
+                          value={editedNote.note}
+                          onChange={(e) => setEditedNote({ ...editedNote, note: e.target.value })}
+                          placeholder="Note Content"
+                        />
+                      </div>
+                      <div className="note-actions">
+                        <button className="edit"
+                          onClick={() => handleSaveNote({ ...note, ...editedNote })}
+                        >
+                          💾 Save
+                        </button>
+                        <button className="close" onClick={() => setEditingIndex(null)}>❌ Cancel</button>
+                      </div>
                     </>
                   ) : (
                     <>
-                      <div><strong>Heading:</strong> {note.heading}</div>
-                      <div><strong>Chapter:</strong> {note.chapter}</div>
-                      <div><strong>Note:</strong> {note.note}</div>
-                      <button onClick={() => {
-                        setEditingIndex(idx);
-                        setEditedNote({ heading: note.heading, chapter: note.chapter, note: note.note });
-                      }}>✏️ Edit</button>
+                      <div className="note-field"><strong>Heading:</strong> {note.heading}</div>
+                      <div className="note-field"><strong>Chapter:</strong> {note.chapter}</div>
+                      <div className="note-field"><strong>Note:</strong> {note.note}</div>
+                      <div className="note-field"><strong>Status:</strong> {note.status}</div>
+                      <div className="note-field"><strong>Points:</strong> {note.points}</div>
+                      <div className="note-actions">
+                        <button className="edit" onClick={() => {
+                          setEditingIndex(idx);
+                          setEditedNote({ heading: note.heading, chapter: note.chapter, note: note.note });
+                        }}>✏️ Edit</button>
+                      </div>
                     </>
                   )}
 
                   <p className="note-date">📅 {new Date(note.createdAt).toLocaleString()}</p>
 
                   <div className="note-actions">
-                    <button onClick={() => handleDeleteNote(note.id)}>🗑 Delete</button>
-                    <button onClick={() => setActiveIndex(null)}>❌ Close</button>
+                    <button className="delete" onClick={() => handleDeleteNote(note.id)}>🗑 Delete</button>
+                    <button className="close" onClick={() => setActiveIndex(null)}>❌ Close</button>
                   </div>
                 </div>
               ) : (
@@ -196,7 +218,6 @@ function Notes() {
             </div>
           </div>
         ))}
-
       </div>
     </div>
   );

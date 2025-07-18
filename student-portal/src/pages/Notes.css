@@ -21,11 +21,13 @@
   text-align: center;
   margin-bottom: 30px;
 }
+
 .subject-select label {
   font-weight: 600;
   margin-right: 12px;
   font-size: 1.1rem;
 }
+
 .subject-select select {
   padding: 10px 16px;
   font-size: 1rem;
@@ -35,6 +37,7 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
   transition: box-shadow 0.3s ease;
 }
+
 .subject-select select:hover {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
@@ -49,9 +52,11 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s;
 }
+
 .new-note-form:hover {
   transform: translateY(-2px);
 }
+
 .new-note-form input,
 .new-note-form textarea {
   width: 80%;
@@ -62,6 +67,7 @@
   border-radius: 8px;
   transition: border 0.2s;
 }
+
 .new-note-form input:focus,
 .new-note-form textarea:focus {
   border-color: #6a82fb;
@@ -78,12 +84,13 @@
   cursor: pointer;
   transition: background 0.2s, transform 0.2s;
 }
+
 .new-note-form button:hover {
   background: #5b6df7;
   transform: translateY(-2px);
 }
 
-/* Notes List Layout */
+/* Notes List Grid */
 .notes-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -91,70 +98,16 @@
   padding: 0 10px;
 }
 
-/* Individual Note Card */
+/* Note Card Front View */
 .note-card {
   background: #fff;
   border-left: 5px solid #6a82fb;
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.07);
-  transition: transform 0.2s;
-}
-.note-card:hover {
-  transform: translateY(-5px);
-}
-.note-card input,
-.note-card textarea {
-  width: 80%;
-  padding: 8px;
-  margin-bottom: 10px;
-  font-size: 1rem;
-  border: none;
-  border-bottom: 1px solid #ddd;
-  background: transparent;
-  transition: border-color 0.2s;
-}
-.note-card input:focus,
-.note-card textarea:focus {
-  border-color: #6a82fb;
-  outline: none;
-  width: 80%;
-}
-
-.note-date {
-  font-size: 0.85rem;
-  color: #888;
-  margin-top: 8px;
-}
-
-.note-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
-.note-actions button {
-  background: #6a82fb;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background 0.2s;
-}
-.note-actions button:hover {
-  background: #4d5fe1;
-}
-.note-actions button:disabled {
-  background: #bbb;
-  cursor: not-allowed;
-}
-
-/* Make whole note-card clickable */
-.note-card {
   position: relative;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .note-card:hover {
@@ -162,20 +115,6 @@
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
 }
 
-/* Overlay a transparent button on the card */
-.note-card-button {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  z-index: 1;
-}
-
-/* Center aligned heading & chapter inside card */
 .note-content-center {
   display: flex;
   flex-direction: column;
@@ -183,7 +122,7 @@
   align-items: center;
   height: 100%;
   text-align: center;
-  pointer-events: none; /* Allows click to pass to button */
+  pointer-events: none;
 }
 
 .note-content-center .note-topic {
@@ -198,45 +137,144 @@
   color: #555;
 }
 
-button:disabled {
-  background-color: grey;
-  cursor: not-allowed;
-  opacity: 0.6;
+/* Note Card Back View */
+.note-back {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s;
 }
 
-/* Action Buttons in Note Actions */
-.note-actions button:nth-child(1) { /* 💾 Save */
-  background: #28a745; /* Green */
-}
-.note-actions button:nth-child(1):hover {
-  background: #218838;
+.note-back .note-field {
+  margin-bottom: 15px;
 }
 
-.note-actions button:nth-child(2) { /* 🗑 Delete */
-  background: #dc3545; /* Red */
-}
-.note-actions button:nth-child(2):hover {
-  background: #c82333;
-}
-
-.note-actions button:nth-child(3) { /* ❌ Close */
-  background: #6c757d; /* Grey */
-}
-.note-actions button:nth-child(3):hover {
-  background: #5a6268;
+.note-back .note-field label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #2c3e50;
 }
 
-.note-actions button:nth-child(4) { /* ✏️ Edit */
-  background: #007bff; /* Blue */
-}
-.note-actions button:nth-child(4):hover {
-  background: #0069d9;
+.note-back .note-field input,
+.note-back .note-field textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #f9f9f9;
+  transition: border-color 0.2s;
 }
 
-/* Disabled Button */
+.note-back .note-field input:focus,
+.note-back .note-field textarea:focus {
+  border-color: #6a82fb;
+  background: #fff;
+  outline: none;
+}
+
+.note-back .note-info {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.note-back .note-status {
+  display: inline-block;
+  background: #6a82fb;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+}
+
+.note-back .note-points {
+  font-weight: bold;
+  color: #28a745;
+  margin-bottom: 10px;
+}
+
+.note-back .note-date {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+/* Actions Buttons */
+.note-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.note-actions button {
+  flex: 1;
+  background: #6a82fb;
+  color: white;
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+/* Disabled Buttons */
 button:disabled,
 .note-actions button:disabled {
   background-color: #bbb;
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+/* Note Date */
+.note-date {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 8px;
+}
+
+.note-actions button{
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.note-actions button.edit:hover {
+  background: #4d5fe1;
+  color: #ffffff;
+  border: #ffffff solid 2pt;
+}
+
+.note-actions button.edit { 
+  background: #ffffff;
+  color: #4d5fe1;
+  border: #4d5fe1 solid 2pt;
+}
+
+.note-actions button.delete:hover {
+  background: #d33636;
+  color: #ffffff;
+  border: #ffffff solid 2pt;
+}
+
+.note-actions button.delete { 
+  background: #ffffff;
+  color: #d33636;
+  border: #d33636 solid 2pt;
+}
+
+.note-actions button.close:hover {
+  background: #2b2525;
+  color: #ffffff;
+  border: #ffffff solid 2pt;
+}
+
+.note-actions button.close { 
+  background: #ffffff;
+  color: #2b2525;
+  border: #2b2525 solid 2pt;
 }

@@ -4,9 +4,14 @@ module.exports = (app) => {
     var router = require("express").Router();
   
     router.get('/:studentId', goalController.getGoalsByStudent);
+
     router.post('/', goalController.createGoal);
+
     router.put('/:id', goalController.updateGoal);
+
     router.delete('/:id', goalController.deleteGoal);
+
+    router.get('/active-count/:studentid', goalController.getActiveGoalsCount);
   
     app.use('/api/goals', router);
   };

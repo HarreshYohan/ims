@@ -22,10 +22,10 @@ exports.create = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-  const { note, subject, heading, chapter, studentid } = req.body;
+  const { note, subject, heading, chapter, studentid, subjecttutorid } = req.body;
 
   try {
-    const newNote = await Notes.create({ note, subject, heading, chapter, studentid });
+    const newNote = await Notes.create({ note, subject, heading, chapter, studentid, subjecttutorid });
     res.status(201).json(newNote);
   } catch (err) {
     res.status(500).json({ message: err.message || 'Error creating note.' });
@@ -108,8 +108,14 @@ exports.findByStudentAndSubject = async (req, res) => {
   }
 };
 
-exports.getNotesCount = async (req, res) => {
+exports.getNotesCountForStudent = async (req, res) => {
   const { studentid } = req.params;
   const count = await Notes.count({ where: { studentid : studentid } });
+  res.json({ totalNotes: count });
+};
+
+exports.getNotesCountForTutor = async (req, res) => {
+  const { id } = req.params;
+  const count = await Notes.count({ where: { subjecttutorid : id } });
   res.json({ totalNotes: count });
 };

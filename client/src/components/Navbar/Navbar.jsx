@@ -13,7 +13,7 @@ export const Navbar = () => {
     const token = localStorage.getItem('authToken');
     if (token) {
       const decodedToken = jwtDecode(token);
-      setUserType(decodedToken.user_type);  // Adjust this according to your JWT structure
+      setUserType(decodedToken.user_type);
     }
   }, []);
 
@@ -42,12 +42,29 @@ export const Navbar = () => {
             Student
           </NavLink>
         </li>
-        <li>
-          <NavLink to="/tutor">
-            <FontAwesomeIcon icon={faChalkboardTeacher} className="nav-icon" />
-            Tutor
-          </NavLink>
-        </li>
+        <li onClick={toggleReports}>
+              <NavLink>
+                <FontAwesomeIcon icon={faChalkboardTeacher} className="nav-icon" />
+                Tutor
+                <FontAwesomeIcon icon={isReportsOpen ? faChevronDown : faChevronRight} className="reports-arrow" />
+              </NavLink>
+              {isReportsOpen && (
+                <ul className="nested-nav">
+                  <li>
+                    <NavLink to="/tutor">
+                      <FontAwesomeIcon icon={faChalkboardTeacher} className="nav-icon" />
+                      Tutors
+                    </NavLink>
+                  </li>
+                   <li>
+                    <NavLink to="/tutor-payment">
+                      <FontAwesomeIcon icon={faChalkboardTeacher} className="nav-icon" />
+                      Tutor Payments
+                    </NavLink>
+                  </li>
+                </ul>
+              )}
+            </li>
         <li>
           <NavLink to="/staff">
             <FontAwesomeIcon icon={faUsers} className="nav-icon" />
@@ -78,7 +95,6 @@ export const Navbar = () => {
             Subjects
           </NavLink>
         </li>
-        {/* {userType !== 'STUDENT' && userType !== 'TUTOR' && ( */}
           <>
             <li onClick={toggleReports}>
               <NavLink>

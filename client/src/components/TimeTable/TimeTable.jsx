@@ -48,7 +48,7 @@ export const Timetable = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get(`//timetable/all?page=${currentPage}&limit=${itemsPerPage}`);
+      const response = await api.get(`/api/timetable/all?page=${currentPage}&limit=${itemsPerPage}`);
       if (response.status === 200) {
         const { data, totalPages } = response.data;
         setData(data);
@@ -125,7 +125,7 @@ export const Timetable = () => {
 
   const handleSave = async () => {
     try {
-      const response = await api.post(`//timetable`, {
+      const response = await api.post(`/api/timetable`, {
         subjecttutorid: subjectTutorid,
         classroomid: classroomid,
         timeslotid: editData.timeslotid,

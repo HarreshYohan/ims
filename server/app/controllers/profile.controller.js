@@ -58,8 +58,6 @@ const getStudentProfile = async (id, res) => {
 
 const getTutorProfile = async (id, res) => {
     try {
-        console.log("Fetching tutor for user ID:", id);
-    
         const [tutor] = await sequelize.query(`
           SELECT * FROM tutor WHERE user_id = :userId LIMIT 1
         `, {

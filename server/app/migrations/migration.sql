@@ -127,6 +127,7 @@ CREATE TABLE IF NOT EXISTS "student_subject" (
     id SERIAL PRIMARY KEY,
     studentid INTEGER NOT NULL,
     subjecttutorid INTEGER REFERENCES subject(id) ON UPDATE CASCADE ON DELETE CASCADE NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamptz DEFAULT CURRENT_TIMESTAMP ,
     FOREIGN KEY (studentid) REFERENCES student(id) ON UPDATE CASCADE ON DELETE CASCADE
@@ -187,27 +188,50 @@ CREATE TABLE IF NOT EXISTS "student_fees" (
 CREATE TABLE IF NOT EXISTS "notes" (
     id SERIAL PRIMARY KEY,
     studentid INT NOT NULL,
+    subjecttutorid INT NOT NULL,
     subject VARCHAR(255) NOT NULL,
     chapter VARCHAR(255) NOT NULL,
     heading VARCHAR(255) NOT NULL,
     note VARCHAR(255) NOT NULL,
+    status VARCHAR(255) NOT NULL,
+    points DECIMAL(255) NOT NULL,
     created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamptz DEFAULT CURRENT_TIMESTAMP ,
-    FOREIGN KEY (studentid) REFERENCES student(id)
+    FOREIGN KEY (studentid) REFERENCES student(id),
+    FOREIGN KEY (subjecttutorid) REFERENCES subject_tutor(id)
 );
 
 create TABLE goals (
   id SERIAL PRIMARY KEY,
   studentid INT NOT NULL,
+  subjecttutorid INT not null,
   goaltitle VARCHAR(255) NOT NULL,
   targetdate DATE NOT NULL,
   progress FLOAT DEFAULT 0,
   streak INT DEFAULT 0,
+  status VARCHAR(255) NOT NULL,
   lastprogressupdate DATE DEFAULT NULL,
   created_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP ,
-  FOREIGN KEY (studentid) REFERENCES student(id)
+  FOREIGN KEY (studentid) REFERENCES student(id),
+  FOREIGN KEY (subjecttutorid) REFERENCES subject_tutor(id)
 );
+
+
+CREATE TABLE tutor_payments (
+  id SERIAL PRIMARY KEY,
+  tutorid INT NOT NULL,
+  month INT NOT NULL,
+  year INT NOT NULL,
+  totalpayment DECIMAL(10,2) NOT NULL,
+  received DECIMAL(10,2) NOT NULL,
+  receiveddate DATE NULL,
+  created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
+  updated_at timestamptz DEFAULT CURRENT_TIMESTAMP ,
+
+  FOREIGN KEY (tutorid) REFERENCES tutor(id)
+);
+
 
 
 INSERT INTO "user" (username,email, password,user_type,is_active) VALUES

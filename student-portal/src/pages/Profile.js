@@ -25,7 +25,7 @@ function Profile() {
 
   const fetchProfile = async (userId) => {
     try {
-      const response = await api.get(`//profile/${userId}`);
+      const response = await api.get(`/profile/${userId}`);
       const data = response.data;
       setProfile(data);
       setOriginalProfile(data);
@@ -77,7 +77,7 @@ function Profile() {
       return;
     }
     try {
-      await api.post(`//profile/${profile.id}`, profile);
+      await api.post(`/profile/${profile.id}`, profile);
       alert('✅ Profile Updated!');
       setOriginalProfile(profile);
     } catch (err) {

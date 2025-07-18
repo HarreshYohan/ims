@@ -50,7 +50,7 @@
 }
 
 .dashboard-card:hover {
-  transform: translateY(-5px) scale(1.02);
+  transform: translateY(-5px) scale(1.1);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
@@ -71,21 +71,39 @@
   border-left: 6px solid #007bff;
 }
 .dashboard-card.notes {
-  border-left: 6px solid #17a2b8;
+  border-left: 6px solid #7cd0dd;
 }
 .dashboard-card.fees {
-  border-left: 6px solid #28a745;
+  border-left: 6px solid #5de97e;
 }
 .dashboard-card.profile {
   border-left: 6px solid #ffc107;
 }
-
+.dashboard-card.goals {
+  border-left: 6px solid #e0c470;
+}
 .dashboard-card.fees p {
  font-weight:600;
-  color: #1bad0e;
+  color: #14720c;
 }
 
+.dashboard-card.timetable p {
+ font-weight:600;
+  color: #1b4f86;;
+}
+
+.dashboard-card.notes p {
+ font-weight:600;
+  color: #177f8f;
+}
   
+.dashboard-card.profile p {
+  color:  #ac8f39;
+}
+
+.dashboard-card.goals  p{
+  color: #7e6828;}
+
 .quote-card {
   margin-top: 40px;
   padding: 25px;
@@ -147,7 +165,7 @@
 }
 
 .profile-icon:hover {
-  transform: scale(1.05);
+  transform: scale(1.25);
 }
 
 .dropdown-menu {
@@ -177,12 +195,7 @@
   background-color: #f1f1f1;
 }
 
-.dashboard-card p {
-  font-weight:600;
-  color: #1cbac5;
-}
 
-.dashboard-card h3 {
-  font-weight:600;
-  color: #040b68;
+h3 {
+  color: #555555;
 }

@@ -193,4 +193,20 @@ exports.update = async (req, res) => {
   }
 };
 
+exports.approveOrRejectNote = async (req, res) => {
+  const { id } = req.params;
+  const { status, points } = req.body;
+  try {
+    const note = await Notes.findByPk(id);
+    if (!note) return res.status(404).json({ error: 'Note not found' });
+
+    note.status = status;
+    note.points = status === 'Approved' ? points : 0;
+    await note.save();
+
+    res.json(note);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 

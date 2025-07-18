@@ -21,6 +21,7 @@ import { SubjectTutor} from "./components/SubjectTutor/SubjectTutor";
 import { Transaction} from "./components/Transaction/Transaction";
 import { EditStudent } from "./components/Student/EditStudent";
 import { Profile } from "./components/Profile/Profile";
+import { TutorPayment } from "./components/TutorPayment/TutorPayment";
 
 
 function App() {
@@ -46,6 +47,7 @@ return (
     <Route path="/transaction" element={<Transaction />} />
     <Route path="/edit-student/:id" element={<EditStudent />} />
     <Route path="/profile" element={<Profile />} />
+    <Route path="/tutor-payment" element={<TutorPayment />}/>
     </Routes>
   </Router>
 );

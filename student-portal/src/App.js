@@ -9,6 +9,7 @@ import Login from './pages/Login';
 import Landing from './pages/Landing';
 import Layout from './components/Layout';
 import GoalTracker from './pages/GoalTracker';
+import TutorFees from './pages/TutorFees';
 
 function App() {
   const isAuthenticated = !!localStorage.getItem('token');
@@ -36,6 +37,10 @@ function App() {
         <Route
           path="/fees"
           element={isAuthenticated ? <Layout><Fees /></Layout> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/tutor-fees"
+          element={isAuthenticated ? <Layout><TutorFees /></Layout> : <Navigate to="/login" />}
         />
         <Route
           path="/goals"

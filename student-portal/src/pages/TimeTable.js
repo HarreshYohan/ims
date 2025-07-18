@@ -39,7 +39,7 @@ function TimeTable() {
           role = 'student';
         }
 
-        const res = await api.get(`//timetable/${role}/${studentId}`);
+        const res = await api.get(`/timetable/${role}/${studentId}`);
         const rawData = res.data.data;
         const timetableMap = {};
 

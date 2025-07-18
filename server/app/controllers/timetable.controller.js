@@ -237,33 +237,85 @@ exports.delete = async (req, res) => {
   }
 };
 
-// Internal helper to get timetable records for student (without res)
 const getStudentTimetableRecords = async (studentId) => {
-  const studentSubjects = await StudentSubject.findAll({
-    where: { studentid: studentId },
-    attributes: ['subjecttutorid'],
-  });
+    const studentSubjects = await StudentSubject.findAll({
+      where: {
+        studentid: studentId,
+      },
+      attributes: ['subjecttutorid'], 
+    });
+const subjectTutorIds = studentSubjects.map(subject => subject.subjecttutorid);
 
-  const subjectTutorIds = studentSubjects.map(subject => subject.subjecttutorid);
+const rawTimetable = await Timetable.findAll({
+  include: [
+    {
+      model: SubjectTutor,
+      as: 'mondaycls',
+      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
+    },
+    {
+      model: SubjectTutor,
+      as: 'tuesdaycls',
+      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
+    },
+    {
+      model: SubjectTutor,
+      as: 'wednesdaycls',
+      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
+    },
+    {
+      model: SubjectTutor,
+      as: 'thursdaycls',
+      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
+    },
+    {
+      model: SubjectTutor,
+      as: 'fridaycls',
+      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
+    },
+    {
+      model: SubjectTutor,
+      as: 'saturdaycls',
+      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
+    },
+    {
+      model: SubjectTutor,
+      as: 'sundaycls',
+      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
+    },
+  ],
+  order: [['timeslotid', 'ASC']],
+    });
 
-  const rawTimetable = await Timetable.findAll();
+    const result = [];
 
-  const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+    const days = [
+      { key: "monday", cls: "mondaycls" },
+      { key: "tuesday", cls: "tuesdaycls" },
+      { key: "wednesday", cls: "wednesdaycls" },
+      { key: "thursday", cls: "thursdaycls" },
+      { key: "friday", cls: "fridaycls" },
+      { key: "saturday", cls: "saturdaycls" },
+      { key: "sunday", cls: "sundaycls" },
+    ];
 
-  const filtered = [];
-
-  rawTimetable.forEach(entry => {
-    days.forEach(day => {
-      if (subjectTutorIds.includes(entry[day])) {
-        filtered.push({
-          timeslot: entry.timeslot,
-          day: day,
-        });
+rawTimetable.forEach(entry => {
+    days.forEach(({ key, cls }) => {
+      const subjectTutorId = entry[key];
+      if (subjectTutorIds.includes(subjectTutorId)) {
+        const subjectName = entry[cls]?.subject?.name;
+        if (subjectName) {
+          result.push({
+            timeslot: entry.timeslot,
+            day: key,
+            subject: subjectName,
+          });
+        }
       }
     });
-  });
+    });
 
-  return filtered;
+  return result;
 };
 
 
@@ -288,8 +340,6 @@ exports.findForTutor = async (req, res) => {
     if (subjectTutorIds.length === 0) {
       return res.status(404).json({ message: 'No subjects assigned to this tutor.' });
     }
-
-    
 
   const rawTimetable = await Timetable.findAll({
   include: [
@@ -361,7 +411,6 @@ exports.findForTutor = async (req, res) => {
     });
     });
 
-
     res.json({ data: result });
   } catch (err) {
     console.error('Student timetable fetch failed:', err);
@@ -381,3 +430,35 @@ exports.getClassCount = async (req, res) => {
 };
 
 
+exports.getTutorClassCount = async (req, res) => {
+  const tutorId = req.params.tutorid;
+  try {
+    const subjectTutors = await SubjectTutor.findAll({ where: { tutorid: tutorId } });
+    const subjectTutorIds = subjectTutors.map(st => st.id);
+
+    if (subjectTutorIds.length === 0) {
+      return res.json({ data: 0 });
+    }
+
+    const rawTimetable = await Timetable.findAll();
+
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+
+    let classCount = 0;
+
+    rawTimetable.forEach(entry => {
+      days.forEach(day => {
+        const subjectTutorId = entry[day];
+        if (subjectTutorIds.includes(subjectTutorId)) {
+          classCount++;
+        }
+      });
+    });
+
+    res.json({ data: classCount });
+
+  } catch (err) {
+    console.error('Tutor class count fetch failed:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};

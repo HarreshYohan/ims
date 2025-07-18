@@ -15,6 +15,14 @@ const Notes = (sequelize) => {
       },
       allowNull: false,
     },
+    subjecttutorid: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'SubjectTutor', 
+        key: 'id',
+      },
+      allowNull: false,
+    },
     subject: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -35,7 +43,14 @@ const Notes = (sequelize) => {
         allowNull: false,
         unique: false,
       },
-
+    status: {
+        type: DataTypes.STRING,
+        defaultValue: 'PENDING',
+      },
+    points: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
       createdAt: {
         type: DataTypes.DATE,
         field: 'created_at'

@@ -17,6 +17,9 @@ module.exports = (app) => {
 
   router.get('/student-count/:studentid', timetable.getClassCount);
 
+  router.get('/tutor-count/:tutorid', timetable.getTutorClassCount);
+
+
 
   app.use('/api/timetable', router);
 };

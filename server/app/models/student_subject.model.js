@@ -20,6 +20,10 @@ const StudentSubject = (sequelize) => {
         },
         allowNull: false,
       },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
       createdAt: {
         type: DataTypes.DATE,
         field: 'created_at'

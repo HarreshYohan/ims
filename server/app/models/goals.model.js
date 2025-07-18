@@ -16,9 +16,22 @@ const { DataTypes, Sequelize } = require('sequelize');
           },
           allowNull: false,
         },
+    subjecttutorid: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'SubjectTutor', 
+        key: 'id',
+      },
+      allowNull: false,
+    },
     goaltitle: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue:"Active"
     },
     targetdate: {
       type: DataTypes.DATEONLY,

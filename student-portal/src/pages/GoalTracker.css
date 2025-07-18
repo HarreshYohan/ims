@@ -1,3 +1,4 @@
+/* Base Container */
 .goal-container {
   padding: 30px;
   background: #f4f6fc;
@@ -7,26 +8,39 @@
 }
 
 .goal-container h2 {
-  color: #333;
+  color: #2c3e50;
   margin-bottom: 25px;
+  font-size: 2rem;
+  font-weight: 700;
 }
 
+/* Goal Creation Form */
 .goal-form {
-  background: white;
+  background: #fff;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
   max-width: 500px;
   margin: 0 auto 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.goal-form input {
+.goal-form input,
+.goal-form select {
   width: 100%;
   padding: 10px;
-  margin-bottom: 10px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.goal-form input:focus,
+.goal-form select:focus {
+  border-color: #28a745;
+  outline: none;
 }
 
 .goal-form button {
@@ -44,6 +58,7 @@
   background: #218838;
 }
 
+/* Goals List */
 .goal-list {
   display: flex;
   flex-wrap: wrap;
@@ -51,20 +66,34 @@
   justify-content: center;
 }
 
+/* Goal Card */
 .goal-card {
-  background: white;
+  background: #fff;
   padding: 20px;
   width: 300px;
   border-radius: 12px;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   text-align: left;
+  transition: transform 0.2s ease;
+}
+
+.goal-card:hover {
+  transform: translateY(-3px);
 }
 
 .goal-card h3 {
-  color: #333;
+  color: #2c3e50;
   margin-bottom: 10px;
+  font-size: 1.4rem;
 }
 
+.goal-card p {
+  margin: 5px 0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+/* Progress Bar */
 .progress-bar-container {
   background: #ddd;
   border-radius: 8px;
@@ -79,6 +108,7 @@
   transition: width 0.3s ease;
 }
 
+/* Goal Actions */
 .goal-actions {
   display: flex;
   flex-direction: column;
@@ -99,38 +129,40 @@
   opacity: 0.9;
 }
 
-/* Increment/Decrement Buttons */
-.button1 {
-  background: #007bff;
-  color: white;
-}
-
-.button2 {
-  background: #17a2b8;
-  color: white;
-}
-
-/* Custom Progress */
-.custom-progress {
-  display: flex;
-  gap: 5px;
-}
-
-.custom-progress input {
-  width: 60px;
-  padding: 5px;
-  font-size: 0.9rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-}
-
 /* Delete Button */
 .delete {
   background: #dc3545;
   color: white;
 }
 
-.save{
-     background: #ffbf00;
-  color: white; 
+.delete:hover {
+  background: #c82333;
+}
+
+/* Save Button */
+.save {
+  background: #ffbf00;
+  color: white;
+}
+
+.save:hover {
+  background: #e0a800;
+}
+
+/* Status Badge */
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: bold;
+  color: white;
+  font-size: 0.85rem;
+  display: inline-block;
+}
+
+.status-badge.active {
+  background-color: #28a745;
+}
+
+.status-badge.inactive {
+  background-color: #dc3545;
 }
