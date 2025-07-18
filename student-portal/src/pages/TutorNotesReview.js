@@ -11,6 +11,7 @@ function TutorNotesReview() {
   const [notes, setNotes] = useState([]);
   const [tutorId, setTutorId] = useState('');
   const [reviewedNotes, setReviewedNotes] = useState([]);
+  const [approvedNotes, setApprovedNotes] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -29,15 +30,22 @@ function TutorNotesReview() {
 
   }, []);
 
-  useEffect(() => {
-    if (tutorId && selectedSubject && selectedGrade) {
-      api.get(`/notes/tutor/notes-for-approval?tutorid=${tutorId}&subject=${selectedSubject}&grade=${selectedGrade}`)
-        .then(res => setNotes(res.data))
-        .catch(() => setNotes([]));
-    } else {
-      setNotes([]);
-    }
-  }, [tutorId, selectedSubject, selectedGrade]);
+useEffect(() => {
+  if (tutorId && selectedSubject && selectedGrade) {
+    // Pending notes fetch
+    api.get(`/notes/tutor/notes-for-approval?tutorid=${tutorId}&subject=${selectedSubject}&grade=${selectedGrade}`)
+      .then(res => setNotes(res.data))
+      .catch(() => setNotes([]));
+
+    // Approved notes fetch
+    api.get(`/notes/tutor/approved-notes?tutorid=${tutorId}&subject=${selectedSubject}&grade=${selectedGrade}`)
+      .then(res => setApprovedNotes(res.data))
+      .catch(() => setApprovedNotes([]));
+  } else {
+    setNotes([]);
+    setApprovedNotes([]);
+  }
+}, [tutorId, selectedSubject, selectedGrade]);
 
 const handleReview = async (note, status) => {
   if (status === 'APPROVED') {
@@ -83,7 +91,7 @@ const handleReview = async (note, status) => {
         <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
           <option value="">-- Select Subject --</option>
           {subjects.map(s => (
-            <option key={s.id} value={s.name}>{s.name}</option>
+            <option key={s.id} value={s.id}>{s.name}</option>
           ))}
         </select>
 
@@ -91,7 +99,7 @@ const handleReview = async (note, status) => {
         <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)}>
           <option value="">-- Select Grade --</option>
           {grades.map(g => (
-            <option key={g.id} value={g.name}>{g.name}</option>
+            <option key={g.id} value={g.id}>{g.name}</option>
           ))}
         </select>
       </div>
@@ -123,30 +131,33 @@ const handleReview = async (note, status) => {
       </div>
       {reviewedNotes.length > 0 && (
   <div className="reviewed-notes-table">
-    <h3>✅ Reviewed Notes</h3>
+  <h3>✅ Approved Notes</h3>
+  {approvedNotes.length === 0 ? (
+    <p>No approved notes yet for this selection.</p>
+  ) : (
     <table className="fees-table">
       <thead>
         <tr>
           <th>Heading</th>
           <th>Chapter</th>
           <th>Note</th>
-          <th>Status</th>
           <th>Points</th>
         </tr>
       </thead>
       <tbody>
-        {reviewedNotes.map((n) => (
+        {approvedNotes.map((n) => (
           <tr key={n.id}>
             <td>{n.heading}</td>
             <td>{n.chapter}</td>
             <td>{n.note}</td>
-            <td>{n.status}</td>
             <td>{n.points}</td>
           </tr>
         ))}
       </tbody>
     </table>
-  </div>
+  )}
+</div>
+
 )}
 
     </div>

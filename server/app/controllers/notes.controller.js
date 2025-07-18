@@ -153,10 +153,25 @@ exports.getTutorSubjectsAndGrades = async (req, res) => {
 
 exports.getNotesForApproval = async (req, res) => {
   const { tutorid, subject, grade } = req.query;
+
   try {
+    // Find the subjecttutor record matching tutorid and subject
+    const subjectTutor = await SubjectTutor.findOne({
+      where: {
+        tutorid: tutorid,
+        subjectid: subject,
+        gradeid: grade
+      }
+    });
+
+    if (!subjectTutor) {
+      return res.status(404).json({ message: 'Subject-Tutor mapping not found' });
+    }
+
     const notes = await Notes.findAll({
       where: {
-        subjecttutorid: tutorid
+        subjecttutorid: subjectTutor.id,
+        status: "Pending"
       },
     });
 
@@ -166,6 +181,7 @@ exports.getNotesForApproval = async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch notes for approval' });
   }
 };
+
 
 exports.reviewNote = async (req, res) => {
   const { id } = req.params;
@@ -184,5 +200,32 @@ exports.reviewNote = async (req, res) => {
   } catch (err) {
     console.error('Review Note Error:', err);
     res.status(500).json({ message: 'Failed to review note' });
+  }
+};
+
+// Controller logic for fetching approved notes
+exports.getApprovedNotes = async (req, res) => {
+  const { tutorid, subject, grade } = req.query;
+
+  try {
+    const subjectTutor = await SubjectTutor.findOne({
+      where: { tutorid, subjectid: subject, gradeid: grade }
+    });
+
+    if (!subjectTutor) {
+      return res.status(404).json({ message: 'Subject-Tutor mapping not found' });
+    }
+
+    const notes = await Notes.findAll({
+      where: {
+        subjecttutorid: subjectTutor.id,
+        status: "APPROVED"
+      }
+    });
+
+    res.status(200).json(notes);
+  } catch (err) {
+    console.error('Get Approved Notes Error:', err);
+    res.status(500).json({ message: 'Failed to fetch approved notes' });
   }
 };

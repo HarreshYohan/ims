@@ -147,6 +147,11 @@ export const Classroom = () => {
       <div className="main">
         {loading && <p>Loading...</p>}
         {error && <p className="error">{error}</p>}
+        <div className="student-actions">
+          <button className="create-student-btn" onClick={() => navigate('/new-classroom')}>
+            ➕ Create New Classroom
+          </button>
+        </div>
         <Table data={data} currentPage={currentPage} totalPages={totalPages} />
 
         {showEditModal && (

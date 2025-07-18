@@ -119,12 +119,6 @@ export const Navbar = () => {
                 </ul>
               )}
             </li>
-            <li>
-              <NavLink to="/news">
-                <FontAwesomeIcon icon={faNewspaper} className="nav-icon" />
-                News & Updates
-              </NavLink>
-            </li>
           </>
         {/* )} */}
       </ul>

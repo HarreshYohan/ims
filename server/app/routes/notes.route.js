@@ -25,5 +25,7 @@ module.exports = (app) => {
 
   router.put('/tutor/review-note/:id', notes.reviewNote);
 
+   router.get('/tutor/approved-notes', notes.getApprovedNotes);
+
   app.use('/api/notes', router);
 };

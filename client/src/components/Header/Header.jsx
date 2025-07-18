@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Header.css';
 import profile_icon from '../../assets/profile.png'
+import logo_icon from '../../assets/IMS.png'
 
 
 
@@ -24,9 +25,7 @@ export const Header = ({type ,action}) => {
     <header className="fixed-header">
       <div className="logo">
         <Link to={link}>
-          {/* <img src={logo_icon} alt="Logo" /> */}
-              <span className="topbar-logo">📘</span>
-              <span className="topbar-title">IMS</span>
+          <img src={logo_icon} alt="Logo" />
         </Link> 
       </div>
       <div className="header-actions">
