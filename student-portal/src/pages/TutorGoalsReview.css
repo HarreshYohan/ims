@@ -1,0 +1,66 @@
+.goals-container {
+  padding: 30px;
+  background: #f9f9f9;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.goals-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.goal-filters {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.goal-filters select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.goals-table-wrapper {
+  overflow-x: auto;
+  max-width: 1000px;
+  margin: auto;
+}
+
+.goals-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.goals-table th,
+.goals-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.goals-table th {
+  background-color: #6a82fb;
+  color: white;
+}
+
+.goals-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.goals-table button {
+  background: #6a82fb;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.goals-table button:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}

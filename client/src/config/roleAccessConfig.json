@@ -10,6 +10,18 @@
       "STAFF": { "can_edit": true, "can_delete": true },
       "TUTOR": { "can_edit": false, "can_delete": false },
       "STUDENT": { "can_edit": false, "can_delete": false }
+    },
+    "staff": {
+      "ADMIN": { "can_edit": true, "can_delete": true },
+      "STAFF": { "can_edit": true, "can_delete": true },
+      "TUTOR": { "can_edit": true, "can_delete": true },
+      "STUDENT": { "can_edit": true, "can_delete": true }
+    },
+    "admin": {
+      "ADMIN": { "can_edit": true, "can_delete": true },
+      "STAFF": { "can_edit": true, "can_delete": true },
+      "TUTOR": { "can_edit": true, "can_delete": true },
+      "STUDENT": { "can_edit": true, "can_delete": true }
     }
   }
   

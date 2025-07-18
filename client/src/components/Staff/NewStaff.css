@@ -43,11 +43,6 @@
   }
   
   @media (max-width: 768px) {
-    .main {
-      width: 100%;
-      padding: 10px;
-    }
-  
     .student-form {
       padding: 15px;
     }

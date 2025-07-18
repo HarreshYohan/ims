@@ -10,6 +10,8 @@ import Landing from './pages/Landing';
 import Layout from './components/Layout';
 import GoalTracker from './pages/GoalTracker';
 import TutorFees from './pages/TutorFees';
+import TutorNotesReview from './pages/TutorNotesReview';
+import TutorGoalsReview from './pages/TutorGoalsReview';
 
 function App() {
   const isAuthenticated = !!localStorage.getItem('token');
@@ -45,6 +47,16 @@ function App() {
         <Route
           path="/goals"
           element={isAuthenticated ? <Layout><GoalTracker /></Layout> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/tutor-notes"
+          element={isAuthenticated ? <Layout><TutorNotesReview /></Layout> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/tutor-goals"
+          element={isAuthenticated ? <Layout><TutorGoalsReview /></Layout> : <Navigate to="/login" />}
         />
 
         <Route

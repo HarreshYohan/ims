@@ -12,6 +12,10 @@ module.exports = (app) => {
     router.delete('/:id', goalController.deleteGoal);
 
     router.get('/active-count/:studentid', goalController.getActiveGoalsCount);
+
+    router.get('/tutor/goals', goalController.getGoalsByTutorSubjectGrade);
+
+    router.put('/tutor/update-goal/:id', goalController.updateGoalProgress);
   
     app.use('/api/goals', router);
   };

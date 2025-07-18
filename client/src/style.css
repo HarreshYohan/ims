@@ -20,6 +20,9 @@ background-color: var(--login-background);
 width: 85%;
 margin-top: 3%;
 margin-left: 16.15%;
+gap: 30px;
+display: flex;
+flex-direction: column;
 }
 
 .data-table select {
@@ -84,7 +87,7 @@ margin-left: 16.15%;
 height: 70%;
 width: 97%;
 text-align: center;
-margin-top: -1.8%;
+/* margin-top: -1.8%; */
 margin-left: 10px;
 margin-right: 10px;
 background-color: #f9f9f9;

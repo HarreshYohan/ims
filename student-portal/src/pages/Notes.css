@@ -278,3 +278,17 @@ button:disabled,
   color: #2b2525;
   border: #2b2525 solid 2pt;
 }
+
+.note-field strong {
+  color: #34495e;
+}
+
+.note-field .status-approved {
+  color: green;
+  font-weight: bold;
+}
+
+.note-field .status-rejected {
+  color: red;
+  font-weight: bold;
+}

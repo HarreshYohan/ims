@@ -1,0 +1,46 @@
+.edit-tutor-container {
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.edit-tutor-container{
+    width: 80%;
+}
+
+.tutor-form label {
+  display: block;
+  margin: 10px 0;
+}
+
+.tutor-form input {
+  width: 80%;
+  padding: 8px;
+  margin-top: 5px;
+}
+
+.saveBtn, .remove-subject-btn, .add-subject button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin: 10px 0;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.remove-subject-btn {
+  background-color: #f44336;
+  margin-left: 10px;
+}
+
+.subjects-section {
+  margin-top: 20px;
+}
+
+.add-subject select {
+  padding: 8px;
+  width: 60%;
+  margin-right: 10px;
+}

@@ -2,142 +2,99 @@ import React, { useState } from 'react';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../Header/Header';
-import './NewStudent.css'; // Import your CSS file for styling
+import './NewStudent.css';
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
 
 export const NewStudent = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [grade, setGrade] = useState('');
-  const [contact, setContact] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+    email: '',
+    firstname: '',
+    lastname: '',
+    grade: '',
+    contact: ''
+  });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === 'contact') {
+      if (value === '' || /^[0-9\b]+$/.test(value)) {
+        setFormData({ ...formData, [name]: value });
+      }
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true);
     setError(null);
-    
+
     try {
-      const response = await api.post('/api/student', {
-        username,
-        password,
-        email,
-        firstname: firstName,
-        lastname: lastName,
-        grade,
-        contact,
-      });
+      const response = await api.post('/api/student', formData);
 
       if (response.status === 201) {
-        navigate('/Student');
+        alert('Student created successfully');
+        setFormData({
+          username: '',
+          password: '',
+          email: '',
+          firstname: '',
+          lastname: '',
+          grade: '',
+          contact: ''
+        });
       } else {
-        setError('Failed to create Student');
+        setError('Failed to create student');
       }
-    } catch (error) {
-      setError('Error during Student creation');
-      console.error('Error during Student creation:', error);
+    } catch (err) {
+      setError('Error during student creation');
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
+  const handleBack = () => {
+    navigate('/Student');
+  };
+
+  const isFormValid = Object.values(formData).every(value => value.trim() !== '');
+  
   return (
     <div>
-      <Header type={'dashboard'} action={"Logout"} />
+      <Header type={'dashboard'} action={'Logout'} />
       <Navbar />
       <SectionHeader section={'New Student'} />
 
       <div className='main'>
+        <button className='back-btn' onClick={handleBack}>← Back to Student List</button>
         <form className='student-form' onSubmit={handleSubmit}>
-          <div className='form-group'>
-            <label htmlFor='username'>Username:</label>
-            <input
-              type='text'
-              id='username'
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
-          <div className='form-group'>
-            <label htmlFor='password'>Password:</label>
-            <input
-                type='password'
-                id='password'
-                value={password}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setPassword(value);
-                }}
-                minLength={8} // Ensure HTML5 validation for minimum length
+          {['username', 'password', 'email', 'firstname', 'lastname', 'grade', 'contact'].map((field) => (
+            <div className='form-group' key={field}>
+              <label htmlFor={field}>{field.charAt(0).toUpperCase() + field.slice(1)}:</label>
+              <input
+                type={field === 'password' ? 'password' : field === 'email' ? 'email' : 'text'}
+                id={field}
+                name={field}
+                value={formData[field]}
+                onChange={handleChange}
                 required
+                minLength={field === 'password' ? 8 : undefined}
               />
-          </div>
-          <div className='form-group'>
-            <label htmlFor='email'>Email:</label>
-            <input
-              type='email'
-              id='email'
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className='form-group'>
-            <label htmlFor='firstName'>First Name:</label>
-            <input
-              type='text'
-              id='firstName'
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              required
-            />
-          </div>
-          <div className='form-group'>
-            <label htmlFor='lastName'>Last Name:</label>
-            <input
-              type='text'
-              id='lastName'
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              required
-            />
-          </div>
-          <div className='form-group'>
-            <label htmlFor='grade'>Grade:</label>
-            <input
-              type='text'
-              id='grade'
-              value={grade}
-              onChange={(e) => setGrade(e.target.value)}
-              required
-            />
-          </div>
-          <div className='form-group'>
-            <label htmlFor='contact'>Contact:</label>
-            <input
-              type='text'
-              id='contact'
-              value={contact}
-              onChange={(e) => {
-                const re = /^[0-9\b]+$/; // Regular expression to allow only numbers
-                if (e.target.value === '' || re.test(e.target.value)) {
-                  setContact(e.target.value);
-                }}}
-              required
-            />
-          </div>
-          {loading && <p>Loading...</p>}
+            </div>
+          ))}
+          {loading && <p>Saving...</p>}
           {error && <p className="error">{error}</p>}
-          <button type='submit' className='submit-btn'>
-            Create Student
-          </button>
+          <button type='submit' className='submit-btn-1' disabled={!isFormValid}>Create Student</button>
         </form>
       </div>
     </div>

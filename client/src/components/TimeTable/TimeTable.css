@@ -4,8 +4,7 @@
   height: 70%;
   width: 97%;
   text-align: center;
-  margin-top: -1.8%;
-  margin-left: 10px;
+  /* margin-top: -1.8%; */
   margin-right: 10px;
   background-color: #f9f9f9;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -174,4 +173,5 @@
     padding: 10px;
     margin: 10px 5px 0 0;
   }
+  
   

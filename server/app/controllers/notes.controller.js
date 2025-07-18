@@ -1,4 +1,4 @@
-const { Notes } = require('../models');
+const { Notes, SubjectTutor, Subject, Grade } = require('../models');
 const { check, validationResult } = require('express-validator');
 
 // Validation rules
@@ -118,4 +118,71 @@ exports.getNotesCountForTutor = async (req, res) => {
   const { id } = req.params;
   const count = await Notes.count({ where: { subjecttutorid : id } });
   res.json({ totalNotes: count });
+};
+
+exports.getTutorSubjectsAndGrades = async (req, res) => {
+  const { tutorid } = req.params;
+  try {
+    const assignments = await SubjectTutor.findAll({
+      where: { tutorid },
+      include: [
+        { model: Subject, as: 'subject', attributes: ['id', 'name'] },
+        { model: Grade, as: 'grade', attributes: ['id', 'name'] }
+      ],
+      attributes: []
+    });
+
+    const subjects = [];
+    const grades = [];
+
+    assignments.forEach((a) => {
+      if (!subjects.find(s => s.id === a.subject.id))
+        subjects.push(a.subject);
+
+      if (!grades.find(g => g.id === a.grade.id))
+        grades.push(a.grade);
+    });
+
+    res.json({ subjects, grades });
+
+  } catch (err) {
+    console.error('Get Tutor Subjects/Grades Error:', err);
+    res.status(500).json({ message: 'Failed to fetch subjects and grades' });
+  }
+};
+
+exports.getNotesForApproval = async (req, res) => {
+  const { tutorid, subject, grade } = req.query;
+  try {
+    const notes = await Notes.findAll({
+      where: {
+        subjecttutorid: tutorid
+      },
+    });
+
+    res.status(200).json(notes);
+  } catch (err) {
+    console.error('Get Notes for Approval Error:', err);
+    res.status(500).json({ message: 'Failed to fetch notes for approval' });
+  }
+};
+
+exports.reviewNote = async (req, res) => {
+  const { id } = req.params;
+  const { status, points } = req.body; // status = 'APPROVED' | 'REJECTED'
+
+  try {
+    const note = await Notes.findByPk(id);
+    if (!note) return res.status(404).json({ message: 'Note not found.' });
+
+    note.status = status;
+    note.points = points;
+    await note.save();
+
+    res.status(200).json({ message: 'Note reviewed successfully.', note });
+
+  } catch (err) {
+    console.error('Review Note Error:', err);
+    res.status(500).json({ message: 'Failed to review note' });
+  }
 };

@@ -52,7 +52,7 @@ exports.create = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { username, password, email, firstname, lastname, title, contact, position } = req.body;
+  const { username, password, email, firstname, lastname, title, contact, position, salary } = req.body;
 
   try {
 
@@ -84,6 +84,7 @@ exports.create = async (req, res) => {
           position: position,
           title: title,
           contact: contact,
+          salary: salary
         });
 
         return newStaff

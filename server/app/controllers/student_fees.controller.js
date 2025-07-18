@@ -109,6 +109,5 @@ exports.getNextPaymentDate = async (req, res) => {
     where: { studentid: id, status :'PAID' },
     order: [['createdAt', 'DESC']],
   });
-  console.log(nextPayment)
   res.json({ nextPaymentDate: nextPayment ? nextPayment.createdAt : null });
 };

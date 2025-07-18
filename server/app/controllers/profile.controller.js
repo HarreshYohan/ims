@@ -10,7 +10,6 @@ exports.getProfile = async (req, res) => {
       if (!user) return res.status(404).send({ message: 'User not found' });
   
       const { user_type } = user;
-  console.log(user_type)
       switch (user_type) {
         case 'STUDENT':
           return await getStudentProfile(id, res);
@@ -32,8 +31,6 @@ exports.getProfile = async (req, res) => {
 // Sub-profiles
 const getStudentProfile = async (id, res) => {
     try {
-      console.log("Fetching student for user ID:", id);
-  
       const [student] = await sequelize.query(`
         SELECT * FROM student WHERE user_id = :userId LIMIT 1
       `, {
@@ -64,8 +61,7 @@ const getTutorProfile = async (id, res) => {
           replacements: { userId: id },
           type: sequelize.QueryTypes.SELECT
         });
-    
-        console.log(tutor)
+
         if (!tutor) {
           return res.status(404).send({ message: 'Tutor not found' });
         }
@@ -110,7 +106,6 @@ exports.updateProfile = async (req, res) => {
       if (!user) return res.status(404).send({ message: 'User not found' });
   
       const { user_type } = user;
-  console.log(updatedData)
       // Update base User table fields if needed
       await user.update({
         username: updatedData.username || user.username,

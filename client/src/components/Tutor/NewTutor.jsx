@@ -24,7 +24,7 @@ export const NewTutor = () => {
     setError(null);
     
     try {
-      const response = await api.post('/api/tutor/create', {
+      const response = await api.post('/api/tutor', {
         firstname: firstName,
         lastname: lastName,
         username,

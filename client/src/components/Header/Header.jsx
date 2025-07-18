@@ -25,6 +25,8 @@ export const Header = ({type ,action}) => {
       <div className="logo">
         <Link to={link}>
           {/* <img src={logo_icon} alt="Logo" /> */}
+              <span className="topbar-logo">📘</span>
+              <span className="topbar-title">IMS</span>
         </Link> 
       </div>
       <div className="header-actions">

@@ -101,7 +101,6 @@ exports.findOne = async (req, res) => {
   }
 };
 
-
 exports.update = async (req, res) => {
   const id = req.params.id;
 
@@ -110,15 +109,15 @@ exports.update = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { name , capacity} = req.body;
+  const { name, capacity } = req.body;
 
   try {
     const classroom = await Classroom.findByPk(id);
-    if (!Classroom) {
+    if (!classroom) {
       return res.status(404).send({ message: `Cannot find Classroom with id=${id}.` });
     }
 
-    await Classroom.update({ name, capacity });
+    await classroom.update({ name, capacity });
     res.status(200).send({ message: "Classroom was updated successfully." });
   } catch (err) {
     if (err.name === 'SequelizeUniqueConstraintError') {
@@ -133,7 +132,6 @@ exports.update = async (req, res) => {
   }
 };
 
-
 exports.delete = async (req, res) => {
   const id = req.params.id;
 
@@ -143,7 +141,7 @@ exports.delete = async (req, res) => {
       return res.status(404).send({ message: `Cannot find Classroom with id=${id}.` });
     }
 
-    await Classroom.destroy();
+    await classroom.destroy();
     res.status(200).send({ message: "Classroom was deleted successfully!" });
   } catch (err) {
     res.status(500).send({

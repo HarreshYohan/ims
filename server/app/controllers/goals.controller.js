@@ -1,4 +1,4 @@
-const { Goals } = require('../models');
+const { Goals, Student } = require('../models');
 const { Op } = require('sequelize');
 
 exports.getGoalsByStudent = async (req, res) => {
@@ -20,8 +20,6 @@ exports.createGoal = async (req, res) => {
     }
 
     const lastprogressupdate = new Date().toISOString().slice(0, 10); 
-    console.log(lastprogressupdate)
-
     const newGoal = await Goals.create({ studentid, goaltitle, targetdate, lastprogressupdate , subjecttutorid});
     res.status(201).json(newGoal);
   } catch (error) {
@@ -94,5 +92,64 @@ exports.getStreak = async (req, res) => {
     res.json({ average_streak: averageStreak.toFixed(2) });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+};
+
+exports.getGoalsByTutorSubjectGrade = async (req, res) => {
+  try {
+    const { tutorid, subject, grade } = req.query;
+
+    const goals = await Goals.findAll({
+      where: { subjecttutorid: tutorid },
+      include: [{
+        model: Student, as: 'student',
+        where: { grade },
+        attributes: ['id', 'firstname' , 'lastname'],
+      }],
+      order: [['createdAt', 'DESC']],
+    });
+
+    const formatted = goals.map(g => ({
+      id: g.id,
+      studentName: g.Student.firstname + " "+g.Student.firstname,
+      goaltitle: g.goaltitle,
+      progress: g.progress,
+      streak: g.streak,
+      lastprogressupdate: g.lastprogressupdate,
+      status: g.status,
+    }));
+
+    res.json(formatted);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.updateGoalProgress = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { progress } = req.body;
+
+    if (progress < 0 || progress > 100) {
+      return res.status(400).json({ error: 'Progress must be between 0 and 100' });
+    }
+
+    const goal = await Goals.findByPk(id);
+    if (!goal) return res.status(404).json({ error: 'Goal not found' });
+
+    const today = new Date().toISOString().slice(0, 10);
+    let newStreak = goal.streak;
+
+    if (goal.lastprogressupdate !== today) {
+      newStreak += 1;
+    }
+
+    const status = progress >= 100 ? 'Completed' : 'Active';
+
+    await goal.update({ progress, streak: newStreak, lastprogressupdate: today, status });
+
+    res.json({ message: 'Progress updated successfully', goal });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };

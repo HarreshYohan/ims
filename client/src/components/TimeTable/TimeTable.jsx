@@ -174,12 +174,10 @@ export const Timetable = () => {
                 {item[`${day}cls`] ? (
                   <>
                     <div style={{ position: 'absolute', top: '5px', right: '5px' }}>
-                    {(role === 'ADMIN' || role === 'STAFF') && (
-                      <>
+                   
                         <FontAwesomeIcon icon={faPencilAlt} className="editClass" style={{ marginRight: '5px', cursor: 'pointer' }} onClick={() => handleEdit(item.classroomid, day, item.timeslotid)} />
                         <FontAwesomeIcon icon={faTrash} className="deleteClass" style={{ marginRight: '5px', cursor: 'pointer' }} onClick={() => handleDelete(item.classroomid, item.timeslotid, day)} />
-                      </>
-                    )}
+                      
                     </div>
                     <span>{item[`${day}cls`].grade.name}</span><br />
                     <span>{item[`${day}cls`].subject.name}</span><br />
@@ -187,11 +185,9 @@ export const Timetable = () => {
                   </>
                 ) : (
                   <div className="createClass" style={{ position: 'absolute', top: '5px', right: '5px' }}>
-                    {(role === 'ADMIN' || role === 'STAFF') && (
-                      <>
+                    
                         <FontAwesomeIcon icon={faPlus} className="editClass" style={{ marginRight: '5px', cursor: 'pointer' }} onClick={() => handleEdit(item.classroomid, day, item.timeslotid)} />
-                      </>
-                    )} 
+                      
                   </div>
                 )}
               </td>

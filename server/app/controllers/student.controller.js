@@ -23,20 +23,11 @@ exports.validate = (method) => {
 
 exports.findAll = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
-
     const { count, rows } = await Student.findAndCountAll({
-      limit,
-      offset,
+      order: [['id', 'DESC']]
     });
-
-    const totalPages = Math.ceil(count / limit);
-
     res.json({
-      data: rows,
-      totalPages,
+      data: rows
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

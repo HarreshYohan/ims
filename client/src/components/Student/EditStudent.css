@@ -91,3 +91,10 @@
   background-color: #ddd;
 }
 
+.remove-subject-btn {
+  margin-left: 10px;
+  color: red;
+  cursor: pointer;
+  background: none;
+  border: none;
+}

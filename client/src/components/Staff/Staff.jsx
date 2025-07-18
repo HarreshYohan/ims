@@ -196,6 +196,11 @@ export const Staff = () => {
       <div className='main'>
         {loading && <p>Loading...</p>}
         {error && <p className="error">{error}</p>}
+        <div className="student-actions">
+          <button className="create-student-btn" onClick={() => navigate('/new-staff')}>
+            ➕ Create New Staff
+          </button>
+        </div>
         <Table data={filteredData} currentPage={currentPage} totalPages={totalPages} />
       </div>
     </div>

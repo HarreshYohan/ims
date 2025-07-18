@@ -35,11 +35,17 @@ function Sidebar() {
           <>
           <NavLink to="/notes" className={({ isActive }) => isActive ? 'active' : ''}>📝 Notes</NavLink>
           <NavLink to="/fees" className={({ isActive }) => isActive ? 'active' : ''}>💰 Fees</NavLink>
+          <NavLink to="/goals" className={({ isActive }) => isActive ? 'active' : ''}>🎯 Goals</NavLink>
           </>
         )}
-        
-        <NavLink to="/tutor-fees" className={({ isActive }) => isActive ? 'active' : ''}>💰Salary</NavLink>
-        <NavLink to="/goals" className={({ isActive }) => isActive ? 'active' : ''}>🎯 Goals</NavLink>
+
+        {role === 'Tutor' && (
+          <>
+          <NavLink to="/tutor-notes" className={({ isActive }) => isActive ? 'active' : ''}>📝 Notes</NavLink>
+          <NavLink to="/tutor-fees" className={({ isActive }) => isActive ? 'active' : ''}>💰Salary</NavLink>
+          <NavLink to="/tutor-goals" className={({ isActive }) => isActive ? 'active' : ''}>🎯 Goals</NavLink>
+          </>
+        )}
         <NavLink to="/profile" className={({ isActive }) => isActive ? 'active' : ''}>👤 Profile</NavLink>
       </nav>
 

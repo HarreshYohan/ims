@@ -2,7 +2,6 @@ const { Op } = require('sequelize');
 
 async function findBy(model, columnName, value) {
   try {
-    console.log(model, columnName, value)
     const result = await model.findOne({
       where: {
         [columnName]: {

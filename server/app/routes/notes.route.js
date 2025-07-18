@@ -19,5 +19,11 @@ module.exports = (app) => {
 
   router.get("/count-tutor/:id", notes.getNotesCountForTutor);
 
+  router.get('/subjects-grades/:tutorid', notes.getTutorSubjectsAndGrades);
+
+  router.get('/tutor/notes-for-approval', notes.getNotesForApproval);
+
+  router.put('/tutor/review-note/:id', notes.reviewNote);
+
   app.use('/api/notes', router);
 };

@@ -1,53 +1,55 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Header } from '../Header/Header';
-import './EditStudent.css';
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
-import { format } from 'date-fns';
+import './EditStudent.css';
 
 export const EditStudent = () => {
   const [studentData, setStudentData] = useState({});
   const [feesData, setFeesData] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [allSubjects, setAllSubjects] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
-  const localToken = localStorage.getItem("authToken");
+
+  const token = localStorage.getItem("authToken");
 
   useEffect(() => {
-    if (!localToken) {
+    if (!token) {
       localStorage.removeItem('authToken');
       navigate('/login');
     }
-  }, [localToken, navigate]);
+  }, [token, navigate]);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-      setError(null);
       try {
-        const studentResponse = await api.get(`/api/student/${id}`);
-        const feesResponse = await api.get(`/api/student-fees/${id}`);
-        if (studentResponse.status === 200 && feesResponse.status === 200) {
-          setStudentData(studentResponse.data);
-          setFeesData(feesResponse.data);
-        } else {
-          console.error('Failed to fetch data');
-        }
-      } catch (error) {
-        setError('Error during data fetch');
-        console.error('Error during data fetch:', error);
-        localStorage.removeItem('authToken');
-        navigate('/login');
+        const [studentRes, feesRes, subjectsRes, allSubjectsRes] = await Promise.all([
+          api.get(`/api/student/${id}`),
+          api.get(`/api/student-fees/${id}`),
+          api.get(`/api/student/student-subject/${id}`),
+          api.get(`/api/student-subject/subjects/${id}`)
+        ]);
+
+        setStudentData(studentRes.data);
+        setFeesData(feesRes.data);
+        setSubjects(subjectsRes.data.data?.subjects || []);
+        setAllSubjects(allSubjectsRes.data.subjects || []);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to load data');
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [id, navigate, localToken]);
+  }, [id, navigate, token]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -56,21 +58,44 @@ export const EditStudent = () => {
 
   const handleSave = async () => {
     try {
-      const response = await api.put(`/api/student/${id}`, studentData);
-      if (response.status === 200) {
-        alert('Student data updated successfully');
-        navigate('/students');
-      } else {
-        console.error('Failed to update student data');
-      }
-    } catch (error) {
-      console.error('Error updating student data:', error);
+      await api.put(`/api/student/${id}`, studentData);
+      alert('Student data updated successfully');
+      navigate('/students');
+    } catch (err) {
+      console.error('Error saving student:', err);
+    }
+  };
+
+  const handleRemoveSubject = async (subjectid) => {
+    console.log(subjectid)
+  const confirmDelete = window.confirm('Are you sure you want to remove this subject?');
+  if (!confirmDelete) return;
+
+  try {
+    await api.delete(`/api/student-subject/remove-subject/${id}/${subjectid}`);
+    const updated = await api.get(`/api/student/student-subject/${id}`);
+    setSubjects(updated.data.data?.subjects || []);
+  } catch (err) {
+    console.error('Error removing subject:', err);
+  }
+};
+
+
+  const handleAddSubject = async () => {
+    if (!selectedSubject) return;
+    try {
+      await api.post('/api/student-subject/add-subject', { studentid: id, subjectid: selectedSubject });
+      const updated = await api.get(`/api/student/student-subject/${id}`);
+      setSubjects(updated.data.data?.subjects || []);
+      setSelectedSubject('');
+    } catch (err) {
+      console.error('Error adding subject:', err);
     }
   };
 
   const FeesCard = ({ fees }) => (
     <div className="fees-card">
-      <h3>Fees</h3>
+      <h3>Fees History</h3>
       <table>
         <thead>
           <tr>
@@ -106,43 +131,48 @@ export const EditStudent = () => {
           <div className="edit-student-container">
             <div className="student-form">
               <h3>Edit Student</h3>
-              <label>
-                First Name:<br/>
-                <input
-                  type="text"
-                  name="firstname"
-                  value={studentData.firstname || ''}
-                  onChange={handleInputChange}
-                />
+              <label>First Name:<br/>
+                <input type="text" name="firstname" value={studentData.firstname || ''} onChange={handleInputChange} />
               </label>
-              <label>
-                Last Name:<br/>
-                <input
-                  type="text"
-                  name="lastname"
-                  value={studentData.lastname || ''}
-                  onChange={handleInputChange}
-                />
+              <label>Last Name:<br/>
+                <input type="text" name="lastname" value={studentData.lastname || ''} onChange={handleInputChange} />
               </label>
-              <label>
-                Grade:<br/>
-                <input
-                  type="text"
-                  name="grade"
-                  value={studentData.grade || ''}
-                  onChange={handleInputChange}
-                />
+              <label>Contact:<br/>
+                <input type="text" name="contact" value={studentData.contact || ''} onChange={handleInputChange} />
               </label>
-              <label>
-                Contact:<br/>
-                <input
-                  type="text"
-                  name="contact"
-                  value={studentData.contact || ''}
-                  onChange={handleInputChange}
-                />
+              <label>Grade:<br/>
+                <input type="text" value={studentData.grade || ''} disabled />
               </label>
               <button className="saveBtn" onClick={handleSave}>Save</button>
+
+              <div className="subjects-section">
+                <h3>Enrolled Subjects</h3>
+                <ul>
+                    {subjects.map(sub => (
+                      <li key={sub.subject_id}>
+                        {sub.subject} 
+                        <button 
+                          className="remove-subject-btn" 
+                          onClick={() => handleRemoveSubject(sub.subject_id)}
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                    {subjects.length === 0 && <li>No subjects enrolled yet.</li>}
+                  </ul>
+
+
+                <div className="add-subject">
+                  <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
+                    <option value="">-- Select Subject to Add --</option>
+                    {allSubjects.map(sub => (
+                      <option key={sub.id} value={sub.id}>{sub.subject}</option>
+                    ))}
+                  </select>
+                  <button onClick={handleAddSubject}>Add Subject</button>
+                </div>
+              </div>
             </div>
             <FeesCard fees={feesData} />
           </div>

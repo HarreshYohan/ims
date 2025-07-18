@@ -1,5 +1,5 @@
 
-const { User, Tutor } = require('../models');
+const { User, Tutor, SubjectTutor, Subject, Grade } = require('../models');
 const bcrypt = require('bcryptjs');
 const { log } = require("console");
 const { check, validationResult } = require('express-validator');
@@ -60,20 +60,12 @@ exports.create = async (req, res) => {
 
 exports.findAll = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
-
     const { count, rows } = await Tutor.findAndCountAll({
-      limit,
-      offset,
+        order: [['id', 'DESC']]
     });
-
-    const totalPages = Math.ceil(count / limit);
 
     res.json({
       data: rows,
-      totalPages,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -82,6 +74,8 @@ exports.findAll = async (req, res) => {
 
 
 exports.findOne = (req, res) => {
+
+  console.log("wefrgt")
     const id = req.params.id;
   
     Tutor.findByPk(id)
@@ -210,3 +204,101 @@ exports.approveOrRejectNote = async (req, res) => {
   }
 };
 
+
+exports.getSubjectMapping = async (req, res) => {
+  try {
+    const mappings = await SubjectTutor.findAll({
+      where: { tutorid: req.params.id },
+      include: [{ model: Subject, as: 'subject' }, { model: Grade, as: 'grade' }]
+    });
+
+    const result = mappings.map(m => ({
+      id: m.id,
+      subject: m.subject.name,
+      grade: m.grade.name
+    }));
+
+    res.json({ subjects: result });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
+exports.addSubject = async (req, res) => {
+  try {
+    const { tutorid, subjectgradeid } = req.body;
+    const [subjectId, gradeId] = subjectgradeid.split('-');
+    const mapping = await SubjectTutor.create({ tutorid, subjectid: subjectId, gradeid: gradeId });
+    res.status(201).send(mapping);
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
+exports.removeSubject = async (req, res) => {
+  try {
+    const mapping = await SubjectTutor.findByPk(req.params.mappingid);
+    if (!mapping) return res.status(404).send({ message: 'Mapping not found' });
+
+    await mapping.destroy();
+    res.send({ message: 'Subject mapping removed successfully' });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
+exports.getAllGrades = async (req, res) => {
+  try {
+    console.log("frd")
+    const grades = await Grade.findAll();
+    res.json(grades);
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
+exports.getSubjectsByGrade = async (req, res) => {
+  try {
+    const gradeid = req.params.gradeid;
+
+    const subjectTutors = await SubjectTutor.findAll({
+      where: { gradeid },
+      include: [{ model: Subject, as: 'subject' }]
+    });
+
+    // Map unique subjects
+    const subjects = subjectTutors.map(st => ({
+      id: st.subject.id,
+      name: st.subject.name
+    }));
+
+    // Remove duplicates (optional)
+    const uniqueSubjects = Array.from(
+      new Map(subjects.map(s => [s.id, s])).values()
+    );
+
+    res.json(uniqueSubjects);
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
+
+exports.addSubjectToTutor = async (req, res) => {
+  const { tutorid, subjectid, gradeid, fees } = req.body;
+
+  try {
+    const exists = await SubjectTutor.findOne({
+      where: { tutorid, subjectid, gradeid }
+    });
+
+    if (exists) {
+      return res.status(400).json({ message: 'Mapping already exists' });
+    }
+
+    const mapping = await SubjectTutor.create({ tutorid, subjectid, gradeid, fees });
+    res.status(201).json(mapping);
+
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+};
