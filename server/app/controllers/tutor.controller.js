@@ -60,7 +60,7 @@ exports.create = async (req, res) => {
 
 exports.findAll = async (req, res) => {
   try {
-    const { count, rows } = await Tutor.findAndCountAll({
+    const {  rows } = await Tutor.findAndCountAll({
         order: [['id', 'DESC']]
     });
 

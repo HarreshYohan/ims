@@ -41,20 +41,12 @@ exports.create = async (req, res) => {
 
 exports.findAll = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
 
-    const { count, rows } = await Subject.findAndCountAll({
-      limit,
-      offset,
+    const { rows } = await Subject.findAndCountAll({
     });
-
-    const totalPages = Math.ceil(count / limit);
 
     res.json({
       data: rows,
-      totalPages,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

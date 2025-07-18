@@ -1,0 +1,29 @@
+.createBtn, .cancelBtn {
+  padding: 10px 20px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-right: 10px; /* Add gap between buttons */
+}
+
+.createBtn {
+  background-color: #28a745;
+  color: #fff;
+}
+
+.createBtn:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}
+
+.cancelBtn {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.cancelBtn:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+}
