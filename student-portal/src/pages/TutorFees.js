@@ -10,7 +10,7 @@ function TutorFees() {
   useEffect(() => {
     const fetchTutorPayments = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         if (!token) return;
 
         const decoded = jwtDecode(token);

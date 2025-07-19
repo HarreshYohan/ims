@@ -5,6 +5,7 @@ import { Header } from '../Header/Header';
 import './Classroom.css';
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
+import { Pagination } from '../Pagination/Pagination';
 
 export const Classroom = () => {
   const [data, setData] = useState([]);
@@ -90,7 +91,7 @@ export const Classroom = () => {
     }
   };
 
-  const Table = ({ data, currentPage, totalPages }) => (
+  const Table = ({ data, currentPage, totalPages }) => (<>
     <table className="data-table">
       <thead>
         <tr>
@@ -116,27 +117,13 @@ export const Classroom = () => {
             </td>
           </tr>
         ))}
-        <tr>
-          <td colSpan="4" className="pagination">
-            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-              Previous
-            </button>
-            {[...Array(totalPages).keys()].map((pageNumber) => (
-              <button
-                key={pageNumber + 1}
-                onClick={() => handlePageChange(pageNumber + 1)}
-                className={currentPage === pageNumber + 1 ? 'active' : ''}
-              >
-                {pageNumber + 1}
-              </button>
-            ))}
-            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-              Next
-            </button>
-          </td>
-        </tr>
       </tbody>
     </table>
+    <Pagination
+                           currentPage={currentPage}
+                           totalPages={totalPages}
+                           onPageChange={handlePageChange} 
+    /> </>
   );
 
   return (

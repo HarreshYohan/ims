@@ -13,7 +13,7 @@ module.exports = (app) => {
 
   router.get('/student/:studentid', timetable.findForStudent);
 
-  router.get('/tutor/:tutorid', timetable.findForTutor);
+  router.get('/tutor/:userid', timetable.findForTutor);
 
   router.get('/student-count/:studentid', timetable.getClassCount);
 

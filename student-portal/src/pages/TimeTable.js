@@ -27,7 +27,7 @@ function TimeTable() {
       setError(null);
 
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('authToken');
         if (!token) throw new Error('User not authenticated.');
 
         const decoded = jwtDecode(token);

@@ -66,8 +66,9 @@ export const EditTutor = () => {
       return;
     }
     try {
-      const res = await api.get(`/api/tutor/subjects/${gradeid}`);
-      setSubjectsByGrade(res.data);
+      // const res = await api.get(`/api/tutor/subjects/${gradeid}`);
+      const res = await api.get(`/api/subject/all`)
+      setSubjectsByGrade(res.data.data);
     } catch (err) {
       console.error('Error fetching subjects:', err);
     }

@@ -1,4 +1,4 @@
-const { Notes, SubjectTutor, Subject, Grade } = require('../models');
+const { Notes, SubjectTutor, Subject, Grade, Student, Tutor } = require('../models');
 const { check, validationResult } = require('express-validator');
 
 // Validation rules
@@ -22,10 +22,13 @@ exports.create = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
 
-  const { note, subject, heading, chapter, studentid, subjecttutorid } = req.body;
+   const { note, subject, heading, chapter, userid, subjecttutorid } = req.body;
 
   try {
-    const newNote = await Notes.create({ note, subject, heading, chapter, studentid, subjecttutorid });
+    const student = await Student.findOne({where: {user_id : userid}}, {attributes: ['id']})
+
+    const studentid = student.id
+    const newNote = await Notes.create({ note, subject, heading, chapter, studentid , subjecttutorid });
     res.status(201).json(newNote);
   } catch (err) {
     res.status(500).json({ message: err.message || 'Error creating note.' });
@@ -93,8 +96,11 @@ exports.delete = async (req, res) => {
 };
 
 exports.findByStudentAndSubject = async (req, res) => {
-  const { studentid, subject } = req.params;
+  const { userid, subject } = req.params;
   try {
+    const student = await Student.findOne({where: {user_id : userid}}, {attributes: ['id']})
+
+    const studentid = student.id
     const notes = await Notes.findAll({
       where: {
         studentid : studentid,
@@ -109,20 +115,58 @@ exports.findByStudentAndSubject = async (req, res) => {
 };
 
 exports.getNotesCountForStudent = async (req, res) => {
-  const { studentid } = req.params;
+  const { userid } = req.params;
+  const student = await Student.findOne({where: {user_id : userid}}, {attributes: ['id']})
+  const studentid = student.id
   const count = await Notes.count({ where: { studentid : studentid } });
   res.json({ totalNotes: count });
 };
 
 exports.getNotesCountForTutor = async (req, res) => {
-  const { id } = req.params;
-  const count = await Notes.count({ where: { subjecttutorid : id } });
-  res.json({ totalNotes: count });
+  try {
+    const { id } = req.params;
+
+    // Get Tutor record for user_id = id
+    const tutor = await Tutor.findOne({
+      where: { user_id: id },
+      attributes: ['id']
+    });
+
+    if (!tutor) {
+      return res.status(404).json({ message: 'Tutor not found' });
+    }
+
+    // Get all SubjectTutor records for this tutor
+    const subjectTutors = await SubjectTutor.findAll({
+      where: { tutorid: tutor.id },
+      attributes: ['id']
+    });
+
+    const subjectTutorIds = subjectTutors.map(st => st.id);
+
+    // If no subjects, count is 0
+    if (subjectTutorIds.length === 0) {
+      return res.json({ totalNotes: 0 });
+    }
+
+    // Count notes where subjecttutorid in array of ids
+    const count = await Notes.count({
+      where: { subjecttutorid: subjectTutorIds }
+    });
+
+    res.json({ totalNotes: count });
+
+  } catch (error) {
+    console.error('Error fetching notes count:', error);
+    res.status(500).json({ message: 'Server Error' });
+  }
 };
 
 exports.getTutorSubjectsAndGrades = async (req, res) => {
-  const { tutorid } = req.params;
+  const { userid } = req.params;
   try {
+    const tutor = await Tutor.findOne({where: {user_id : userid}}, {attributes: ['id']})
+    const tutorid = tutor.id
     const assignments = await SubjectTutor.findAll({
       where: { tutorid },
       include: [
@@ -152,10 +196,11 @@ exports.getTutorSubjectsAndGrades = async (req, res) => {
 };
 
 exports.getNotesForApproval = async (req, res) => {
-  const { tutorid, subject, grade } = req.query;
+  const { userid, subject, grade } = req.query;
 
   try {
-    // Find the subjecttutor record matching tutorid and subject
+    const tutor = await Tutor.findOne({where: {user_id : userid}}, {attributes: ['id']})
+    const tutorid = tutor.id
     const subjectTutor = await SubjectTutor.findOne({
       where: {
         tutorid: tutorid,
@@ -171,7 +216,7 @@ exports.getNotesForApproval = async (req, res) => {
     const notes = await Notes.findAll({
       where: {
         subjecttutorid: subjectTutor.id,
-        status: "Pending"
+        status: "PENDING"
       },
     });
 
@@ -205,9 +250,11 @@ exports.reviewNote = async (req, res) => {
 
 // Controller logic for fetching approved notes
 exports.getApprovedNotes = async (req, res) => {
-  const { tutorid, subject, grade } = req.query;
+  const { userid, subject, grade } = req.query;
 
   try {
+    const tutor = await Tutor.findOne({where: {user_id : userid}}, {attributes: ['id']})
+    const tutorid = tutor.id
     const subjectTutor = await SubjectTutor.findOne({
       where: { tutorid, subjectid: subject, gradeid: grade }
     });
@@ -215,7 +262,6 @@ exports.getApprovedNotes = async (req, res) => {
     if (!subjectTutor) {
       return res.status(404).json({ message: 'Subject-Tutor mapping not found' });
     }
-
     const notes = await Notes.findAll({
       where: {
         subjecttutorid: subjectTutor.id,

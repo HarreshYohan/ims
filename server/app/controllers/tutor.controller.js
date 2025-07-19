@@ -74,8 +74,6 @@ exports.findAll = async (req, res) => {
 
 
 exports.findOne = (req, res) => {
-
-  console.log("wefrgt")
     const id = req.params.id;
   
     Tutor.findByPk(id)
@@ -249,7 +247,6 @@ exports.removeSubject = async (req, res) => {
 
 exports.getAllGrades = async (req, res) => {
   try {
-    console.log("frd")
     const grades = await Grade.findAll();
     res.json(grades);
   } catch (err) {

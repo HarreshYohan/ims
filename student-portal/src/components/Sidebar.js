@@ -8,8 +8,7 @@ function Sidebar() {
   const [role, setRole] = useState();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    console.log(token)
+    const token = localStorage.getItem('authToken');
     if (token) {
       try {
         const decoded = jwtDecode(token);

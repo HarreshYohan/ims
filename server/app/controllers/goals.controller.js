@@ -1,4 +1,4 @@
-const { Goals, Student } = require('../models');
+const { Goals, Student, Tutor, SubjectTutor } = require('../models');
 const { Op } = require('sequelize');
 
 exports.getGoalsByStudent = async (req, res) => {
@@ -13,12 +13,15 @@ exports.getGoalsByStudent = async (req, res) => {
 
 exports.createGoal = async (req, res) => {  
   try {
-    const { studentid, goaltitle, targetdate, subjecttutorid } = req.body;
 
-    if (!studentid || !goaltitle || !targetdate) {
+    const { userid, goaltitle, targetdate, subjecttutorid } = req.body;
+
+    if (!userid || !goaltitle || !targetdate) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    const student = await Student.findOne({where: {user_id : userid}}, {attributes: ['id']})
+    const studentid = student.id
     const lastprogressupdate = new Date().toISOString().slice(0, 10); 
     const newGoal = await Goals.create({ studentid, goaltitle, targetdate, lastprogressupdate , subjecttutorid});
     res.status(201).json(newGoal);
@@ -97,13 +100,18 @@ exports.getStreak = async (req, res) => {
 
 exports.getGoalsByTutorSubjectGrade = async (req, res) => {
   try {
-    const { tutorid, subject, grade } = req.query;
+    const { userid, subject, grade } = req.query;
+
+    const tutor = await Tutor.findOne({where: {user_id : userid}}, {attributes: ['id']})
+    const tutorid = tutor.id
+
+    const st = await SubjectTutor.findOne({where: {subjectid : subject ,gradeid: grade}}, {attributes: ['id']})
+    const subjecttutorid = st.id
 
     const goals = await Goals.findAll({
-      where: { subjecttutorid: tutorid },
+      where: { subjecttutorid: subjecttutorid },
       include: [{
         model: Student, as: 'student',
-        where: { grade },
         attributes: ['id', 'firstname' , 'lastname'],
       }],
       order: [['createdAt', 'DESC']],
@@ -111,7 +119,7 @@ exports.getGoalsByTutorSubjectGrade = async (req, res) => {
 
     const formatted = goals.map(g => ({
       id: g.id,
-      studentName: g.Student.firstname + " "+g.Student.firstname,
+      studentName: g.student.firstname + " "+g.student.lastname,
       goaltitle: g.goaltitle,
       progress: g.progress,
       streak: g.streak,
@@ -152,4 +160,19 @@ exports.updateGoalProgress = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+};
+
+exports.getActiveTutorGoalsCount = async (req, res) => {
+  const { userid } = req.params;
+
+  const tutor = await Tutor.findOne({where: {user_id : userid}}, {attributes: ['id']})
+  const tutorid = tutor.id
+
+  const st = await SubjectTutor.findAll({where: {tutorid:tutorid}}, {attributes: ['id']})
+
+  const subjectTutorIds = st.map(s => s.id);
+  const count = await Goals.count({
+    where: { subjecttutorid : subjectTutorIds, progress: { [Op.lt]: 100 } },
+  });
+  res.json({ activeGoals: count });
 };

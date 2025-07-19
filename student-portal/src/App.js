@@ -14,7 +14,9 @@ import TutorNotesReview from './pages/TutorNotesReview';
 import TutorGoalsReview from './pages/TutorGoalsReview';
 
 function App() {
-  const isAuthenticated = !!localStorage.getItem('token');
+  console.log("dfg" +localStorage)
+  const isAuthenticated = !!localStorage.getItem('authToken');
+  console.log('dsf '+ isAuthenticated)
 
   return (
     <Router>

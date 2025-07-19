@@ -168,14 +168,16 @@ exports.update = async (req, res) => {
 exports.student_subject = async (req, res) => {
   const id = req.params.id;
   const errors = validationResult(req);
-
+console.log(id)
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
   try {
+    const student = await Student.findOne({where: {user_id : id}}, {attributes: ['id']})
+    console.log(student.id)
     const studentSubjects = await StudentSubject.findAll({
-      where: { studentid: id },
+      where: { studentid: student.id },
       attributes: ['studentid'],
       include: [
         {

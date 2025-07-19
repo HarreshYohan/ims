@@ -6,6 +6,7 @@ import './Staff.css';
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
 import debounce from 'lodash/debounce';
+import { Pagination } from '../Pagination/Pagination';
 
 export const Staff = () => {
   const [data, setData] = useState([]);
@@ -104,6 +105,7 @@ export const Staff = () => {
   };
 
   const Table = ({ data, currentPage, totalPages }) => (
+    <>
     <table className="data-table">
       <thead>
         <tr>
@@ -165,27 +167,14 @@ export const Staff = () => {
             </td>
           </tr>
         ))}
-        <tr>
-          <td colSpan="7" className='pagination'>
-            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-              Previous
-            </button >
-            {[...Array(totalPages).keys()].map((pageNumber) => (
-              <button
-                key={pageNumber + 1}
-                onClick={() => handlePageChange(pageNumber + 1)}
-                className={currentPage === pageNumber + 1 ? 'active' : ''}
-              >
-                {pageNumber + 1}
-              </button>
-            ))}
-            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-              Next
-            </button>
-          </td>
-        </tr>
       </tbody>
     </table>
+    <Pagination
+                   currentPage={currentPage}
+                   totalPages={totalPages}
+                   onPageChange={handlePageChange} 
+    /> 
+    </>
   );
 
   return (

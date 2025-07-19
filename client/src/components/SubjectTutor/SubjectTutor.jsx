@@ -5,6 +5,7 @@ import { Header } from '../Header/Header';
 import './SubjectTutor.css';
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
+import { Pagination } from '../Pagination/Pagination';
 
 export const SubjectTutor = () => {
   const [data, setData] = useState([]);
@@ -19,6 +20,7 @@ export const SubjectTutor = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const [filteredTotalPages, setFilteredTotalPages] = useState(1);
   const localToken = localStorage.getItem("authToken");
 
   useEffect(() => {
@@ -33,12 +35,12 @@ export const SubjectTutor = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await api.get(`/api/subject-tutor/all?page=${currentPage}&limit=${itemsPerPage}`);
+        const response = await api.get(`/api/subject-tutor/all`);
         if (response.status === 200) {
-          const { data, totalPages } = response.data;
+          const { data } = response.data;
           setData(data);
           setFilteredData(data);
-          setTotalPages(totalPages);
+          setTotalPages(Math.ceil(data.length / itemsPerPage));
 
           // Extract unique grades and subjects
           const uniqueGrades = [...new Set(data.map(item => item.grade))];
@@ -71,6 +73,7 @@ export const SubjectTutor = () => {
       );
     });
     setFilteredData(filtered);
+    setTotalPages(Math.ceil(filtered.length / itemsPerPage));
 
     // Update subjects based on selected grade
     if (selectedGrade) {
@@ -98,6 +101,8 @@ export const SubjectTutor = () => {
         // Refresh data after delete
         setData(data.filter(item => item.id !== id));
         setFilteredData(filteredData.filter(item => item.id !== id));
+        setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
+        
       } catch (error) {
         setError('Error deleting item');
         console.error('Error deleting item:', error);
@@ -114,7 +119,7 @@ export const SubjectTutor = () => {
     setSelectedSubject(e.target.value);
   };
 
-  const Table = ({ data }) => (
+  const Table = ({ data }) => (<>
     <table className="data-table">
       <thead>
         <tr>
@@ -156,27 +161,13 @@ export const SubjectTutor = () => {
             </td>
           </tr>
         ))}
-        <tr>
-          <td colSpan="7" className='pagination'>
-            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-              Previous
-            </button>
-            {[...Array(totalPages).keys()].map((pageNumber) => (
-              <button
-                key={pageNumber + 1}
-                onClick={() => handlePageChange(pageNumber + 1)}
-                className={currentPage === pageNumber + 1 ? 'active' : ''}
-              >
-                {pageNumber + 1}
-              </button>
-            ))}
-            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-              Next
-            </button>
-          </td>
-        </tr>
       </tbody>
     </table>
+    <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPageChange={handlePageChange} 
+    /> </>
   );
 
   return (

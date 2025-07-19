@@ -16,7 +16,7 @@ function Dashboard() {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     if (token) {
       try {
         const decoded = jwtDecode(token);
@@ -52,7 +52,7 @@ function Dashboard() {
             api.get(`/timetable/tutor-count/${userId}`),
             api.get(`/notes/count-tutor/${userId}`),
             api.get(`/student-fees/last-paid/${userId}`),
-            api.get(`/goals/active-count/${userId}`),
+            api.get(`/goals/active-count-tutor/${userId}`),
           ]);
           setDashboardData({
             totalClasses: classRes.data.data,
@@ -79,7 +79,7 @@ function Dashboard() {
     <div className="dashboard-container">
       <header className="dashboard-header">
         <div className="dashboard-header-left">
-          <h1>👋 Welcome, {role === 'TUTOR' ? 'Sir ' : ''}{userName}!</h1>
+          <h1>👋 Welcome, {role === 'TUTOR' ? 'Tutor ' : ''}{userName}!</h1>
           <p>Access all your academic tools below</p>
         </div>
       </header>

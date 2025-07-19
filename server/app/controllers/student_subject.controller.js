@@ -190,7 +190,7 @@ exports.addSubjectToStudent = async (req, res) => {
     }
 
     const subjectTutor = await SubjectTutor.findOne({
-      where: { gradeid: grade.id, subjectid: subjectid }
+      where: { gradeid: grade.id, id: subjectid }
     });
 
     if (!subjectTutor) {

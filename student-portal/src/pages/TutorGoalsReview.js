@@ -12,7 +12,7 @@ function TutorGoalsReview() {
   const [tutorId, setTutorId] = useState('');
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     if (!token) return;
     const decoded = jwtDecode(token);
     setTutorId(decoded.user_id);
@@ -29,7 +29,7 @@ function TutorGoalsReview() {
 
   useEffect(() => {
     if (tutorId && selectedSubject && selectedGrade) {
-      api.get(`/goals/tutor/goals?tutorid=${tutorId}&subject=${selectedSubject}&grade=${selectedGrade}`)
+      api.get(`/goals/tutor/goals?userid=${tutorId}&subject=${selectedSubject}&grade=${selectedGrade}`)
         .then(res => setGoals(res.data))
         .catch(() => setGoals([]));
     } else {
@@ -63,13 +63,13 @@ function TutorGoalsReview() {
         <label>Subject:</label>
         <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
           <option value="">-- Select Subject --</option>
-          {subjects.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+          {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
         </select>
 
         <label>Grade:</label>
         <select value={selectedGrade} onChange={(e) => setSelectedGrade(e.target.value)}>
           <option value="">-- Select Grade --</option>
-          {grades.map(g => <option key={g.id} value={g.name}>{g.name}</option>)}
+          {grades.map(g => <option key={g.id} value={g.id}>{g.name}</option>)}
         </select>
       </div>
 

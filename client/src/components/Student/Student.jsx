@@ -6,6 +6,7 @@ import './Student.css';
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
 import { format } from 'date-fns';
+import { Pagination } from '../Pagination/Pagination';
 
 export const Student = () => {
   const [data, setData] = useState([]);
@@ -115,6 +116,7 @@ export const Student = () => {
   };
 
   const Table = ({ data }) => (
+  <>
     <table className="data-table">
       <thead>
         <tr>
@@ -178,27 +180,14 @@ export const Student = () => {
               </td>
             </tr>
         ))}
-        <tr>
-          <td colSpan="6" className="pagination">
-            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-              Previous
-            </button>
-            {[...Array(totalPages).keys()].map((n) => (
-              <button
-                key={n + 1}
-                onClick={() => handlePageChange(n + 1)}
-                className={currentPage === n + 1 ? 'active' : ''}
-              >
-                {n + 1}
-              </button>
-            ))}
-            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-              Next
-            </button>
-          </td>
-        </tr>
       </tbody>
     </table>
+     <Pagination
+               currentPage={currentPage}
+               totalPages={totalPages}
+               onPageChange={handlePageChange} 
+      /> 
+      </>
   );
 
   return (

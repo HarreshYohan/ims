@@ -15,7 +15,7 @@ function Notes() {
   const [editedNote, setEditedNote] = useState({});
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     if (!token) return;
     const decoded = jwtDecode(token);
     setStudentId(decoded.user_id);
@@ -33,7 +33,8 @@ function Notes() {
 
   useEffect(() => {
     if (studentId && selectedSubjectName) {
-      api.get(`/notes/student/${studentId}/${selectedSubjectName}`)
+      const userid = studentId;
+      api.get(`/notes/student/${userid}/${selectedSubjectName}`)
         .then((res) => setNotes(res.data))
         .catch(() => setNotes([]));
     } else {
@@ -48,7 +49,7 @@ function Notes() {
     if (!subjectSelected) return;
     try {
       const res = await api.post('/notes', {
-        studentid: studentId,
+        userid: studentId,
         heading: newNote.heading,
         chapter: newNote.chapter,
         note: newNote.note,

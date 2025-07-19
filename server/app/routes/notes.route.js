@@ -13,13 +13,13 @@ module.exports = (app) => {
 
   router.put("/:id", notes.update);
 
-  router.get("/student/:studentid/:subject", notes.findByStudentAndSubject);
+  router.get("/student/:userid/:subject", notes.findByStudentAndSubject);
 
-  router.get("/count/:studentid", notes.getNotesCountForStudent);
+  router.get("/count/:userid", notes.getNotesCountForStudent);
 
   router.get("/count-tutor/:id", notes.getNotesCountForTutor);
 
-  router.get('/subjects-grades/:tutorid', notes.getTutorSubjectsAndGrades);
+  router.get('/subjects-grades/:userid', notes.getTutorSubjectsAndGrades);
 
   router.get('/tutor/notes-for-approval', notes.getNotesForApproval);
 

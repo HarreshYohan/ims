@@ -238,9 +238,16 @@ exports.delete = async (req, res) => {
 };
 
 const getStudentTimetableRecords = async (studentId) => {
+
+    const student = await Student.findOne({
+      where: {
+        user_id : studentId
+      },
+      attributes: ['id'], 
+    })
     const studentSubjects = await StudentSubject.findAll({
       where: {
-        studentid: studentId,
+        studentid: student.id,
       },
       attributes: ['subjecttutorid'], 
     });
@@ -331,11 +338,28 @@ exports.findForStudent = async (req, res) => {
 };
 
 exports.findForTutor = async (req, res) => {
-  const tutorId = req.params.tutorid;
+  const userid = req.params.userid;
 
   try {
-    const subjectTutors = await SubjectTutor.findAll({ where: { tutorid: tutorId } });
-    const subjectTutorIds = subjectTutors.map(st => st.id);
+
+    const tutor = await Tutor.findOne({
+      where: { user_id: userid },
+      attributes: ['id']
+    });
+
+    if (!tutor) {
+      return res.status(404).json({ message: 'Tutor not found' });
+    }
+
+    const subjectTutor = await SubjectTutor.findAll({
+      where: { tutorid: tutor.id },
+      attributes: ['id']
+    });
+
+    const subjectTutorIds = subjectTutor.map(st => st.id);
+
+    // const subjectTutors = await SubjectTutor.findAll({ where: { tutorid: tutorId } });
+    // const subjectTutorIds = subjectTutors.map(st => st.id);
 
     if (subjectTutorIds.length === 0) {
       return res.status(404).json({ message: 'No subjects assigned to this tutor.' });
@@ -431,9 +455,19 @@ exports.getClassCount = async (req, res) => {
 
 
 exports.getTutorClassCount = async (req, res) => {
-  const tutorId = req.params.tutorid;
-  try {
-    const subjectTutors = await SubjectTutor.findAll({ where: { tutorid: tutorId } });
+  const userId = req.params.tutorid;
+    try {
+          const tutor = await Tutor.findOne({
+        where: { user_id: userId },
+        attributes: ['id']
+      });
+
+      if (!tutor) {
+        console.log("Tutor not found for user_id:", userId);
+        return [];
+      }
+  
+    const subjectTutors = await SubjectTutor.findAll({ where: { tutorid: tutor.id } });
     const subjectTutorIds = subjectTutors.map(st => st.id);
 
     if (subjectTutorIds.length === 0) {

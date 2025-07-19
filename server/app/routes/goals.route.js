@@ -16,6 +16,8 @@ module.exports = (app) => {
     router.get('/tutor/goals', goalController.getGoalsByTutorSubjectGrade);
 
     router.put('/tutor/update-goal/:id', goalController.updateGoalProgress);
+
+    router.get('/active-count-tutor/:userid', goalController.getActiveTutorGoalsCount);
   
     app.use('/api/goals', router);
   };

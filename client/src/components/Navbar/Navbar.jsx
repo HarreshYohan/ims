@@ -76,12 +76,12 @@ export const Navbar = () => {
             Staff
           </NavLink>
         </li>
-        <li>
+        {/* <li>
           <NavLink to="/chatroom">
             <FontAwesomeIcon icon={faComments} className="nav-icon" />
             Chatroom
           </NavLink>
-        </li>
+        </li> */}
         <li>
           <NavLink to="/classroom">
             <FontAwesomeIcon icon={faBuilding} className="nav-icon" />

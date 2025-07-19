@@ -9,7 +9,7 @@ function Profile() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       if (token) {
         try {
           const decoded = jwtDecode(token);

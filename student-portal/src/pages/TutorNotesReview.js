@@ -14,7 +14,7 @@ function TutorNotesReview() {
   const [approvedNotes, setApprovedNotes] = useState([]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     if (!token) return;
     const decoded = jwtDecode(token);
     setTutorId(decoded.user_id);
@@ -32,13 +32,13 @@ function TutorNotesReview() {
 
 useEffect(() => {
   if (tutorId && selectedSubject && selectedGrade) {
-    // Pending notes fetch
-    api.get(`/notes/tutor/notes-for-approval?tutorid=${tutorId}&subject=${selectedSubject}&grade=${selectedGrade}`)
+    const userid = tutorId
+    api.get(`/notes/tutor/notes-for-approval?userid=${userid}&subject=${selectedSubject}&grade=${selectedGrade}`)
       .then(res => setNotes(res.data))
       .catch(() => setNotes([]));
 
     // Approved notes fetch
-    api.get(`/notes/tutor/approved-notes?tutorid=${tutorId}&subject=${selectedSubject}&grade=${selectedGrade}`)
+    api.get(`/notes/tutor/approved-notes?userid=${userid}&subject=${selectedSubject}&grade=${selectedGrade}`)
       .then(res => setApprovedNotes(res.data))
       .catch(() => setApprovedNotes([]));
   } else {
@@ -129,7 +129,7 @@ const handleReview = async (note, status) => {
           </div>
         ))}
       </div>
-      {reviewedNotes.length > 0 && (
+      {(
   <div className="reviewed-notes-table">
   <h3>✅ Approved Notes</h3>
   {approvedNotes.length === 0 ? (

@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { Pagination } from '../Pagination/Pagination';
 
 export const UserReport = () => {
   const [users, setUsers] = useState([]);
@@ -252,20 +253,11 @@ export const UserReport = () => {
                   ))}
                 </tbody>
               </table>
-
-              <div className="pagination">
-                <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>Previous</button>
-                {[...Array(totalPages).keys()].map(num => (
-                  <button
-                    key={num + 1}
-                    onClick={() => handlePageChange(num + 1)}
-                    className={currentPage === num + 1 ? 'active' : ''}
-                  >
-                    {num + 1}
-                  </button>
-                ))}
-                <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>Next</button>
-              </div>
+              <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange} 
+              />
             </>
           )}
         </div>

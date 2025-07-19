@@ -22,9 +22,9 @@ exports.create = async (req, res) => {
 exports.findAll = async (req, res) => {
   try {
 
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
+    // const page = parseInt(req.query.page) || 1;
+    // const limit = parseInt(req.query.limit) || 10;
+    // const offset = (page - 1) * limit;
 
     const { count, rows }  = await SubjectTutor.findAndCountAll({
       include: [
@@ -32,8 +32,8 @@ exports.findAll = async (req, res) => {
         { model: Tutor, as: 'tutor' ,  attributes: ['title','firstname','lastname'] },
         { model: Grade, as: 'grade' , attributes: ['name'] },
       ],
-      limit,
-      offset,
+      // limit,
+      // offset,
     });
 
     const result = rows.map(item => ({
@@ -48,11 +48,11 @@ exports.findAll = async (req, res) => {
       
     }));
 
-    const totalPages = Math.ceil(count / limit);
+    // const totalPages = Math.ceil(count / limit);
 
     res.json({
-        data: result,
-        totalPages,
+        data: result
+        // totalPages,
       });
   } catch (error) {
     res.status(500).json({ message: error.message });

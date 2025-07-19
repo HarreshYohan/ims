@@ -12,7 +12,7 @@ const GoalTracker = () => {
   const [newGoal, setNewGoal] = useState({ goaltitle: '', targetdate: '', status: 'active' });
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     if (!token) return;
     const decoded = jwtDecode(token);
     setStudentid(decoded.user_id);
@@ -20,7 +20,8 @@ const GoalTracker = () => {
 
   useEffect(() => {
     if (studentid) {
-      api.get(`/goals/${studentid}`)
+         const userid = studentid
+      api.get(`/goals/${userid}`)
         .then(res => setGoals(res.data))
         .catch(err => console.error(err));
     }
@@ -28,7 +29,8 @@ const GoalTracker = () => {
 
     useEffect(() => {
     if (studentid) {
-      api.get(`/student/student-subject/${studentid}`)
+      const userid = studentid
+      api.get(`/student/student-subject/${userid}`)
         .then((res) => {
           setSubjects(res.data.data?.subjects || []);
         })
@@ -44,6 +46,7 @@ const GoalTracker = () => {
     try {
       newGoal.status = 'active'; 
       newGoal.subjecttutorid = parseInt(selectedSubjectId);
+      newGoal.userid = studentid;
       const res = await api.post('/goals', { ...newGoal, studentid });
       setGoals(prev => [...prev, res.data]);
       setNewGoal({ goaltitle: '', targetdate: '', status: 'active' });

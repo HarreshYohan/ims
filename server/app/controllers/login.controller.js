@@ -6,7 +6,6 @@ require('dotenv')
 
 exports.login = async (req, res) => {
     const { email, password } = req.body;
-
     if (!helpers.isValidObject(req.body)) {
       return res.status(401).send({ message: "Input is invalid. Some elements are null or empty." });
     }

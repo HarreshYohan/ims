@@ -8,6 +8,7 @@ import { SectionHeader } from '../SectionHeader/SectionHeader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencilAlt, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
 import {jwtDecode} from 'jwt-decode';
+import { Pagination } from '../Pagination/Pagination';
 
 export const Timetable = () => {
   const [data, setData] = useState([]);
@@ -147,7 +148,7 @@ export const Timetable = () => {
     }
   };
 
-  const Table = ({ data, currentPage, totalPages }) => (
+  const Table = ({ data, currentPage, totalPages }) => (<>
     
     <table className="data-table-timetable">
       <thead>
@@ -195,27 +196,14 @@ export const Timetable = () => {
             ))}
           </tr>
         ))}
-        <tr>
-          <td colSpan="9" className='pagination'>
-            <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
-              Previous
-            </button >
-            {[...Array(totalPages).keys()].map((pageNumber) => (
-              <button
-                key={pageNumber + 1}
-                onClick={() => handlePageChange(pageNumber + 1)}
-                className={currentPage === pageNumber + 1 ? 'active' : ''}
-              >
-                {pageNumber + 1}
-              </button>
-            ))}
-            <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
-              Next
-            </button>
-          </td>
-        </tr>
       </tbody>
     </table>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange} 
+        />
+      </>
   );
 
   return (

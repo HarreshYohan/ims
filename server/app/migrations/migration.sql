@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS "subject_tutor" (
 CREATE TABLE IF NOT EXISTS "student_subject" (
     id SERIAL PRIMARY KEY,
     studentid INTEGER NOT NULL,
-    subjecttutorid INTEGER REFERENCES subject(id) ON UPDATE CASCADE ON DELETE CASCADE NOT NULL,
+    subjecttutorid INTEGER NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at timestamptz DEFAULT CURRENT_TIMESTAMP,
     updated_at timestamptz DEFAULT CURRENT_TIMESTAMP ,
