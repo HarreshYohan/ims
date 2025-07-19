@@ -128,7 +128,7 @@ export const NewTutor = () => {
           {loading && <p>Loading...</p>}
           {error && <p className="error">{error}</p>}
           <button type='submit' className='submit-btn'>
-            Create Student
+            Create Tutor
           </button>
         </form>
       </div>

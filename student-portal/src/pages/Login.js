@@ -62,7 +62,7 @@ function Login() {
           {errorMsg && <div className="error-msg">{errorMsg}</div>}
         </form>
 
-        <p className="login-hint">Hint: student1@gmail.com / 1234</p>
+        {/* <p className="login-hint">Hint: student1@gmail.com / 1234</p> */}
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import { jwtDecode } from 'jwt-decode';
 
 export const Navbar = () => {
   const [isReportsOpen, setIsReportsOpen] = useState(false);
+  const [isTutorOpen, setIstutorOpen] = useState(false);
   const [userType, setUserType] = useState(null);
 
   useEffect(() => {
@@ -19,6 +20,10 @@ export const Navbar = () => {
 
   const toggleReports = () => {
     setIsReportsOpen(!isReportsOpen);
+  };
+
+  const toggleTutors = () => {
+    setIstutorOpen(!isTutorOpen);
   };
 
   return (
@@ -42,13 +47,13 @@ export const Navbar = () => {
             Student
           </NavLink>
         </li>
-        <li onClick={toggleReports}>
+        <li onClick={toggleTutors}>
               <NavLink>
                 <FontAwesomeIcon icon={faChalkboardTeacher} className="nav-icon" />
                 Tutor
-                <FontAwesomeIcon icon={isReportsOpen ? faChevronDown : faChevronRight} className="reports-arrow" />
+                <FontAwesomeIcon icon={isTutorOpen ? faChevronDown : faChevronRight} className="reports-arrow" />
               </NavLink>
-              {isReportsOpen && (
+              {isTutorOpen && (
                 <ul className="nested-nav">
                   <li>
                     <NavLink to="/tutor">
@@ -105,7 +110,7 @@ export const Navbar = () => {
               {isReportsOpen && (
                 <ul className="nested-nav">
                   <li>
-                    <NavLink to="/reports/user">
+                    <NavLink to="/user-report">
                       <FontAwesomeIcon icon={faFileAlt} className="nav-icon" />
                       User Report
                     </NavLink>

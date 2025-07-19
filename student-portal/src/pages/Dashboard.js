@@ -79,7 +79,7 @@ function Dashboard() {
     <div className="dashboard-container">
       <header className="dashboard-header">
         <div className="dashboard-header-left">
-          <h1>👋 Welcome, {userName}!</h1>
+          <h1>👋 Welcome, {role === 'TUTOR' ? 'Sir ' : ''}{userName}!</h1>
           <p>Access all your academic tools below</p>
         </div>
       </header>

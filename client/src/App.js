@@ -24,6 +24,7 @@ import { Profile } from "./components/Profile/Profile";
 import { TutorPayment } from "./components/TutorPayment/TutorPayment";
 import { EditTutor } from "./components/Tutor/EditTutor";
 import { CreateSubjectTutor } from "./components/SubjectTutor/CreateSubjectTutor";
+import { UserReport } from "./components/Report/UserReport";
 
 
 function App() {
@@ -52,6 +53,7 @@ return (
     <Route path="/tutor-payment" element={<TutorPayment />}/>
     <Route path="/edit-tutor/:id" element={<EditTutor />}/>
     <Route path="/new-subject" element={<CreateSubjectTutor />}/>
+    <Route path="/user-report" element={<UserReport />}/>
     </Routes>
   </Router>
 );

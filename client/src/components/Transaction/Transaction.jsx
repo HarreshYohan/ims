@@ -22,6 +22,34 @@ export const Transaction = () => {
   const [transactionTypes, setTransactionTypes] = useState([]);
   const navigate = useNavigate();
   const localToken = localStorage.getItem("authToken");
+  
+  const fetchData = async () => {
+  setLoading(true);
+  setError(null);
+  try {
+    const response = await api.get(`/api/transaction/all?page=${currentPage}&limit=${itemsPerPage}`);
+    if (response.status === 200) {
+      const { data, totalPages } = response.data;
+      setData(data);
+      setFilteredData(data);
+      setTotalPages(totalPages);
+
+      const uniqueTransactionTypes = [...new Set(data.map(item => item.transaction_type))];
+      setTransactionTypes(uniqueTransactionTypes);
+    } else {
+      setData([]);
+      console.error('Failed to fetch data');
+    }
+  } catch (error) {
+    setError('Error during data fetch');
+    console.error('Error during data fetch:', error);
+    localStorage.removeItem('authToken');
+    navigate('/login');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     if (!localToken) {
@@ -128,6 +156,39 @@ export const Transaction = () => {
     return format(new Date(date), 'MM/dd/yyyy hh:mm a');
   };
 
+  const [showCreateModal, setShowCreateModal] = useState(false);
+const [newTransaction, setNewTransaction] = useState({
+  transaction_type: '',
+  amount: '',
+  description: '',
+  user_id: '',
+  participant_id: ''
+});
+
+const handleCreateChange = (e) => {
+  const { name, value } = e.target;
+  setNewTransaction(prev => ({ ...prev, [name]: value }));
+};
+
+const handleCreateSave = async () => {
+  try {
+    const response = await api.post('/api/transaction', newTransaction, {
+      headers: { Authorization: `Bearer ${localToken}` }
+    });
+    if (response.status === 201 || response.status === 200) {
+      alert('Transaction created successfully!');
+      setShowCreateModal(false);
+      fetchData(); // Refresh list
+      setNewTransaction({ transaction_type: '', amount: '', description: '', user_id: '', participant_id: '' });
+    } else {
+      alert('Failed to create transaction');
+    }
+  } catch (error) {
+    console.error('Error creating transaction:', error);
+    alert('Error occurred while creating transaction');
+  }
+};
+
   const Table = ({ data, currentPage, totalPages }) => (
     <table className="data-table">
       <thead>
@@ -201,10 +262,46 @@ export const Transaction = () => {
       <Navbar />
       <SectionHeader section={'Transactions'} is_create={true} is_download={true}/>
       <div className='main'>
-        {loading && <p>Loading...</p>}
-        {error && <p className="error">{error}</p>}
-        <Table data={filteredData} currentPage={currentPage} totalPages={totalPages} />
+  <button className="create-btn" onClick={() => setShowCreateModal(true)}>+ Create New Transaction</button>
+
+  {showCreateModal && (
+    <div className="modal">
+      <div className="modal-content">
+        <h2>Create Transaction</h2>
+          <label>Transaction Type:
+            <select name="transaction_type" value={newTransaction.transaction_type} onChange={handleCreateChange}>
+              <option value="">Select Type</option>
+              <option value="SALARY">SALARY</option>
+              <option value="FEES">FEES</option>
+              <option value="INCOME">INCOME</option>
+              <option value="EXPENSE">EXPENSE</option>
+              <option value="OTHER">OTHER</option>
+            </select>
+          </label>
+
+        <label>Amount:
+          <input type="number" name="amount" value={newTransaction.amount} onChange={handleCreateChange} />
+        </label>
+        <label>Description:
+          <input type="text" name="description" value={newTransaction.description} onChange={handleCreateChange} />
+        </label>
+        <label>User ID:
+          <input type="text" name="user_id" value={newTransaction.user_id} onChange={handleCreateChange} />
+        </label>
+        <label>Participant ID:
+          <input type="text" name="participant_id" value={newTransaction.participant_id} onChange={handleCreateChange} />
+        </label>
+        <button onClick={handleCreateSave}>Save</button>
+        <button onClick={() => setShowCreateModal(false)}>Cancel</button>
       </div>
+    </div>
+  )}
+
+  {loading && <p>Loading...</p>}
+  {error && <p className="error">{error}</p>}
+  <Table data={filteredData} currentPage={currentPage} totalPages={totalPages} />
+</div>
+
     </div>
   );
 };

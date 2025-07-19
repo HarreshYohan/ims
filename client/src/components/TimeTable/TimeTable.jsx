@@ -110,7 +110,7 @@ export const Timetable = () => {
   const handleDelete = async (id, timeslotid, day) => {
     console.log(`Delete user with ID: ${id} ${day} ${timeslotid}`);
     try {
-      const response = await api.delete(`//timetable/${id}`, {
+      const response = await api.delete(`/timetable/${id}`, {
         params: {
           day: day,
           timeslotid: timeslotid
@@ -148,6 +148,7 @@ export const Timetable = () => {
   };
 
   const Table = ({ data, currentPage, totalPages }) => (
+    
     <table className="data-table-timetable">
       <thead>
         <tr>
@@ -155,7 +156,7 @@ export const Timetable = () => {
           <th style={{ backgroundColor: 'white', color: 'black', fontSize: '24px' }} colSpan={3}>CAPACITY : {data[0]?.classroom?.capacity ?? null}</th>
         </tr>
         <tr>
-          <th>Timeslot</th>
+          <th style={{ width: '100px', maxWidth: '100px' }}>Timeslot</th>
           <th>MONDAY</th>
           <th>TUESDAY</th>
           <th>WEDNESDAY</th>
@@ -225,7 +226,9 @@ export const Timetable = () => {
       <div className='main'>
         {loading && <p>Loading...</p>}
         {error && <p className="error">{error}</p>}
-        <Table data={data} currentPage={currentPage} totalPages={totalPages} />
+        <div className="table-wrapper">
+          <Table data={data} currentPage={currentPage} totalPages={totalPages} />
+      </div>
       </div>
       {showModal && (
         <div className="modal">

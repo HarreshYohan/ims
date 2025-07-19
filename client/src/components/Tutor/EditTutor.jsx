@@ -52,7 +52,7 @@ export const EditTutor = () => {
     try {
       await api.put(`/api/tutor/${id}`, tutorData);
       alert('Tutor updated successfully');
-      navigate('/tutors');
+      navigate('/tutor');
     } catch (err) {
       console.error('Error saving tutor:', err);
     }
