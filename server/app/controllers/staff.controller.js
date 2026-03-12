@@ -1,4 +1,3 @@
-
 const { User, Staff } = require('../models');
 const bcrypt = require('bcryptjs');
 const { log } = require("console");
@@ -24,19 +23,41 @@ exports.validate = (method) => {
 
 exports.findAll = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
+    const { search, position, page, limit } = req.query;
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const offset = (pageNum - 1) * limitNum;
+
+    const { Op } = require('sequelize');
+    const where = {};
+
+    if (search) {
+      where[Op.or] = [
+        { firstname: { [Op.iLike]: `%${search}%` } },
+        { lastname: { [Op.iLike]: `%${search}%` } },
+        { email: { [Op.iLike]: `%${search}%` } },
+        { username: { [Op.iLike]: `%${search}%` } }
+      ];
+    }
+
+    if (position) {
+      where.position = position;
+    }
 
     const { count, rows } = await Staff.findAndCountAll({
-      limit,
+      where,
+      limit: limitNum,
       offset,
+      order: [['id', 'DESC']]
     });
 
-    const totalPages = Math.ceil(count / limit);
+    const totalPages = Math.ceil(count / limitNum);
 
     res.json({
       data: rows,
+      total: count,
+      page: pageNum,
+      limit: limitNum,
       totalPages,
     });
   } catch (error) {

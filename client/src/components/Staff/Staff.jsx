@@ -1,197 +1,210 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import api from '../../services/api';
-import { useNavigate } from 'react-router-dom';
-import { Header } from '../Header/Header';
-import './Staff.css';
-import { Navbar } from '../Navbar/Navbar';
-import { SectionHeader } from '../SectionHeader/SectionHeader';
-import debounce from 'lodash/debounce';
-import { Pagination } from '../Pagination/Pagination';
+import { Layout } from '../shared/Layout';
+import { useFetch } from '../shared/useFetch';
+import { GenericTable } from '../shared/GenericTable';
+import { Card } from '../shared/Card';
+import { Modal } from '../shared/Modal';
+import { FormInput } from '../shared/FormInput';
+import { FormSelect } from '../shared/FormSelect';
+import { UserPlus, Edit3, Trash2, Briefcase } from 'lucide-react';
 
 export const Staff = () => {
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); 
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [filters, setFilters] = useState({
-    firstname: '',
-    lastname: '',
-    position: ''
+  const [searchTerm, setSearchTerm] = useState('');
+  const [positionFilter, setPositionFilter] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Debounce search input
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const { data, loading, error, pagination, refetch } = useFetch('/staff/all', {
+    search: debouncedSearch,
+    position: positionFilter
   });
-  const [positions, setPositions] = useState([]);
-  const navigate = useNavigate();
-  const localToken = localStorage.getItem("authToken");
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('CREATE'); // 'CREATE' or 'EDIT'
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    id: '', title: '', firstname: '', lastname: '', username: '', email: '', password: '', contact: '', position: '', salary: ''
+  });
 
-  useEffect(() => {
-    if (!localToken) {
-      localStorage.removeItem('authToken');
-      navigate('/login');
-    }
-  }, [localToken, navigate]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this staff member?")) {
       try {
-        const response = await api.get(`/api/staff/all?page=${currentPage}&limit=${itemsPerPage}`);
-        if (response.status === 200) {
-          const { data, totalPages } = response.data;
-          setData(data);
-          setFilteredData(data);
-          setTotalPages(totalPages);
-
-          const uniquePositions = [...new Set(data.map(item => item.position))];
-          setPositions(uniquePositions);
-        } else {
-          setData([]);
-          console.error('Failed to fetch data');
-        }
-      } catch (error) {
-        setError('Error during data fetch');
-        console.error('Error during data fetch:', error);
-        localStorage.removeItem('authToken');
-        navigate('/login');
-      } finally {
-        setLoading(false);
+        await api.delete(`/staff/${id}`);
+        refetch();
+      } catch (err) {
+        alert(err.response?.data?.message || "Delete failed");
       }
-    };
-
-    fetchData();
-  }, [currentPage, itemsPerPage, navigate, localToken]);
-
-  const applyFilters = useCallback(() => {
-    const { firstname, lastname, position } = filters;
-    const newFilteredData = data.filter(item =>
-      (firstname ? item.firstname.toLowerCase().includes(firstname.toLowerCase()) : true) &&
-      (lastname ? item.lastname.toLowerCase().includes(lastname.toLowerCase()) : true) &&
-      (position ? item.position === position : true)
-    );
-    setFilteredData(newFilteredData);
-    setTotalPages(Math.ceil(newFilteredData.length / itemsPerPage));
-    setCurrentPage(1); 
-  }, [filters, data, itemsPerPage]);
-
-  const debouncedApplyFilters = useCallback(debounce(() => {
-    applyFilters();
-  }, 300), [applyFilters]);
-
-  useEffect(() => {
-    debouncedApplyFilters();
-  }, [filters, debouncedApplyFilters]);
-
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber > 0 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
     }
   };
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prevFilters => ({ ...prevFilters, [name]: value }));
+  const openCreateModal = () => {
+    setModalMode('CREATE');
+    setFormData({ id: '', title: '', firstname: '', lastname: '', username: '', email: '', password: '', contact: '', position: '', salary: '' });
+    setIsModalOpen(true);
   };
 
-  const handleEdit = (id) => {
-    console.log(`Edit user with ID: ${id}`);
-    // Implement your edit logic here, e.g., navigate to an edit page
+  const openEditModal = (item) => {
+    setModalMode('EDIT');
+    setFormData({ 
+      id: item.id, 
+      title: item.title, 
+      firstname: item.firstname, 
+      lastname: item.lastname, 
+      username: item.username, 
+      email: item.email, 
+      password: '', // Don't show password
+      contact: item.contact, 
+      position: item.position, 
+      salary: item.salary 
+    });
+    setIsModalOpen(true);
   };
 
-  const handleDelete = (id) => {
-    console.log(`Delete user with ID: ${id}`);
-    // Implement your delete logic here
+  const handleFormChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      if (modalMode === 'CREATE') {
+        await api.post('/staff', formData);
+      } else {
+        await api.put(`/staff/${formData.id}`, formData);
+      }
+      setIsModalOpen(false);
+      refetch();
+    } catch (err) {
+      alert(err.response?.data?.message || `Failed to ${modalMode === 'CREATE' ? 'create' : 'update'} staff`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const Table = ({ data, currentPage, totalPages }) => (
-    <>
-    <table className="data-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Title</th>
-          <th>
-            First Name
-            <input
-              type="text"
-              name="firstname"
-              value={filters.firstname}
-              onChange={handleFilterChange}
-              placeholder="Filter by first name"
-              className="filter-input"
-            />
-          </th>
-          <th>
-            Last Name
-            <input
-              type="text"
-              name="lastname"
-              value={filters.lastname}
-              onChange={handleFilterChange}
-              placeholder="Filter by last name"
-              className="filter-input"
-            />
-          </th>
-          <th>Contact</th>
-          <th>
-            Position
-            <select
-              name="position"
-              value={filters.position}
-              onChange={handleFilterChange}
-              className="filter-select"
-            >
-              <option value="">All Positions</option>
-              {positions.map((position, index) => (
-                <option key={index} value={position}>{position}</option>
-              ))}
-            </select>
-          </th>
-          
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
-          <tr key={item.id}>
-            <td>{item.id}</td>
-            <td>{item.title}</td>
-            <td>{item.firstname}</td>
-            <td>{item.lastname}</td>
-            <td>{item.contact}</td>
-            <td>{item.position}</td>
-            <td>
-              <button className="editBtn" onClick={() => handleEdit(item.id)}>Edit</button>
-              <button className="deleteBtn" onClick={() => handleDelete(item.id)}>Delete</button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-    <Pagination
-                   currentPage={currentPage}
-                   totalPages={totalPages}
-                   onPageChange={handlePageChange} 
-    /> 
-    </>
+  const columns = [
+    { label: 'ID', accessor: 'id', render: (val) => <span className="text-textMuted">#{val}</span> },
+    { label: 'Title', accessor: 'title', render: (val) => <span className="text-secondary font-medium">{val}</span> },
+    { label: 'Name', accessor: 'firstname', render: (_, row) => <span className="font-medium text-white">{row.firstname} {row.lastname}</span> },
+    { label: 'Position', accessor: 'position', render: (val) => (
+      <span className="flex items-center gap-2">
+        <Briefcase size={14} className="text-emerald-400" />
+        {val}
+      </span>
+    )},
+    { label: 'Contact', accessor: 'contact' },
+    { 
+      label: 'Actions', 
+      accessor: 'id',
+      render: (id, row) => (
+        <div className="flex items-center gap-3">
+          <button onClick={() => openEditModal(row)} className="text-textMuted hover:text-primary transition-colors font-medium">
+            <Edit3 size={18} />
+          </button>
+          <button onClick={() => handleDelete(id)} className="text-textMuted hover:text-danger transition-colors font-medium">
+            <Trash2 size={18} />
+          </button>
+        </div>
+      )
+    }
+  ];
+
+  const TableActions = (
+    <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+      <div className="flex items-center gap-2 w-full md:w-64">
+        <FormInput 
+          placeholder="Search staff..." 
+          value={searchTerm} 
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="!mb-0"
+        />
+      </div>
+      <div className="w-full md:w-48">
+        <FormSelect 
+          value={positionFilter} 
+          onChange={(e) => setPositionFilter(e.target.value)}
+          options={[
+            { label: 'All Positions', value: '' },
+            { label: 'Manager', value: 'Manager' },
+            { label: 'Coordinator', value: 'Coordinator' },
+            { label: 'Clerk', value: 'Clerk' },
+            { label: 'Accountant', value: 'Accountant' },
+            { label: 'Receptionist', value: 'Receptionist' }
+          ]}
+          className="!mb-0"
+        />
+      </div>
+      <button onClick={openCreateModal} className="btn-primary ml-auto">
+        <UserPlus size={18} /> Add Staff
+      </button>
+    </div>
   );
 
   return (
-    <div>
-      <Header type={'dashboard'} action={"Logout"} />
-      <Navbar />
-      <SectionHeader section={'Staff'} is_create={true} />
-      <div className='main'>
-        {loading && <p>Loading...</p>}
-        {error && <p className="error">{error}</p>}
-        <div className="student-actions">
-          <button className="create-student-btn" onClick={() => navigate('/new-staff')}>
-            ➕ Create New Staff
-          </button>
-        </div>
-        <Table data={filteredData} currentPage={currentPage} totalPages={totalPages} />
-      </div>
-    </div>
+    <Layout title="Staff Management">
+        {error && <div className="bg-danger/20 border border-danger/50 text-danger px-4 py-3 rounded-xl mb-6">{error}</div>}
+        
+        <Card title="Staff Directory" action={TableActions}>
+          <GenericTable 
+            columns={columns} 
+            data={data} 
+            loading={loading} 
+            pagination={pagination}
+          />
+        </Card>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalMode === 'CREATE' ? "Add New Staff" : "Edit Staff"}>
+        <form onSubmit={handleFormSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormSelect 
+              label="Title" 
+              name="title" 
+              value={formData.title} 
+              onChange={handleFormChange} 
+              required 
+              options={[
+                { label: 'Select Title', value: '' },
+                { label: 'Mr', value: 'Mr' },
+                { label: 'Mrs', value: 'Mrs' },
+                { label: 'Ms', value: 'Ms' },
+                { label: 'Miss', value: 'Miss' },
+                { label: 'Dr', value: 'Dr' },
+                { label: 'Rev', value: 'Rev' }
+              ]} 
+            />
+            <FormInput label="Contact" name="contact" value={formData.contact} onChange={handleFormChange} required />
+            <FormInput label="First Name" name="firstname" value={formData.firstname} onChange={handleFormChange} required />
+            <FormInput label="Last Name" name="lastname" value={formData.lastname} onChange={handleFormChange} required />
+            <FormInput label="Username" name="username" value={formData.username} onChange={handleFormChange} required />
+            <FormInput label="Email" name="email" type="email" value={formData.email} onChange={handleFormChange} required />
+            <FormInput label="Position" name="position" value={formData.position} onChange={handleFormChange} placeholder="e.g. Admin, Janitor" required />
+            <FormInput label="Salary" name="salary" type="number" value={formData.salary} onChange={handleFormChange} required />
+            <div className="md:col-span-2">
+              <FormInput 
+                label={modalMode === 'EDIT' ? "New Password (leave blank to keep current)" : "Password"} 
+                name="password" 
+                type="password" 
+                value={formData.password} 
+                onChange={handleFormChange} 
+                required={modalMode === 'CREATE'} 
+                minLength={8} 
+              />
+            </div>
+          </div>
+          <div className="mt-8 flex justify-end gap-3">
+            <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-lg text-textMuted hover:bg-slate-800 transition-colors font-medium">
+              Cancel
+            </button>
+            <button type="submit" disabled={isSubmitting} className="btn-primary">
+              {isSubmitting ? 'Saving...' : (modalMode === 'CREATE' ? 'Create Staff' : 'Save Changes')}
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </Layout>
   );
 };

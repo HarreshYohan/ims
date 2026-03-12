@@ -1,267 +1,223 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
-import './UserReport.css';
-import { Header } from '../Header/Header';
-import { Navbar } from '../Navbar/Navbar';
-import { SectionHeader } from '../SectionHeader/SectionHeader';
+import { Layout } from '../shared/Layout';
+import { Card } from '../shared/Card';
+import { GenericTable } from '../shared/GenericTable';
+import { FormSelect } from '../shared/FormSelect';
 import { format } from 'date-fns';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  Legend 
+} from 'recharts';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { Pagination } from '../Pagination/Pagination';
+import { Download, FileText, TrendingUp, PieChart as PieIcon } from 'lucide-react';
 
 export const UserReport = () => {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
-  const [roles, setRoles] = useState([]);
   const [selectedRole, setSelectedRole] = useState('');
   const [loading, setLoading] = useState(true);
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [error, setError] = useState(null);
 
   const [monthlySummary, setMonthlySummary] = useState([]);
   const [roleSummary, setRoleSummary] = useState([]);
 
   const chartRef = useRef(null);
   const navigate = useNavigate();
-  const localToken = localStorage.getItem('authToken');
+
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('/users/all');
+      const usersData = response.data.data;
+      setUsers(usersData);
+      setFilteredUsers(usersData);
+      generateSummaries(usersData);
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      setError('Failed to load user data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (!localToken) navigate('/login');
-  }, [localToken, navigate]);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      try {
-        const response = await api.get('/api/user/all');
-        if (response.status === 200) {
-          const usersData = response.data.data;
-          setUsers(usersData);
-          setFilteredUsers(usersData);
-          setRoles([...new Set(usersData.map(user => user.user_type))]);
-          generateMonthlySummary(usersData);
-          generateRoleSummary(usersData);
-        }
-      } catch (err) {
-        console.error('Error fetching users:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchUsers();
   }, []);
 
+  const generateSummaries = (userData) => {
+    // Monthly Summary
+    const monthlyMap = {};
+    const roleMap = {};
+    
+    userData.forEach(user => {
+      const month = format(new Date(user.createdAt), 'yyyy-MM');
+      monthlyMap[month] = (monthlyMap[month] || 0) + 1;
+      roleMap[user.user_type] = (roleMap[user.user_type] || 0) + 1;
+    });
+
+    setMonthlySummary(Object.entries(monthlyMap).map(([month, count]) => ({ month, count })));
+    setRoleSummary(Object.entries(roleMap).map(([role, count]) => ({ role, count })));
+  };
+
   useEffect(() => {
-    setCurrentPage(1);
     if (selectedRole) {
       const filtered = users.filter(user => user.user_type === selectedRole);
       setFilteredUsers(filtered);
-      generateMonthlySummary(filtered);
     } else {
       setFilteredUsers(users);
-      generateMonthlySummary(users);
     }
   }, [selectedRole, users]);
 
-  const generateMonthlySummary = (userData) => {
-    const summary = {};
-    userData.forEach(user => {
-      const month = format(new Date(user.createdAt), 'yyyy-MM');
-      summary[month] = (summary[month] || 0) + 1;
-    });
-    const result = Object.entries(summary).map(([month, count]) => ({ month, count }));
-    setMonthlySummary(result);
-  };
-
-  const generateRoleSummary = (userData) => {
-    const summary = {};
-    userData.forEach(user => {
-      summary[user.user_type] = (summary[user.user_type] || 0) + 1;
-    });
-    const result = Object.entries(summary).map(([role, count]) => ({ role, count }));
-    setRoleSummary(result);
-  };
-
-  const handleRoleChange = (e) => {
-    setSelectedRole(e.target.value);
-  };
-
   const handleDownloadCsv = () => {
-    const csvHeaders = ['ID', 'Name', 'Email', 'Role', 'Created At'];
-    const userRows = filteredUsers.map(user => [
-      user.id,
-      user.username,
-      user.email,
-      user.user_type,
-      format(new Date(user.createdAt), 'yyyy-MM-dd HH:mm')
+    const headers = ['ID', 'Username', 'Email', 'Role', 'Created At'];
+    const rows = filteredUsers.map(u => [
+      u.id, 
+      u.username, 
+      u.email, 
+      u.user_type, 
+      format(new Date(u.createdAt), 'yyyy-MM-dd')
     ]);
-
-    const monthlySummaryHeaders = ['Month-Year', 'User Count'];
-    const monthlyRows = monthlySummary.map(item => [item.month, item.count]);
-
-    const roleSummaryHeaders = ['Role', 'User Count'];
-    const roleRows = roleSummary.map(item => [item.role, item.count]);
-
-    const csvContent = [
-      ['User Report'],
-      csvHeaders,
-      ...userRows,
-      [],
-      ['Monthly Created Users Summary'],
-      monthlySummaryHeaders,
-      ...monthlyRows,
-      [],
-      ['Users by Role Summary'],
-      roleSummaryHeaders,
-      ...roleRows
-    ].map(e => e.join(",")).join("\n");
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const timestamp = format(new Date(), 'yyyyMMdd_HHmmss');
+    
+    const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8' });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = `user_report_${timestamp}.csv`;
+    link.download = `user_report_${format(new Date(), 'yyyyMMdd')}.csv`;
     link.click();
   };
 
   const handleDownloadPdf = async () => {
-    const doc = new jsPDF('p', 'mm', 'a4');
-    const timestamp = format(new Date(), 'yyyyMMdd_HHmmss');
-
-    doc.setFontSize(16);
-    doc.text('User Report', 10, 10);
-
-    if (chartRef.current) {
-      const canvas = await html2canvas(chartRef.current);
-      const imgData = canvas.toDataURL('image/png');
-      doc.addImage(imgData, 'PNG', 10, 15, 190, 60);
-    }
-
-    let yOffset = 80;
-
-    doc.setFontSize(12);
-    doc.text('Monthly Created Users Summary:', 10, yOffset);
-    yOffset += 5;
-    monthlySummary.forEach(item => {
-      doc.text(`${item.month}: ${item.count}`, 10, yOffset);
-      yOffset += 5;
-    });
-
-    yOffset += 5;
-    doc.text('Users by Role Summary:', 10, yOffset);
-    yOffset += 5;
-    roleSummary.forEach(item => {
-      doc.text(`${item.role}: ${item.count}`, 10, yOffset);
-      yOffset += 5;
-    });
-
-    doc.save(`user_report_${timestamp}.pdf`);
+    const element = chartRef.current;
+    const canvas = await html2canvas(element, { backgroundColor: '#0f172a' });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    
+    pdf.setTextColor(100, 116, 139);
+    pdf.setFontSize(22);
+    pdf.text("User Analytics Report", 20, 20);
+    pdf.setFontSize(10);
+    pdf.text(`Generated on: ${format(new Date(), 'yyyy-MM-dd HH:mm')}`, 20, 30);
+    pdf.addImage(imgData, 'PNG', 10, 40, pdfWidth - 20, pdfHeight);
+    pdf.save(`user_analytics_${format(new Date(), 'yyyyMMdd')}.pdf`);
   };
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-
-  const handlePageChange = (page) => {
-    if (page > 0 && page <= totalPages) setCurrentPage(page);
-  };
+  const columns = [
+    { label: 'ID', accessor: 'id', render: (val) => <span className="text-textMuted">#{val}</span> },
+    { label: 'Username', accessor: 'username', render: (val) => <span className="text-white font-medium">{val}</span> },
+    { label: 'Email', accessor: 'email' },
+    { 
+      label: 'Role', 
+      accessor: 'user_type',
+      render: (val) => (
+        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
+          val === 'STUDENT' ? 'bg-primary/20 text-primary' : 
+          val === 'TUTOR' ? 'bg-secondary/20 text-secondary' : 'bg-amber-400/20 text-amber-400'
+        }`}>
+          {val}
+        </span>
+      )
+    },
+    { label: 'Joined', accessor: 'createdAt', render: (val) => format(new Date(val), 'MMM dd, yyyy') },
+  ];
 
   return (
-    <div>
-      <Header type={'dashboard'} action={"Logout"} />
-      <Navbar />
-      <SectionHeader section={'User Report'} is_download={false} />
-      <div className='main'>
-        <div className="report-container">
-          <div className="report-filters">
-            <label>Filter by Role: </label>
-            <select value={selectedRole} onChange={handleRoleChange}>
-              <option value="">All Roles</option>
-              {roles.map((role, index) => (
-                <option key={index} value={role}>{role}</option>
-              ))}
-            </select>
-            <button className="download-btn" onClick={handleDownloadCsv}>⬇️ Download CSV</button>
-            <button className="download-btn" onClick={handleDownloadPdf}>⬇️ Download PDF</button>
-          </div>
-
-          {loading ? <p>Loading...</p> : (
-            <>
-              <div className="summary-section">
-                <h3>📅 Monthly Created Users Summary</h3>
-                <table className="summary-table">
-                  <thead>
-                    <tr><th>Month-Year</th><th>User Count</th></tr>
-                  </thead>
-                  <tbody>
-                    {monthlySummary.map((item, index) => (
-                      <tr key={index}><td>{item.month}</td><td>{item.count}</td></tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                <h3>👥 Users by Role Summary</h3>
-                <table className="summary-table">
-                  <thead>
-                    <tr><th>Role</th><th>User Count</th></tr>
-                  </thead>
-                  <tbody>
-                    {roleSummary.map((item, index) => (
-                      <tr key={index}><td>{item.role}</td><td>{item.count}</td></tr>
-                    ))}
-                  </tbody>
-                </table>
+    <Layout title="User Reports">
+        
+        {/* Analytics Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+           <Card className="lg:col-span-2" title="Registration Trends">
+              <div className="h-[300px] w-full mt-4" ref={chartRef}>
+                 <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={roleSummary}>
+                       <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                       <XAxis dataKey="role" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                       <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                       <Tooltip 
+                         contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '12px' }}
+                         itemStyle={{ color: '#fff' }}
+                       />
+                       <Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} barSize={40} />
+                    </BarChart>
+                 </ResponsiveContainer>
               </div>
+           </Card>
 
-              <div className="chart-container" ref={chartRef}>
-                <h3>📊 Users by Role Chart</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={roleSummary}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="role" />
-                    <YAxis allowDecimals={false} />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="count" fill="#8884d8" name="Users Count" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              <table className="report-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Created At</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {currentUsers.map(user => (
-                    <tr key={user.id}>
-                      <td>{user.id}</td>
-                      <td>{user.username}</td>
-                      <td>{user.email}</td>
-                      <td>{user.user_type}</td>
-                      <td>{format(new Date(user.createdAt), 'yyyy-MM-dd HH:mm')}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={handlePageChange} 
-              />
-            </>
-          )}
+           <div className="space-y-6">
+              <Card title="Quick Distribution" className="flex flex-col h-full">
+                 <div className="space-y-4 mt-2">
+                    {roleSummary.map((item, idx) => (
+                       <div key={idx} className="flex items-center justify-between p-3 bg-slate-900/40 rounded-xl border border-white/5">
+                          <div className="flex items-center gap-3">
+                             <div className={`w-2 h-2 rounded-full ${idx === 0 ? 'bg-primary' : idx === 1 ? 'bg-secondary' : 'bg-amber-400'}`} />
+                             <span className="text-sm font-medium">{item.role}</span>
+                          </div>
+                          <span className="font-bold text-lg">{item.count}</span>
+                       </div>
+                    ))}
+                 </div>
+              </Card>
+           </div>
         </div>
-      </div>
-    </div>
+
+        {/* Filter & Action Bar */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-slate-900/40 p-4 rounded-2xl border border-white/5 backdrop-blur-sm">
+           <div className="md:col-span-3 flex items-center gap-2 text-textMuted px-2">
+              <FileText size={18} />
+              <span className="text-sm font-bold uppercase tracking-widest">Report Configuration</span>
+           </div>
+           <div className="md:col-span-3">
+              <FormSelect 
+                name="roleFilter" 
+                value={selectedRole} 
+                onChange={(e) => setSelectedRole(e.target.value)}
+                options={[
+                  { label: 'All Roles', value: '' },
+                  { label: 'Student', value: 'STUDENT' },
+                  { label: 'Tutor', value: 'TUTOR' },
+                  { label: 'Staff', value: 'STAFF' },
+                ]}
+              />
+           </div>
+           <div className="md:col-span-6 flex justify-end gap-3">
+              <button 
+                onClick={handleDownloadCsv} 
+                className="px-4 py-2 border border-slate-700 rounded-xl text-textMuted hover:text-white transition-all flex items-center gap-2"
+              >
+                <Download size={18} />
+                <span>CSV</span>
+              </button>
+              <button 
+                onClick={handleDownloadPdf} 
+                className="btn-primary flex items-center gap-2 !px-6"
+              >
+                <FileText size={18} />
+                <span>Download Report (PDF)</span>
+              </button>
+           </div>
+        </div>
+
+        {error && <div className="bg-danger/20 border border-danger/50 text-danger px-4 py-3 rounded-xl">{error}</div>}
+
+        <Card title="User Registry Data">
+          <GenericTable 
+            columns={columns} 
+            data={filteredUsers} 
+            loading={loading}
+            pagination={{ enabled: true, limit: 10 }}
+          />
+        </Card>
+    </Layout>
   );
 };

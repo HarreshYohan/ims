@@ -1,190 +1,219 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
-import { Header } from '../Header/Header';
-import './SubjectTutor.css';
-import { Navbar } from '../Navbar/Navbar';
-import { SectionHeader } from '../SectionHeader/SectionHeader';
-import { Pagination } from '../Pagination/Pagination';
+import { Layout } from '../shared/Layout';
+import { Card } from '../shared/Card';
+import { GenericTable } from '../shared/GenericTable';
+import { Modal } from '../shared/Modal';
+import { FormSelect } from '../shared/FormSelect';
+import { FormInput } from '../shared/FormInput';
+import { PlusCircle, Trash2, Filter, Edit3, Search, Calendar } from 'lucide-react';
+import { useFetch } from '../shared/useFetch';
 
 export const SubjectTutor = () => {
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [grades, setGrades] = useState([]);
-  const [subjects, setSubjects] = useState([]);
-  const [selectedGrade, setSelectedGrade] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const [filteredTotalPages, setFilteredTotalPages] = useState(1);
-  const localToken = localStorage.getItem("authToken");
+  
+  // Filters (use IDs for backend filtering)
+  const [selectedGradeFilter, setSelectedGradeFilter] = useState('');
+  const [selectedSubjectFilter, setSelectedSubjectFilter] = useState('');
+  const [selectedTutorFilter, setSelectedTutorFilter] = useState('');
+
+  const { data, loading, error, pagination, refetch } = useFetch('/subject-tutors/all', {
+    gradeid: selectedGradeFilter,
+    subjectid: selectedSubjectFilter,
+    tutorid: selectedTutorFilter
+  });
+
+  const fetchAllocations = refetch; 
+  // Keep alias for compatibility with existing save/delete handlers
+
+
+  const [gradesOptions, setGradesOptions] = useState([]);
+  const [subjectsOptions, setSubjectsOptions] = useState([]);
+  const [tutorsOptions, setTutorsOptions] = useState([]);
+
+  const fetchDropdowns = useCallback(async () => {
+    try {
+      const [gradeRes, subjectRes, tutorRes] = await Promise.all([
+        api.get('/grades'),
+        api.get('/subjects/all'),
+        api.get('/tutors/all')
+      ]);
+      setGradesOptions(gradeRes.data.map(g => ({ label: g.name, value: g.id })));
+      setSubjectsOptions(subjectRes.data.data.map(s => ({ label: s.name, value: s.id })));
+      setTutorsOptions(tutorRes.data.data.map(t => ({ label: `${t.firstname} ${t.lastname}`, value: t.id })));
+    } catch (err) {
+      console.error('Dropdown fetch failed', err);
+    }
+  }, []);
 
   useEffect(() => {
-    if (!localToken) {
-      localStorage.removeItem('authToken');
-      navigate('/login');
-    }
-  }, [localToken, navigate]);
+    fetchDropdowns();
+  }, [fetchDropdowns]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await api.get(`/api/subject-tutor/all`);
-        if (response.status === 200) {
-          const { data } = response.data;
-          setData(data);
-          setFilteredData(data);
-          setTotalPages(Math.ceil(data.length / itemsPerPage));
-
-          // Extract unique grades and subjects
-          const uniqueGrades = [...new Set(data.map(item => item.grade))];
-          const uniqueSubjects = [...new Set(data.map(item => item.subject))];
-          setGrades(uniqueGrades);
-          setSubjects(uniqueSubjects);
-        } else {
-          setData([]);
-          console.error('Failed to fetch data');
-        }
-      } catch (error) {
-        setError('Error during data fetch');
-        console.error('Error during data fetch:', error);
-        localStorage.removeItem('authToken');
-        navigate('/login');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [currentPage, itemsPerPage, navigate, localToken]);
-
-  useEffect(() => {
-    // Filter data based on selected grade and subject
-    const filtered = data.filter(item => {
-      return (
-        (selectedGrade ? item.grade === selectedGrade : true) &&
-        (selectedSubject ? item.subject === selectedSubject : true)
-      );
-    });
-    setFilteredData(filtered);
-    setTotalPages(Math.ceil(filtered.length / itemsPerPage));
-
-    // Update subjects based on selected grade
-    if (selectedGrade) {
-      const filteredSubjects = [...new Set(data.filter(item => item.grade === selectedGrade).map(item => item.subject))];
-      setSubjects(filteredSubjects);
-    } else {
-      setSubjects([...new Set(data.map(item => item.subject))]);
-    }
-  }, [selectedGrade, selectedSubject, data]);
-
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber > 0 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
-
-  const handleEdit = (id) => {
-    navigate(`/subject-tutor/edit/${id}`);
-  };
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState('CREATE'); // 'CREATE' or 'EDIT'
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({ id: '', grade: '', subject: '', tutor: '', fees: '' });
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this item?')) {
+    if (window.confirm('Are you sure you want to delete this allocation?')) {
       try {
-        await api.delete(`/api/subject-tutor/${id}`);
-        // Refresh data after delete
-        setData(data.filter(item => item.id !== id));
-        setFilteredData(filteredData.filter(item => item.id !== id));
-        setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
-        
-      } catch (error) {
-        setError('Error deleting item');
-        console.error('Error deleting item:', error);
+        await api.delete(`/subject-tutors/${id}`);
+        fetchAllocations();
+      } catch (err) {
+        console.error('Delete failed:', err);
       }
     }
   };
 
-  const handleGradeChange = (e) => {
-    setSelectedGrade(e.target.value);
-    setSelectedSubject(''); // Reset subject filter when grade changes
+  const openCreateModal = () => {
+    setModalMode('CREATE');
+    setFormData({ id: '', grade: '', subject: '', tutor: '', fees: '' });
+    setIsModalOpen(true);
   };
 
-  const handleSubjectChange = (e) => {
-    setSelectedSubject(e.target.value);
+  const openEditModal = (item) => {
+    setModalMode('EDIT');
+    setFormData({ 
+      id: item.id, 
+      grade: item.gradeid, 
+      subject: item.subjectid, 
+      tutor: item.tutorid, 
+      fees: item.fees 
+    });
+    setIsModalOpen(true);
   };
 
-  const Table = ({ data }) => (<>
-    <table className="data-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th className="filter-header">
-            Grade  
-            <select value={selectedGrade} onChange={handleGradeChange}>
-              <option value="">All Grades</option>
-              {grades.map((grade, index) => (
-                <option key={index} value={grade}>{grade}</option>
-              ))}
-            </select>
-          </th>
-          <th className="filter-header">
-            Subject  
-            <select value={selectedSubject} onChange={handleSubjectChange}>
-              <option value="">All Subjects</option>
-              {subjects.map((subject, index) => (
-                <option key={index} value={subject}>{subject}</option>
-              ))}
-            </select>
-          </th>
-          <th>Tutor</th>
-          <th>Fees</th>
-          <th>Actions</th> {/* New column for actions */}
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((item) => (
-          <tr key={item.id}>
-            <td>{item.id}</td>
-            <td>{item.grade}</td>
-            <td>{item.subject}</td>
-            <td>{item.tutor}</td>
-            <td>{item.fees}</td>
-            <td>
-            <button className="editBtn" onClick={() => handleEdit(item.id)}>Edit</button>
-            <button className="deleteBtn" onClick={() => handleDelete(item.id)}>Delete</button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-    <Pagination
-      currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={handlePageChange} 
-    /> </>
+  const handleFormChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleModalSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        gradeid: formData.grade,
+        subjectid: formData.subject,
+        tutorid: formData.tutor,
+        fees: parseFloat(formData.fees)
+      };
+
+      if (modalMode === 'CREATE') {
+        await api.post('/subject-tutors', payload);
+      } else {
+        await api.put(`/subject-tutors/${formData.id}`, payload);
+      }
+
+      setIsModalOpen(false);
+      setFormData({ id: '', grade: '', subject: '', tutor: '', fees: '' });
+      fetchAllocations();
+    } catch (err) {
+      alert(err.response?.data?.message || `Failed to ${modalMode === 'CREATE' ? 'create' : 'update'} mapping`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const filterGradeOptions = [{ label: 'All Grades', value: '' }, ...gradesOptions];
+  const filterSubjectOptions = [{ label: 'All Subjects', value: '' }, ...subjectsOptions];
+  const filterTutorOptions = [{ label: 'All Tutors', value: '' }, ...tutorsOptions];
+
+  const columns = [
+    { label: 'ID', accessor: 'id', render: (val) => <span className="text-textMuted">#{val}</span> },
+    { label: 'Grade', accessor: 'grade', render: (val) => <span className="bg-primary/20 text-primary px-2 py-1 rounded text-xs">{val}</span> },
+    { label: 'Subject', accessor: 'subject', render: (val) => <span className="font-medium text-white">{val}</span> },
+    { label: 'Tutor', accessor: 'tutor' },
+    { label: 'Fees (LKR)', accessor: 'fees', render: (val) => <span className="text-emerald-400 font-medium">{val}</span> },
+    { 
+      label: 'Actions', 
+      accessor: 'id',
+      render: (id, row) => (
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate('/timetable')} className="text-textMuted hover:text-emerald-400 transition-colors" title="View Schedule">
+            <Calendar size={18} />
+          </button>
+          <button onClick={() => openEditModal(row)} className="text-textMuted hover:text-primary transition-colors">
+            <Edit3 size={18} />
+          </button>
+          <button onClick={() => handleDelete(id)} className="text-textMuted hover:text-danger transition-colors">
+            <Trash2 size={18} />
+          </button>
+        </div>
+      )
+    }
+  ];
+
+  const TableActions = (
+    <button onClick={openCreateModal} className="btn-primary">
+      <PlusCircle size={18} /> Allocate Subject
+    </button>
   );
 
   return (
-    <div>
-      <Header type={'dashboard'} action={"Logout"} />
-      <Navbar />
-      <SectionHeader section={'Subject Tutor'} is_create={true} />
-      <div className='main'>
-        {loading && <p>Loading...</p>}
-        {error && <p className="error">{error}</p>}
-        <div className="student-actions">
-          <button className="create-student-btn" onClick={() => navigate('/new-subject')}>
-            ➕ Create New Subject
-          </button>
+    <Layout title="Subject Allocation">
+        
+        {/* Filters Section */}
+        <div className="flex flex-col xl:flex-row gap-4 mb-6 p-4 rounded-xl glass-card backdrop-blur-xl border border-slate-700/50 items-center">
+          <div className="flex items-center gap-2 text-textMuted mr-2 shrink-0">
+            <Filter size={18} /> <span className="font-medium text-sm uppercase tracking-wider">Filters</span>
+          </div>
+          <div className="w-full xl:max-w-xs">
+            <FormSelect 
+              value={selectedGradeFilter} 
+              onChange={(e) => setSelectedGradeFilter(e.target.value)}
+              options={filterGradeOptions}
+              className="!mb-0"
+            />
+          </div>
+          <div className="w-full xl:max-w-xs">
+            <FormSelect 
+              value={selectedSubjectFilter} 
+              onChange={(e) => setSelectedSubjectFilter(e.target.value)}
+              options={filterSubjectOptions}
+              className="!mb-0"
+            />
+          </div>
+          <div className="w-full xl:max-w-xs">
+            <FormSelect 
+              value={selectedTutorFilter} 
+              onChange={(e) => setSelectedTutorFilter(e.target.value)}
+              options={filterTutorOptions}
+              className="!mb-0"
+            />
+          </div>
         </div>
-        <Table data={filteredData} />
-      </div>
-    </div>
+
+        {error && <div className="bg-danger/20 border border-danger/50 text-danger px-4 py-3 rounded-xl mb-6">{error}</div>}
+        
+        <Card title="Mapping Directory" action={TableActions}>
+          <GenericTable 
+            columns={columns} 
+            data={data} 
+            loading={loading} 
+            emptyStateMessage="No subject allocations found matching the filters."
+            pagination={pagination}
+          />
+        </Card>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalMode === 'CREATE' ? "Create Subject-Tutor Mapping" : "Edit Allocation"}>
+        <form onSubmit={handleModalSubmit}>
+          <div className="space-y-4">
+            <FormSelect label="Grade" name="grade" value={formData.grade} onChange={handleFormChange} options={gradesOptions} required />
+            <FormSelect label="Subject" name="subject" value={formData.subject} onChange={handleFormChange} options={subjectsOptions} required />
+            <FormSelect label="Tutor" name="tutor" value={formData.tutor} onChange={handleFormChange} options={tutorsOptions} required />
+            <FormInput label="Monthly Fees (LKR)" name="fees" type="number" step="0.01" value={formData.fees} onChange={handleFormChange} placeholder="e.g. 5000" required />
+          </div>
+          <div className="mt-8 flex justify-end gap-3">
+            <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-lg text-textMuted hover:bg-slate-800 transition-colors font-medium">
+              Cancel
+            </button>
+            <button type="submit" disabled={isSubmitting} className="btn-primary">
+              {isSubmitting ? 'Saving...' : (modalMode === 'CREATE' ? 'Create Mapping' : 'Save Changes')}
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </Layout>
   );
 };

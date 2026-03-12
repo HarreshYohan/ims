@@ -1,15 +1,9 @@
-module.exports = (app) => {
-  const staff = require("../controllers/staff.controller.js");
+const router = require('express').Router();
+const staff = require('../controllers/staff.controller');
 
-  var router = require("express").Router();
+router.get('/all',  staff.findAll);
+router.get('/:id',  staff.findOne);
+router.post('/',    staff.create);
+router.delete('/:id', staff.delete);
 
-  router.get("/all", staff.findAll);
-
-  router.get("/:id", staff.findOne);
-
-  router.delete("/:id", staff.delete);
-
-  router.post("/", staff.create);
-
-  app.use('/api/staff', router);
-};
+module.exports = router;

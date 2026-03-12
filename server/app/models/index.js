@@ -4,18 +4,14 @@ const { Sequelize } = require('sequelize');
 
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
+  port: dbConfig.PORT,
   dialect: dbConfig.dialect,
-  operatorsAliases: true,
   logging: false,
 });
 
-sequelize.sync()
-  .then(() => {
-    console.log('Database synchronized.');
-  })
-  .catch(err => {
-    console.error('Failed to sync database:', err.message);
-  });
+// NOTE: sequelize.sync() has been intentionally removed.
+// Use 'npm run migrate' (sequelize-cli db:migrate) to manage schema changes safely.
+// See: server/app/migrations/
 
 const User = require('./user.model')(sequelize, Sequelize.DataTypes);
 const Student = require('./student.model')(sequelize, Sequelize.DataTypes);
@@ -33,6 +29,9 @@ const StudentFees = require('./student_fees.model')(sequelize, Sequelize.DataTyp
 const Notes = require('./notes.model')(sequelize, Sequelize.DataTypes);
 const Goals = require('./goals.model')(sequelize, Sequelize.DataTypes);
 const TutorPayment = require('./tutor_payment.model')(sequelize, Sequelize.DataTypes);
+const Flashcard = require('./flashcard.model')(sequelize, Sequelize.DataTypes);
+const QuizAttempt = require('./quiz_attempt.model')(sequelize, Sequelize.DataTypes);
+const ActivityLog = require('./activity_log.model')(sequelize, Sequelize.DataTypes);
 
 SubjectTutor.belongsTo(Tutor, { foreignKey: 'tutorid', as: 'tutor' });
 SubjectTutor.belongsTo(Subject, { foreignKey: 'subjectid', as: 'subject' });
@@ -61,6 +60,11 @@ Goals.belongsTo(Student, { foreignKey: 'studentid', as: 'student' });
 
 TutorPayment.belongsTo(Tutor, {foreignKey: 'tutorid',as: 'tutor'})
 
+Flashcard.belongsTo(Student, { foreignKey: 'studentid', as: 'student' });
+Flashcard.belongsTo(Notes, { foreignKey: 'noteid', as: 'note' });
+
+QuizAttempt.belongsTo(Student, { foreignKey: 'studentid', as: 'student' });
+
 module.exports = {
   sequelize,
   User,
@@ -78,7 +82,8 @@ module.exports = {
   StudentFees,
   Notes,
   Goals,
-  TutorPayment
-
-
+  TutorPayment,
+  Flashcard,
+  QuizAttempt,
+  ActivityLog
 };

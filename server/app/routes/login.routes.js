@@ -1,11 +1,7 @@
-module.exports = (app) => {
-    const user = require("../controllers/login.controller");
-  
-    var router = require("express").Router();
+const router = require('express').Router();
+const login = require('../controllers/login.controller');
 
-    router.post("/login", user.login);
+router.post('/login', login.login);
+router.post('/signup', login.signup);
 
-    router.post("/signup", user.signup);
-
-    app.use("/api",router);
-  };
+module.exports = router;

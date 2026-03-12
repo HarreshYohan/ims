@@ -1,86 +1,93 @@
-const { User, Staff, Student, Tutor } = require('../models');
-const bcrypt = require('bcrypt');
+const { User } = require('../models');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const helpers = require('../helpers/validations');
-require('dotenv')
+const logger = require('../lib/logger');
+const auditLog = require('../services/auditLog');
+require('dotenv').config();
 
-exports.login = async (req, res) => {
-    const { email, password } = req.body;
-    if (!helpers.isValidObject(req.body)) {
-      return res.status(401).send({ message: "Input is invalid. Some elements are null or empty." });
-    }
+exports.login = async (req, res, next) => {
+  const { email, password } = req.body;
 
-    if (!(email && password)) {
-        res.status(401).send("Enter correct email & password");
-        
-    }
-
-    const user = await User.findOne({ where: { email: email } });
-
-      if (user && user.is_active && ( await bcrypt.compare(password, user.password))) {
-
-        const token = jwt.sign(
-          { user_id: user.id, username: user.username,email:user.email, user_type :user.user_type },
-          process.env.SECRET_KEY,
-          {
-            expiresIn: "3h",
-          }
-        );
-
-        user.token = token;
-
-        res.status(200).json({ message: 'Login succesfull', token: token , user: user});
-    }
-    else{
-        res.status(401).send({message :"Invalid Credentials"});
-    }
-
-    
-    
-};
-
-
-
-exports.signup = async (req, res) => {
-
-  if (!helpers.isValidObject(req.body)) {
-    return res.status(401).send({ message: "Input is invalid. Some elements are null or empty." });
+  if (!helpers.isValidObject(req.body) || !(email && password)) {
+    return res.status(400).json({ message: 'Email and password are required.' });
   }
-  const saltRounds = 5;
-  const hashedPassword = bcrypt.hashSync(req.body.password, saltRounds);
 
   try {
-    const existingUser = await User.findOne({
-      where: { email: req.body.email }
-    });
+    const user = await User.findOne({ where: { email } });
 
-    if (existingUser) {
-      return res.status(401).send({ message: "User with this email already exists. Try with another email." });
+    if (!user || !user.is_active) {
+      return res.status(401).json({ message: 'Invalid credentials.' });
     }
 
-    const user = {
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials.' });
+    }
+
+    const token = jwt.sign(
+      { user_id: user.id, username: user.username, email: user.email, user_type: user.user_type },
+      process.env.SECRET_KEY,
+      { expiresIn: '8h' }
+    );
+
+    // Never return the password hash — destructure it out
+    const { password: _pw, ...safeUser } = user.toJSON();
+
+    // Audit: LOGIN
+    await auditLog.log({
+      req, action: 'LOGIN', entity: 'user', entity_id: user.id,
+      details: `User ${user.username} (${user.email}) logged in [${user.user_type}]`,
+      user: { user_id: user.id, username: user.username, email: user.email, user_type: user.user_type },
+    });
+
+    logger.info(`User logged in: ${email} [${user.user_type}]`);
+    res.status(200).json({ message: 'Login successful.', token, user: safeUser });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.signup = async (req, res, next) => {
+  if (!helpers.isValidObject(req.body)) {
+    return res.status(400).json({ message: 'Input is invalid. Some fields are null or empty.' });
+  }
+
+  const saltRounds = 12;
+  const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+
+  try {
+    const existingUser = await User.findOne({ where: { email: req.body.email } });
+
+    if (existingUser) {
+      return res.status(409).json({ message: 'A user with this email already exists.' });
+    }
+
+    const user = await User.create({
       username: req.body.username,
       password: hashedPassword,
       email: req.body.email,
-      user_type: req.body.user_type ?? "NA"
-    };
-
-    const createdUser = await User.create(user);
-
-    if (createdUser) {
-      var token = jwt.sign(
-        { user_id: createdUser.id, usernmae: createdUser.username,email:createdUser.email, user_type :createdUser.user_type },
-        process.env.SECRET_KEY,
-        {
-          expiresIn: "2h",
-        }
-      );
-    }
-
-    res.status(200).json({ message: 'Succusfully signedup', token: token , user: createdUser});
-  } catch (err) {
-    res.status(500).send({
-      message: err.message || "Some error occurred while creating the User."
+      user_type: req.body.user_type ?? 'NA',
     });
+
+    const token = jwt.sign(
+      { user_id: user.id, username: user.username, email: user.email, user_type: user.user_type },
+      process.env.SECRET_KEY,
+      { expiresIn: '8h' }
+    );
+
+    const { password: _pw, ...safeUser } = user.toJSON();
+
+    // Audit: SIGNUP
+    await auditLog.log({
+      req, action: 'CREATE', entity: 'user', entity_id: user.id,
+      details: `New user signed up: ${user.username} (${user.email}) [${user.user_type}]`,
+      user: { user_id: user.id, username: user.username, email: user.email, user_type: user.user_type },
+    });
+
+    logger.info(`New user signed up: ${user.email} [${user.user_type}]`);
+    res.status(201).json({ message: 'Successfully signed up.', token, user: safeUser });
+  } catch (err) {
+    next(err);
   }
 };

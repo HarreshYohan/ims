@@ -4,10 +4,11 @@ const { check, validationResult } = require('express-validator');
 // Validation rules
 exports.validate = (method) => {
   switch (method) {
-    case 'createSubject':
-    case 'updateSubject': {
+    case 'createGrade':
+    case 'updateGrade': {
       return [
-        check('name', 'Name is required').notEmpty()
+        check('name', 'Grade name is required').notEmpty(),
+        check('name', 'Invalid Grade format. Use "Grade X" or "Class X" (e.g., Grade 10, Class 5A)').matches(/^(Grade|Class)\s*[0-9]+[A-Z]?$/i)
       ];
     }
   }
@@ -85,7 +86,7 @@ exports.update = async (req, res) => {
       return res.status(404).send({ message: `Cannot find Grade with id=${id}.` });
     }
 
-    await Grade.update({ name });
+    await Grade.update({ name }, { where: { id } });
     res.status(200).send({ message: "Grade was updated successfully." });
   } catch (err) {
     if (err.name === 'SequelizeUniqueConstraintError') {

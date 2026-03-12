@@ -1,25 +1,13 @@
-module.exports = (app) => {
-  const timetable = require("../controllers/timetable.controller.js");
+const router = require('express').Router();
+const timetable = require('../controllers/timetable.controller');
 
-  var router = require("express").Router();
+router.get('/all',                    timetable.findAll);
+router.get('/student-count/:studentid', timetable.getClassCount);
+router.get('/tutor-count/:tutorid',   timetable.getTutorClassCount);
+router.get('/student/:studentid',     timetable.findForStudent);
+router.get('/tutor/:userid',          timetable.findForTutor);
+router.get('/:id',                    timetable.findOne);
+router.post('/',                      timetable.validate('create'), timetable.create);
+router.delete('/:id',                 timetable.delete);
 
-  router.get("/all", timetable.findAll);
-
-  router.get("/:id", timetable.findOne);
-
-  router.delete("/:id", timetable.delete);
-
-  router.post("/", timetable.create);
-
-  router.get('/student/:studentid', timetable.findForStudent);
-
-  router.get('/tutor/:userid', timetable.findForTutor);
-
-  router.get('/student-count/:studentid', timetable.getClassCount);
-
-  router.get('/tutor-count/:tutorid', timetable.getTutorClassCount);
-
-
-
-  app.use('/api/timetable', router);
-};
+module.exports = router;

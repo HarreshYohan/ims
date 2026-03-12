@@ -1,252 +1,244 @@
 const { User, Student, StudentSubject, SubjectTutor, Subject } = require('../models');
 const bcrypt = require('bcryptjs');
-const { log } = require("console");
-const { check, validationResult } = require('express-validator');
 const { Parser } = require('json2csv');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
+const logger = require('../lib/logger');
+const { check, validationResult } = require('express-validator');
+
+// Allowlist of columns that can be used as filters in downloadAll
+const ALLOWED_FILTER_COLUMNS = ['grade', 'contact'];
 
 exports.validate = (method) => {
   switch (method) {
     case 'createUser': {
       return [
-        check('firstname', 'firstname is required').notEmpty(),
-        check('lastname', 'lastname is required').notEmpty(),
-        check('grade', 'grade is required').notEmpty(),
-        check('contact', 'contact is required').notEmpty(),
-        check('email', 'Invalid email').isEmail(),
-        check('password', 'Password must be at least 6 characters long').isLength({ min: 6 }),
+        check('firstname', 'First name is required').notEmpty(),
+        check('lastname', 'Last name is required').notEmpty(),
+        check('grade', 'Grade is required').notEmpty(),
+        check('contact', 'Contact is required').notEmpty(),
+        check('email', 'Invalid email address').isEmail(),
+        check('password', 'Password must be at least 8 characters long').isLength({ min: 8 }),
       ];
     }
+    default:
+      return [];
   }
 };
 
-exports.findAll = async (req, res) => {
+exports.findAll = async (req, res, next) => {
   try {
+    const { search, grade, page, limit } = req.query;
+    const pageNum  = Math.max(1, parseInt(page)  || 1);
+    const limitNum = Math.min(100, parseInt(limit) || 20);
+    const offset = (pageNum - 1) * limitNum;
+
+    const { Op } = require('sequelize');
+    const where = {};
+
+    if (search) {
+      where[Op.or] = [
+        { firstname: { [Op.iLike]: `%${search}%` } },
+        { lastname: { [Op.iLike]: `%${search}%` } },
+        { email: { [Op.iLike]: `%${search}%` } },
+        { username: { [Op.iLike]: `%${search}%` } }
+      ];
+    }
+
+    if (grade) {
+      where.grade = grade;
+    }
+
     const { count, rows } = await Student.findAndCountAll({
-      order: [['id', 'DESC']]
+      where,
+      order: [['id', 'DESC']],
+      limit: limitNum,
+      offset,
     });
-    res.json({
-      data: rows
-    });
+    res.json({ total: count, page: pageNum, limit: limitNum, data: rows });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-exports.create = async (req, res) => {
+exports.create = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { username, password, email, firstname, lastname, grade, contact } = req.body;
+  const { email, firstname, lastname, grade, contact } = req.body;
 
   try {
-    const existingStudent = await Student.findOne({ where: { firstname, lastname } });
-
+    const existingStudent = await Student.findOne({ where: { email } });
     if (existingStudent) {
-      throw new Error('Student already exists');
+      return res.status(409).json({ message: 'A student with this email already exists.' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Auto-generate username: first.last + random suffix
+    const baseUsername = `${firstname.toLowerCase()}.${lastname.toLowerCase()}`;
+    const username = `${baseUsername}.${Math.floor(1000 + Math.random() * 9000)}`;
+
+    // Auto-generate secure password
+    const rawPassword = Math.random().toString(36).slice(-10);
+    const hashedPassword = await bcrypt.hash(rawPassword, 12);
 
     const newUser = await User.create({
-      username: username,
-      email: email,
+      username,
+      email,
       password: hashedPassword,
       user_type: 'STUDENT',
-      is_active: true
+      is_active: true,
     });
 
     const newStudent = await Student.create({
       username,
       user_id: newUser.id,
       email,
-      password: hashedPassword,
+      password: hashedPassword, // satisfy old model requirement if not yet migrated, but model is updated to allow null
       firstname,
       lastname,
       grade,
       contact,
     });
 
-    res.status(201).send(newStudent);
+    // Send Greeting Email (non-blocking)
+    const { sendStudentGreeting } = require('../services/email.service');
+    sendStudentGreeting(email, firstname, username, rawPassword).catch(err => {
+        logger.error(`Background email task failed for ${email}: ${err.message}`);
+    });
+
+    logger.info(`Student created with auto-creds: ${email}`);
+    res.status(201).json({
+        ...newStudent.toJSON(),
+        generatedUsername: username,
+        generatedPassword: rawPassword // Send back so UI can display it once
+    });
   } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred while creating the User.'
-    });
+    next(err);
   }
 };
 
-exports.findOne = (req, res) => {
+exports.findOne = async (req, res, next) => {
   const id = req.params.id;
-
-  Student.findByPk(id)
-    .then(data => {
-      if (data) {
-        res.send(data);
-      } else {
-        res.status(404).send({
-          message: `Cannot find student with id=${id}.`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message: "Error retrieving student with id=" + id
-      });
-    });
+  try {
+    const data = await Student.findByPk(id);
+    if (data) {
+      res.json(data);
+    } else {
+      res.status(404).json({ message: `Student with id=${id} not found.` });
+    }
+  } catch (err) {
+    next(err);
+  }
 };
 
-exports.delete = async (req, res) => {
+exports.delete = async (req, res, next) => {
   const id = req.params.id;
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
   try {
     const student = await Student.findByPk(id);
-
     if (!student) {
-      return res.status(404).send({ message: `Cannot find Student with id=${id}.` });
+      return res.status(404).json({ message: `Student with id=${id} not found.` });
     }
-
-    await Student.destroy({ where: { id } });
-
-    res.send({ message: "User was deleted successfully!", student });
-
+    await student.destroy();
+    logger.info(`Student deleted: id=${id}`);
+    res.json({ message: 'Student was deleted successfully.', student });
   } catch (err) {
-    res.status(500).send({ message: `Could not delete User with id=${id}: ${err.message}` });
+    next(err);
   }
 };
 
-exports.update = async (req, res) => {
+exports.update = async (req, res, next) => {
   const id = req.params.id;
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
   const { username, password, email, firstname, lastname, grade, contact } = req.body;
 
   try {
     const student = await Student.findByPk(id);
-
     if (!student) {
-      return res.status(404).send({ message: `Cannot find Student with id=${id}.` });
+      return res.status(404).json({ message: `Student with id=${id} not found.` });
     }
 
-    const existingStudent = await Student.findOne({ where: { firstname, lastname } });
-
-    if (existingStudent && existingStudent.id !== student.id) {
-      throw new Error('Student name already exists');
-    }
-
-    const hashedPassword = password ? await bcrypt.hash(password, 10) : student.password;
+    // Only hash if a new password was provided
+    const hashedPassword = password ? await bcrypt.hash(password, 12) : undefined;
 
     await student.update({
-      username,
-      email,
-      password: hashedPassword,
+      username:  username  || student.username,
+      email:     email     || student.email,
       firstname: firstname || student.firstname,
-      lastname: lastname || student.lastname,
-      grade: grade || student.grade,
-      contact: contact || student.contact,
+      lastname:  lastname  || student.lastname,
+      grade:     grade     || student.grade,
+      contact:   contact   || student.contact,
+      ...(hashedPassword ? { password: hashedPassword } : {}),
     });
 
-    res.status(200).send({ message: "Student was updated successfully!", student });
+    logger.info(`Student updated: id=${id}`);
+    res.status(200).json({ message: 'Student updated successfully.', student });
   } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred while updating the Student.'
-    });
+    next(err);
   }
 };
 
-exports.student_subject = async (req, res) => {
+exports.student_subject = async (req, res, next) => {
   const id = req.params.id;
-  const errors = validationResult(req);
-console.log(id)
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
   try {
-    const student = await Student.findOne({where: {user_id : id}}, {attributes: ['id']})
-    console.log(student.id)
+    const student = await Student.findOne({ where: { user_id: id }, attributes: ['id'] });
+    if (!student) {
+      return res.status(404).json({ message: `Student for user_id=${id} not found.` });
+    }
+
     const studentSubjects = await StudentSubject.findAll({
       where: { studentid: student.id },
       attributes: ['studentid'],
-      include: [
-        {
-          model: SubjectTutor,
-          as: 'subjectTutor',
-          include: [
-            {
-              model: Subject,
-              as: 'subject',
-              attributes: ['name']
-            }
-          ],
-          attributes: ['id']
-        }
-      ]
+      include: [{
+        model: SubjectTutor,
+        as: 'subjectTutor',
+        include: [{ model: Subject, as: 'subject', attributes: ['name'] }],
+        attributes: ['id'],
+      }],
     });
 
     const subjects = studentSubjects.map(item => ({
       subject: item.subjectTutor.subject.name,
-      subject_id: item.subjectTutor.id
+      subject_id: item.subjectTutor.id,
     }));
 
-    const data = { student_id: id, subjects: subjects };
-
-    if (!data) {
-      return res.status(404).send({ message: `Cannot find Student with id=${id}.` });
-    }
-
-    res.status(200).send({ data });
+    res.status(200).json({ data: { student_id: id, subjects } });
   } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred while getting the Student subject.'
-    });
+    next(err);
   }
 };
 
-exports.downloadAll = async (req, res) => {
+exports.downloadAll = async (req, res, next) => {
   try {
-    const { columns, ...filters } = req.query; 
+    const { columns, ...filters } = req.query;
+    const selectedColumns = columns
+      ? columns.split(',')
+      : ['id', 'username', 'email', 'firstname', 'lastname', 'grade', 'contact', 'createdAt', 'updatedAt'];
 
-    const selectedColumns = columns ? columns.split(',') : ['id', 'username', 'email', 'firstname', 'lastname', 'grade', 'contact', 'createdAt', 'updatedAt'];
-
+    // Only allow explicitly whitelisted filter columns — prevents injection
     const filterConditions = {};
-    Object.keys(filters).forEach(key => {
-      if (filters[key]) {
-        filterConditions[key] = filters[key];
-      }
+    ALLOWED_FILTER_COLUMNS.forEach(key => {
+      if (filters[key]) filterConditions[key] = filters[key];
     });
 
     const students = await Student.findAll({
       where: filterConditions,
-      order: [['createdAt', 'DESC']]
+      order: [['createdAt', 'DESC']],
     });
 
     const json2csvParser = new Parser({ fields: selectedColumns });
-    const csv = json2csvParser.parse(students.map(student => student.toJSON()));
+    const csv = json2csvParser.parse(students.map(s => s.toJSON()));
 
-    // Write CSV to file
-    const filePath = path.join(__dirname, 'students.csv');
+    // Write to OS temp dir — not inside the source tree
+    const filePath = path.join(os.tmpdir(), `students_${Date.now()}.csv`);
     fs.writeFileSync(filePath, csv);
 
-
     res.download(filePath, 'students.csv', (err) => {
-      if (err) {
-        res.status(500).json({ message: 'Error downloading file', error: err.message });
-      }
-      fs.unlinkSync(filePath); // delete the file after download
+      if (err) next(err);
+      fs.unlink(filePath, () => {}); // clean up silently
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error generating CSV', error: error.message });
+    next(error);
   }
 };

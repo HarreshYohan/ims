@@ -1,9 +1,7 @@
-
 const { Transaction } = require('../models');
 const { Parser } = require('json2csv');
 const fs = require('fs');
 const path = require('path');
-
 
 exports.create = async (req, res) => {
   try {
@@ -22,30 +20,42 @@ exports.create = async (req, res) => {
 };
 
 exports.findAll = async (req, res) => {
-    try {
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
-      const offset = (page - 1) * limit;
-  
-      const { count, rows } = await Transaction.findAndCountAll({
-        limit,
-        offset,
-        order: [
-            ['createdAt', 'DESC'],
-        ]
-      });
-  
-      const totalPages = Math.ceil(count / limit);
-  
-      res.json({
-        data: rows,
-        totalPages,
-      });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
-    }
-  };
+  try {
+    const { page, limit, transaction_type, search } = req.query;
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const offset = (pageNum - 1) * limitNum;
 
+    const { Op } = require('sequelize');
+    const where = {};
+    if (transaction_type) {
+      where.transaction_type = transaction_type;
+    }
+
+    if (search) {
+      where.description = { [Op.iLike]: `%${search}%` };
+    }
+
+    const { count, rows } = await Transaction.findAndCountAll({
+      where,
+      limit: limitNum,
+      offset,
+      order: [['createdAt', 'DESC']]
+    });
+
+    const totalPages = Math.ceil(count / limitNum);
+
+    res.json({
+      data: rows,
+      total: count,
+      page: pageNum,
+      limit: limitNum,
+      totalPages,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 exports.findOne = async (req, res) => {
   try {
@@ -60,7 +70,6 @@ exports.findOne = async (req, res) => {
   }
 };
 
-// Update a transaction by ID
 exports.update = async (req, res) => {
   try {
     const { id } = req.params;
@@ -81,7 +90,6 @@ exports.update = async (req, res) => {
   }
 };
 
-// Delete a transaction by ID
 exports.delete = async (req, res) => {
   try {
     const { id } = req.params;
@@ -90,7 +98,7 @@ exports.delete = async (req, res) => {
       return res.status(404).json({ message: 'Transaction not found' });
     }
     await transaction.destroy();
-    res.status(204).json({ message: 'Transaction deleted successfully' });
+    res.status(244).json({ message: 'Transaction deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting transaction', error: error.message });
   }
@@ -99,36 +107,31 @@ exports.delete = async (req, res) => {
 exports.downloadAll = async (req, res) => {
   try {
     const { transaction_type, columns } = req.query;
-
-    // Convert columns string to array if provided
     const selectedColumns = columns ? columns.split(',') : ['id', 'transaction_type', 'amount', 'description', 'user_id', 'participant_id', 'createdAt', 'updatedAt'];
 
-    // Build filters based on query parameters
     const filters = {};
     if (transaction_type) {
       filters.transaction_type = transaction_type;
     }
 
-    // Fetch transactions with filters
     const transactions = await Transaction.findAll({
       where: filters,
       order: [['createdAt', 'DESC']]
     });
 
-    // Generate CSV fields based on selected columns
     const json2csvParser = new Parser({ fields: selectedColumns });
     const csv = json2csvParser.parse(transactions);
 
-    // Write CSV to file
     const filePath = path.join(__dirname, 'transactions.csv');
     fs.writeFileSync(filePath, csv);
 
-    // Send CSV file for download
     res.download(filePath, 'transactions.csv', (err) => {
       if (err) {
         res.status(500).json({ message: 'Error downloading file', error: err.message });
       }
-      fs.unlinkSync(filePath); // delete the file after download
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
     });
   } catch (error) {
     res.status(500).json({ message: 'Error generating CSV', error: error.message });

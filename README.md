@@ -1,7 +1,7 @@
 # ims 
 
 ## server 
-go inside server folder cd docker/
+go inside server folder cd server/
 then build the docker image "docker-compose up --build -d"
 run npm install
 run npm run dev

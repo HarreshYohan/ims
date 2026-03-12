@@ -6,6 +6,14 @@ const { Op } = require('sequelize');
 // Validation rules
 exports.validate = (method) => {
   switch (method) {
+    case 'create': {
+      return [
+        check('timeslotid', 'timeslotid is required').notEmpty(),
+        check('classroomid', 'classroomid is required').notEmpty(),
+        check('subjecttutorid', 'subjecttutorid is required').notEmpty(),
+        check('day', 'day is required').notEmpty()
+      ];
+    }
     case 'createSubject':
     case 'updateSubject': {
       return [
@@ -75,89 +83,76 @@ exports.create = async (req, res) => {
 
 exports.findAll = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
+    const classroomid = req.query.classroomid;
+    
+    if (!classroomid) {
+       return res.json({ data: [], total: 0 });
+    }
 
-    const { count, rows } = await Timetable.findAndCountAll({
+    const where = { classroomid };
+
+    const rows = await Timetable.findAll({
+        where,
         include: [
             { model: Classroom,  as: 'classroom' },
             {
                 model: SubjectTutor,
                 as: 'mondaycls',
-                include: [
-                    { model: Subject, as: 'subject' },
-                    { model: Tutor, as: 'tutor' },
-                    { model: Grade, as: 'grade' },
-                ],
+                include: [{ model: Subject, as: 'subject' }, { model: Tutor, as: 'tutor' }, { model: Grade, as: 'grade' }],
             },
             {
                 model: SubjectTutor,
                 as: 'tuesdaycls',
-                include: [
-                    { model: Subject, as: 'subject' },
-                    { model: Tutor, as: 'tutor' },
-                    { model: Grade, as: 'grade' },
-                ],
+                include: [{ model: Subject, as: 'subject' }, { model: Tutor, as: 'tutor' }, { model: Grade, as: 'grade' }],
             },
             {
                 model: SubjectTutor,
                 as: 'wednesdaycls',
-                include: [
-                    { model: Subject, as: 'subject' },
-                    { model: Tutor, as: 'tutor' },
-                    { model: Grade, as: 'grade' },
-                ],
+                include: [{ model: Subject, as: 'subject' }, { model: Tutor, as: 'tutor' }, { model: Grade, as: 'grade' }],
             },
             {
                 model: SubjectTutor,
                 as: 'thursdaycls',
-                include: [
-                    { model: Subject, as: 'subject' },
-                    { model: Tutor, as: 'tutor' },
-                    { model: Grade, as: 'grade' },
-                ],
+                include: [{ model: Subject, as: 'subject' }, { model: Tutor, as: 'tutor' }, { model: Grade, as: 'grade' }],
             },
             {
                 model: SubjectTutor,
                 as: 'fridaycls',
-                include: [
-                    { model: Subject, as: 'subject' },
-                    { model: Tutor, as: 'tutor' },
-                    { model: Grade, as: 'grade' },
-                ],
+                include: [{ model: Subject, as: 'subject' }, { model: Tutor, as: 'tutor' }, { model: Grade, as: 'grade' }],
             },
             {
                 model: SubjectTutor,
                 as: 'saturdaycls',
-                include: [
-                    { model: Subject, as: 'subject' },
-                    { model: Tutor, as: 'tutor' },
-                    { model: Grade, as: 'grade' },
-                ],
+                include: [{ model: Subject, as: 'subject' }, { model: Tutor, as: 'tutor' }, { model: Grade, as: 'grade' }],
             },
             {
                 model: SubjectTutor,
                 as: 'sundaycls',
-                include: [
-                    { model: Subject, as: 'subject' },
-                    { model: Tutor, as: 'tutor' },
-                    { model: Grade, as: 'grade' },
-                ],
+                include: [{ model: Subject, as: 'subject' }, { model: Tutor, as: 'tutor' }, { model: Grade, as: 'grade' }],
             },
-          ],
-          order: [
-            ['id', 'ASC'],
         ],
-      limit,
-      offset,
+        order: [['timeslotid', 'ASC']],
     });
 
-    const totalPages = Math.ceil(count / limit);
+    // Merge DB results with full set of timeslots (1-7)
+    const fullSchedule = TimetableData.map(slot => {
+       const existingRow = rows.find(r => r.timeslotid === slot.id);
+       if (existingRow) return existingRow;
+       
+       // Return a skeleton row for empty slots
+       return {
+          timeslotid: slot.id,
+          timeslot: slot.timeslot,
+          classroomid: classroomid,
+          monday: null, tuesday: null, wednesday: null, thursday: null, friday: null, saturday: null, sunday: null
+       };
+    });
 
     res.json({
-      data: rows,
-      totalPages,
+      data: fullSchedule,
+      total: TimetableData.length,
+      limit: TimetableData.length,
+      totalPages: 1,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

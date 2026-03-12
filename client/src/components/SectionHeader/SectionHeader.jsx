@@ -1,32 +1,10 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import './SectionHeader.css';
-
-export const SectionHeader = ({ section, is_create }) => {
-  const navigate = useNavigate();
-
-  const handleCreateClick = () => {
-    switch (section){
-      case 'Student':
-        navigate('/new-student');
-        break
-      case 'Tutor':
-        navigate('/new-tutor');
-        break
-      case 'Staff':
-        navigate('/new-staff');
-        break
-      case 'Classroom':
-        navigate('/new-classroom');
-        break
-    }
-    
-  };
-
+export const SectionHeader = ({ section }) => {
   return (
-    <div className='bar'>
-      <p>{section}</p>
-      {is_create && <button className="create-button" onClick={handleCreateClick}>Create</button>}
+    <div className="bg-slate-900/40 border-b border-white/5 backdrop-blur-sm px-6 lg:px-10 py-4 flex items-center justify-between animate-in slide-in-from-top-2 duration-500">
+      <div className="flex items-center gap-3">
+        <div className="w-1.5 h-6 bg-primary rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
+        <h2 className="text-xl font-bold text-white tracking-tight">{section}</h2>
+      </div>
     </div>
   );
 };

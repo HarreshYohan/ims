@@ -1,25 +1,15 @@
-module.exports = (app) => {
-  const tutor = require("../controllers/tutor.controller.js");
+const router = require('express').Router();
+const tutor = require('../controllers/tutor.controller');
 
-  var router = require("express").Router();
+router.get('/all',                              tutor.findAll);
+router.get('/grades/all',                       tutor.getAllGrades);
+router.get('/subject-mapping/:id',              tutor.getSubjectMapping);
+router.get('/subjects/:gradeid',                tutor.getSubjectsByGrade);
+router.get('/:id',                              tutor.findOne);
+router.post('/',                                tutor.create);
+router.put('/:id',                              tutor.update);
+router.delete('/:id',                           tutor.delete);
+router.post('/add-subject',                     tutor.addSubjectToTutor);
+router.delete('/remove-subject/:tutorid/:mappingid', tutor.removeSubject);
 
-  router.get("/all", tutor.findAll);
-
-  router.get("/:id", tutor.findOne);
-
-  router.post("/", tutor.create);
-
-  router.put('/:id', tutor.update);
-
-  router.get('/subject-mapping/:id', tutor.getSubjectMapping);
-
-  router.post('/add-subject', tutor.addSubjectToTutor);
-
-  router.delete('/remove-subject/:tutorid/:mappingid', tutor.removeSubject);
-
-  router.get('/grades/all', tutor.getAllGrades);
-
-  router.get('/subjects/:gradeid', tutor.getSubjectsByGrade);
-
-  app.use('/api/tutor', router);
-};
+module.exports = router;

@@ -1,297 +1,209 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
-import { Header } from '../Header/Header';
-import './Transaction.css';
-import { Navbar } from '../Navbar/Navbar';
-import { SectionHeader } from '../SectionHeader/SectionHeader';
-import debounce from 'lodash/debounce';
+import { Layout } from '../shared/Layout';
+import { Card } from '../shared/Card';
+import { GenericTable } from '../shared/GenericTable';
+import { Modal } from '../shared/Modal';
+import { FormInput } from '../shared/FormInput';
+import { FormSelect } from '../shared/FormSelect';
 import { format } from 'date-fns';
-import { Pagination } from '../Pagination/Pagination';
-
+import { PlusCircle, Wallet, ArrowUpCircle, ArrowDownCircle, Download, Search } from 'lucide-react';
 
 export const Transaction = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [filters, setFilters] = useState({
-    transaction_type: '',
-  });
-  const [transactionTypes, setTransactionTypes] = useState([]);
-  const navigate = useNavigate();
-  const localToken = localStorage.getItem("authToken");
+  const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10 });
   
-  const fetchData = async () => {
-  setLoading(true);
-  setError(null);
-  try {
-    const response = await api.get(`/api/transaction/all?page=${currentPage}&limit=${itemsPerPage}`);
-    if (response.status === 200) {
-      const { data, totalPages } = response.data;
-      setData(data);
-      setFilteredData(data);
-      setTotalPages(totalPages);
+  const [selectedType, setSelectedType] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
-      const uniqueTransactionTypes = [...new Set(data.map(item => item.transaction_type))];
-      setTransactionTypes(uniqueTransactionTypes);
-    } else {
-      setData([]);
-      console.error('Failed to fetch data');
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const [newTransaction, setNewTransaction] = useState({
+    transaction_type: '',
+    amount: '',
+    description: '',
+    user_id: '',
+    participant_id: ''
+  });
+
+  const fetchData = useCallback(async (page = 1) => {
+    setLoading(true);
+    try {
+      const typeFilter = selectedType ? `&transaction_type=${selectedType}` : '';
+      const searchFilter = debouncedSearch ? `&search=${encodeURIComponent(debouncedSearch)}` : '';
+      const response = await api.get(`/transactions/all?page=${page}&limit=${pagination.limit}${typeFilter}${searchFilter}`);
+      setData(response.data.data);
+      setPagination(prev => ({ ...prev, total: response.data.total, page }));
+    } catch (err) {
+      console.error('Failed to fetch transactions:', err);
+      setError('Failed to load transactions');
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    setError('Error during data fetch');
-    console.error('Error during data fetch:', error);
-    localStorage.removeItem('authToken');
-    navigate('/login');
-  } finally {
-    setLoading(false);
-  }
-};
-
+  }, [selectedType, pagination.limit]);
 
   useEffect(() => {
-    if (!localToken) {
-      localStorage.removeItem('authToken');
-      navigate('/login');
-    }
-  }, [localToken, navigate]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await api.get(`/api/transaction/all?page=${currentPage}&limit=${itemsPerPage}`);
-        if (response.status === 200) {
-          const { data, totalPages } = response.data;
-          setData(data);
-          setFilteredData(data); 
-          setTotalPages(totalPages);
-
-          const uniqueTransactionTypes = [...new Set(data.map(item => item.transaction_type))];
-          setTransactionTypes(uniqueTransactionTypes);
-        } else {
-          setData([]);
-          console.error('Failed to fetch data');
-        }
-      } catch (error) {
-        setError('Error during data fetch');
-        console.error('Error during data fetch:', error);
-        localStorage.removeItem('authToken');
-        navigate('/login');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
-  }, [currentPage, itemsPerPage, navigate, localToken]);
-
-  const applyFilters = useCallback(() => {
-    const { transaction_type } = filters;
-    const newFilteredData = data.filter(item =>
-      (transaction_type ? item.transaction_type === transaction_type : true)
-    );
-    setFilteredData(newFilteredData);
-    setTotalPages(Math.ceil(newFilteredData.length / itemsPerPage));
-    setCurrentPage(1); 
-  }, [filters, data, itemsPerPage]);
-
-  const debouncedApplyFilters = useCallback(debounce(() => {
-    applyFilters();
-  }, 300), [applyFilters]);
-
-  useEffect(() => {
-    debouncedApplyFilters();
-  }, [filters, debouncedApplyFilters]);
-
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber > 0 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
-
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prevFilters => ({ ...prevFilters, [name]: value }));
-  };
-
-  const handleEdit = (id) => {
-    console.log(`Edit transaction with ID: ${id}`);
-  };
-
-  const handleDelete = (id) => {
-    console.log(`Delete transaction with ID: ${id}`);
-    // Implement your delete logic here
-  };
+  }, [fetchData]);
 
   const handleDownload = async () => {
     try {
-      // Construct query string from filters
-      const query = new URLSearchParams(filters).toString();
-
-      // Make API request to download filtered data
-      const response = await api.get(`/api/transaction/download/all?${query}`, {
-        headers: {
-          Authorization: `Bearer ${localToken}`
-        },
+      const query = selectedType ? `?transaction_type=${selectedType}` : '';
+      const response = await api.get(`/transactions/download/all${query}`, {
         responseType: 'blob'
       });
-
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'transactions.csv');
+      link.setAttribute('download', `transactions_${format(new Date(), 'yyyyMMdd')}.csv`);
       document.body.appendChild(link);
       link.click();
-      link.remove(); // Clean up
-    } catch (error) {
-      console.error('Error downloading transactions:', error);
+      link.remove();
+    } catch (err) {
+      console.error('Download failed:', err);
     }
   };
 
-  const formatDate = (date) => {
-    return format(new Date(date), 'MM/dd/yyyy hh:mm a');
-  };
-
-  const [showCreateModal, setShowCreateModal] = useState(false);
-const [newTransaction, setNewTransaction] = useState({
-  transaction_type: '',
-  amount: '',
-  description: '',
-  user_id: '',
-  participant_id: ''
-});
-
-const handleCreateChange = (e) => {
-  const { name, value } = e.target;
-  setNewTransaction(prev => ({ ...prev, [name]: value }));
-};
-
-const handleCreateSave = async () => {
-  try {
-    const response = await api.post('/api/transaction', newTransaction, {
-      headers: { Authorization: `Bearer ${localToken}` }
-    });
-    if (response.status === 201 || response.status === 200) {
-      alert('Transaction created successfully!');
+  const handleCreateSave = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await api.post('/transactions', newTransaction);
       setShowCreateModal(false);
-      fetchData(); // Refresh list
       setNewTransaction({ transaction_type: '', amount: '', description: '', user_id: '', participant_id: '' });
-    } else {
-      alert('Failed to create transaction');
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to create transaction');
+    } finally {
+      setIsSubmitting(false);
     }
-  } catch (error) {
-    console.error('Error creating transaction:', error);
-    alert('Error occurred while creating transaction');
-  }
-};
+  };
 
-  const Table = ({ data, currentPage, totalPages }) => (
-    <>
-    <table className="data-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Transaction Type
-            <select
-              name="transaction_type"
-              value={filters.transaction_type}
-              onChange={handleFilterChange}
-              className="filter-select"
-            >
-              <option value="">All Types</option>
-              {transactionTypes.map((type, index) => (
-                <option key={index} value={type}>{type}</option>
-              ))}
-            </select>
-          </th>
-          <th>Amount</th>
-          <th>Description</th>
-          <th>User ID</th>
-          <th>Participant ID</th>
-          <th>Created At</th>
-          <th>Actions 
-            <button className="download-all-btn" onClick={handleDownload}>Download</button>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((item) => (
-          <tr key={item.id}>
-            <td>{item.id}</td>
-            <td>{item.transaction_type}</td>
-            <td>{item.amount}</td>
-            <td>{item.description}</td>
-            <td>{item.user_id}</td>
-            <td>{item.participant_id}</td>
-            <td>{formatDate(item.createdAt)}</td>
-            <td>
-              <button className="editBtn" onClick={() => handleEdit(item.id)}>Edit</button>
-              <button className="deleteBtn" onClick={() => handleDelete(item.id)}>Delete</button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-    <Pagination
-      currentPage={currentPage}
-      totalPages={totalPages}
-      onPageChange={handlePageChange} 
-    />
-    </>
+  const columns = [
+    { label: 'ID', accessor: 'id', render: (val) => <span className="text-textMuted">#{val}</span> },
+    { 
+      label: 'Type', 
+      accessor: 'transaction_type', 
+      render: (val) => (
+        <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2 w-fit ${
+          val === 'INCOME' || val === 'FEES' ? 'bg-secondary/10 text-secondary' : 'bg-danger/10 text-danger'
+        }`}>
+          {val === 'INCOME' || val === 'FEES' ? <ArrowUpCircle size={14} /> : <ArrowDownCircle size={14} />}
+          {val}
+        </span>
+      )
+    },
+    { label: 'Amount', accessor: 'amount', render: (val) => <span className="font-bold text-white">LKR {val}</span> },
+    { label: 'Description', accessor: 'description' },
+    { label: 'Participant', accessor: 'participant_id', render: (val) => <span className="text-textMuted text-xs">{val || 'N/A'}</span> },
+    { label: 'Date', accessor: 'createdAt', render: (val) => <span className="text-textMuted">{format(new Date(val), 'MMM dd, yyyy')}</span> },
+  ];
+
+  const TableActions = (
+    <div className="flex items-center gap-3">
+       <button onClick={handleDownload} className="p-2.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-textMuted hover:text-white transition-all">
+          <Download size={20} />
+       </button>
+       <button onClick={() => setShowCreateModal(true)} className="btn-primary">
+          <PlusCircle size={18} /> New Transaction
+       </button>
+    </div>
   );
 
   return (
-    <div>
-      <Header type={'dashboard'} action={"Logout"} />
-      <Navbar />
-      <SectionHeader section={'Transactions'} is_create={true} is_download={true}/>
-      <div className='main'>
-  <button className="create-btn" onClick={() => setShowCreateModal(true)}>+ Create New Transaction</button>
+    <Layout title="Transactions">
+        
+        {/* Quick Filters */}
+        <div className="flex flex-col md:flex-row items-center gap-4 bg-slate-900/40 p-4 rounded-2xl border border-white/5 backdrop-blur-sm">
+           <div className="flex items-center gap-2 w-full md:w-64">
+              <FormInput 
+                placeholder="Search description..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="!mb-0"
+                icon={<Search size={18} className="text-textMuted" />}
+              />
+           </div>
+           <div className="flex-1 w-full md:max-w-xs">
+              <FormSelect 
+                name="type" 
+                value={selectedType} 
+                onChange={(e) => setSelectedType(e.target.value)}
+                options={[
+                  { label: 'All Types', value: '' },
+                  { label: 'Income', value: 'INCOME' },
+                  { label: 'Fees', value: 'FEES' },
+                  { label: 'Salary', value: 'SALARY' },
+                  { label: 'Expense', value: 'EXPENSE' }
+                ]}
+                className="!mb-0"
+              />
+           </div>
+        </div>
 
-  {showCreateModal && (
-    <div className="modal">
-      <div className="modal-content">
-        <h2>Create Transaction</h2>
-          <label>Transaction Type:
-            <select name="transaction_type" value={newTransaction.transaction_type} onChange={handleCreateChange}>
-              <option value="">Select Type</option>
-              <option value="SALARY">SALARY</option>
-              <option value="FEES">FEES</option>
-              <option value="INCOME">INCOME</option>
-              <option value="EXPENSE">EXPENSE</option>
-              <option value="OTHER">OTHER</option>
-            </select>
-          </label>
+        {error && <div className="bg-danger/20 border border-danger/50 text-danger px-4 py-3 rounded-xl">{error}</div>}
 
-        <label>Amount:
-          <input type="number" name="amount" value={newTransaction.amount} onChange={handleCreateChange} />
-        </label>
-        <label>Description:
-          <input type="text" name="description" value={newTransaction.description} onChange={handleCreateChange} />
-        </label>
-        <label>User ID:
-          <input type="text" name="user_id" value={newTransaction.user_id} onChange={handleCreateChange} />
-        </label>
-        <label>Participant ID:
-          <input type="text" name="participant_id" value={newTransaction.participant_id} onChange={handleCreateChange} />
-        </label>
-        <button onClick={handleCreateSave}>Save</button>
-        <button onClick={() => setShowCreateModal(false)}>Cancel</button>
-      </div>
-    </div>
-  )}
+        <Card title="Financial Logs" action={TableActions}>
+          <GenericTable 
+            columns={columns} 
+            data={data} 
+            loading={loading}
+            pagination={{
+              total: pagination.total,
+              page: pagination.page,
+              limit: pagination.limit,
+              onPageChange: (p) => fetchData(p)
+            }}
+          />
+        </Card>
 
-  {loading && <p>Loading...</p>}
-  {error && <p className="error">{error}</p>}
-  <Table data={filteredData} currentPage={currentPage} totalPages={totalPages} />
-</div>
-
-    </div>
+      <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create New Transaction">
+        <form onSubmit={handleCreateSave}>
+          <div className="space-y-4">
+            <FormSelect 
+              label="Transaction Type" 
+              name="transaction_type" 
+              value={newTransaction.transaction_type} 
+              onChange={(e) => setNewTransaction({...newTransaction, transaction_type: e.target.value})}
+              required
+              options={[
+                { label: 'Select Type', value: '' },
+                { label: 'Salary', value: 'SALARY' },
+                { label: 'Fees', value: 'FEES' },
+                { label: 'Income', value: 'INCOME' },
+                { label: 'Expense', value: 'EXPENSE' },
+                { label: 'Other', value: 'OTHER' }
+              ]}
+            />
+            <FormInput label="Amount" name="amount" type="number" step="0.01" value={newTransaction.amount} onChange={(e) => setNewTransaction({...newTransaction, amount: e.target.value})} required />
+            <FormInput label="Description" name="description" value={newTransaction.description} onChange={(e) => setNewTransaction({...newTransaction, description: e.target.value})} required />
+            <div className="grid grid-cols-2 gap-4">
+               <FormInput label="User ID" name="user_id" value={newTransaction.user_id} onChange={(e) => setNewTransaction({...newTransaction, user_id: e.target.value})} />
+               <FormInput label="Participant ID" name="participant_id" value={newTransaction.participant_id} onChange={(e) => setNewTransaction({...newTransaction, participant_id: e.target.value})} />
+            </div>
+          </div>
+          <div className="mt-8 flex justify-end gap-3">
+            <button type="button" onClick={() => setShowCreateModal(false)} className="px-5 py-2.5 rounded-lg text-textMuted hover:bg-slate-800 transition-colors font-medium">
+              Cancel
+            </button>
+            <button type="submit" disabled={isSubmitting} className="btn-primary">
+              {isSubmitting ? 'Processing...' : 'Save Transaction'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </Layout>
   );
 };

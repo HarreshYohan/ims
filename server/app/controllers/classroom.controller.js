@@ -64,19 +64,32 @@ exports.create = async (req, res) => {
 
 exports.findAll = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const offset = (page - 1) * limit;
+    const { search, page, limit } = req.query;
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 10;
+    const offset = (pageNum - 1) * limitNum;
+
+    const { Op } = require('sequelize');
+    const where = {};
+
+    if (search) {
+      where.name = { [Op.iLike]: `%${search}%` };
+    }
 
     const { count, rows } = await Classroom.findAndCountAll({
-      limit,
+      where,
+      limit: limitNum,
       offset,
+      order: [['id', 'DESC']]
     });
 
-    const totalPages = Math.ceil(count / limit);
+    const totalPages = Math.ceil(count / limitNum);
 
     res.json({
       data: rows,
+      total: count,
+      page: pageNum,
+      limit: limitNum,
       totalPages,
     });
   } catch (error) {

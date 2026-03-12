@@ -1,5 +1,5 @@
 import React from 'react';
-import './Message.css';
+
 
 export const Message = ({ type, text, onClose }) => {
   return (

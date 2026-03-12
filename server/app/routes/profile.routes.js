@@ -1,11 +1,7 @@
-module.exports = (app) => {
-    const profile = require("../controllers/profile.controller.js");
-  
-    var router = require("express").Router();
-  
-    router.get("/:id", profile.getProfile);
+const router = require('express').Router();
+const profile = require('../controllers/profile.controller');
 
-    router.post("/:id", profile.updateProfile);
-  
-    app.use('/api/profile', router);
-  };
+router.get('/:id',  profile.getProfile);
+router.post('/:id', profile.updateProfile);
+
+module.exports = router;

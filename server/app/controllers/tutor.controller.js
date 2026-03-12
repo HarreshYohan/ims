@@ -1,151 +1,28 @@
-
-const { User, Tutor, SubjectTutor, Subject, Grade } = require('../models');
+const { validationResult, check } = require('express-validator');
+const { User, Tutor, SubjectTutor, Subject, Grade, Notes } = require('../models');
 const bcrypt = require('bcryptjs');
-const { log } = require("console");
-const { check, validationResult } = require('express-validator');
+const logger = require('../lib/logger');
 
-exports.create = async (req, res) => {
-
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { username, password, email, firstname, lastname, title , contact } = req.body;
-
-  try {
-      const existingTutor = await Tutor.findOne({ where: { firstname, lastname , email} });
-      const existingUser = await Tutor.findOne({ where: { email} });
-
-      if (existingTutor || existingUser) {
-        throw new Error('Email or Tutor already exists');
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const newTutorData = async () => {
-
-        const newUser = await User.create({
-          username: username,
-          email: email,
-          password: hashedPassword,
-          user_type: 'TUTOR',
-          is_active: true
-        });
-        
-
-        const newTutor = await Tutor.create({
-          firstname: firstname,
-          username: username,
-          user_id: newUser.id,
-          email: email,
-          password: hashedPassword,
-          lastname: lastname,
-          title: title,
-          contact: contact,
-        });
-
-        return newTutor
-
-      }
-
-      const result = await newTutorData();
-      res.status(201).send(result);
-  } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred while creating the User.'
-    });
-  }
-};
-
-exports.findAll = async (req, res) => {
-  try {
-    const {  rows } = await Tutor.findAndCountAll({
-        order: [['id', 'DESC']]
-    });
-
-    res.json({
-      data: rows,
-    });
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-
-exports.findOne = (req, res) => {
-    const id = req.params.id;
-  
-    Tutor.findByPk(id)
-      .then(data => {
-        if (data) {
-          res.send(data);
-        } else {
-          res.status(404).send({
-            message: `Cannot find tutor with id=${id}.`
-          });
-        }
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: "Error retrieving tutor with id=" + id
-        });
-      });
-  };
-
-
-exports.update = (req, res) => {
-  const id = req.params.id;
-
-  Tutor.update(req.body, {
-    where: { id: id }
-  })
-    .then(num => {
-      if (num == 1) {
-        res.send({
-          message: "tutor was updated successfully."
-        });
-      } else {
-        res.send({
-          message: `Cannot update tutor with id=${id}. Maybe tutor was not found or req.body is empty!`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({
-        message: "Error updating tutor with id=" + id + "Error" + err
-      });
-    });
-};
-
-exports.delete = async (req, res) => {
-  const id = req.params.id;
-  const errors = validationResult(req);
-  
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  try {
-    const tutor = await Tutor.findByPk(id);
-    
-    if (!tutor) {
-      return res.status(404).send({ message: `Cannot find Student with id=${id}.` });
+exports.validate = (method) => {
+  switch (method) {
+    case 'createTutor': {
+      return [
+        check('firstname', 'First name is required').notEmpty(),
+        check('lastname', 'Last name is required').notEmpty(),
+        check('title', 'Title is required').notEmpty(),
+        check('title', 'Title must be Mr, Mrs, Ms, Miss, Dr, or Rev').isIn(['Mr', 'Mrs', 'Ms', 'Miss', 'Dr', 'Rev']),
+        check('email', 'Invalid email address').isEmail(),
+        check('contact', 'Contact is required').notEmpty(),
+        check('password', 'Password must be at least 8 characters').isLength({ min: 8 }),
+      ];
     }
-
-    await tutor.destroy({ where: { id } });
-
-    res.send({ message: "User was deleted successfully!", tutor });
-
-  } catch (err) {
-    res.status(500).send({ message: `Could not delete User with id=${id}: ${err.message}` });
+    default:
+      return [];
   }
 };
 
-exports.update = async (req, res) => {
-  const id = req.params.id;
+exports.create = async (req, res, next) => {
   const errors = validationResult(req);
-
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
@@ -153,44 +30,143 @@ exports.update = async (req, res) => {
   const { username, password, email, firstname, lastname, title, contact } = req.body;
 
   try {
-    const tutor = await Tutor.findByPk(id);
-    
-    if (!tutor) {
-      return res.status(404).send({ message: `Cannot find Tutor with id=${id}.` });
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(409).json({ message: 'A tutor with this email already exists.' });
     }
 
-    const existingTutor = await Tutor.findOne({ where: { firstname, lastname, email } });
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    if (existingTutor && existingTutor.id !== tutor.id) {
-      throw new Error('Email or Tutor name already exists');
-    }
-
-    const hashedPassword = password ? await bcrypt.hash(password, 10) : tutor.password;
-
-    await tutor.update({
-      username: username || tutor.username,
-      email: email || tutor.email,
+    const newUser = await User.create({
+      username,
+      email,
       password: hashedPassword,
-      firstname: firstname || tutor.firstname,
-      lastname: lastname || tutor.lastname,
-      title: title || tutor.title,
-      contact: contact || tutor.contact,
+      user_type: 'TUTOR',
+      is_active: true,
     });
 
-    res.status(200).send({ message: "Tutor was updated successfully!", tutor });
-  } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred while updating the Tutor.'
+    // Tutor table stores profile data only — no password duplication
+    const newTutor = await Tutor.create({
+      firstname,
+      username,
+      user_id: newUser.id,
+      email,
+      lastname,
+      title,
+      contact,
     });
+
+    logger.info(`Tutor created: ${email}`);
+    res.status(201).json(newTutor);
+  } catch (err) {
+    next(err);
   }
 };
 
-exports.approveOrRejectNote = async (req, res) => {
+exports.findAll = async (req, res, next) => {
+  try {
+    const { search, page, limit } = req.query;
+    const pageNum  = Math.max(1, parseInt(page)  || 1);
+    const limitNum = Math.min(100, parseInt(limit) || 20);
+    const offset = (pageNum - 1) * limitNum;
+
+    const { Op } = require('sequelize');
+    const where = {};
+
+    if (search) {
+      where[Op.or] = [
+        { firstname: { [Op.iLike]: `%${search}%` } },
+        { lastname: { [Op.iLike]: `%${search}%` } },
+        { email: { [Op.iLike]: `%${search}%` } },
+        { username: { [Op.iLike]: `%${search}%` } }
+      ];
+    }
+
+    const { count, rows } = await Tutor.findAndCountAll({
+      where,
+      order: [['id', 'DESC']],
+      limit: limitNum,
+      offset,
+    });
+    res.json({ total: count, page: pageNum, limit: limitNum, data: rows });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.findOne = async (req, res, next) => {
+  const id = req.params.id;
+  try {
+    const data = await Tutor.findByPk(id);
+    if (data) {
+      res.json(data);
+    } else {
+      res.status(404).json({ message: `Tutor with id=${id} not found.` });
+    }
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Single, complete update handler (previous code had a duplicate that was silently overwriting the first)
+exports.update = async (req, res, next) => {
+  const id = req.params.id;
+  const { username, password, email, firstname, lastname, title, contact } = req.body;
+
+  try {
+    const tutor = await Tutor.findByPk(id);
+    if (!tutor) {
+      return res.status(404).json({ message: `Tutor with id=${id} not found.` });
+    }
+
+    // Check email uniqueness (exclude current record)
+    if (email && email !== tutor.email) {
+      const existing = await Tutor.findOne({ where: { email } });
+      if (existing && existing.id !== tutor.id) {
+        return res.status(409).json({ message: 'Email already in use by another tutor.' });
+      }
+    }
+
+    const hashedPassword = password ? await bcrypt.hash(password, 12) : undefined;
+
+    await tutor.update({
+      username:  username  || tutor.username,
+      email:     email     || tutor.email,
+      firstname: firstname || tutor.firstname,
+      lastname:  lastname  || tutor.lastname,
+      title:     title     || tutor.title,
+      contact:   contact   || tutor.contact,
+      ...(hashedPassword ? { password: hashedPassword } : {}),
+    });
+
+    logger.info(`Tutor updated: id=${id}`);
+    res.status(200).json({ message: 'Tutor updated successfully.', tutor });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.delete = async (req, res, next) => {
+  const id = req.params.id;
+  try {
+    const tutor = await Tutor.findByPk(id);
+    if (!tutor) {
+      return res.status(404).json({ message: `Tutor with id=${id} not found.` });
+    }
+    await tutor.destroy();
+    logger.info(`Tutor deleted: id=${id}`);
+    res.json({ message: 'Tutor deleted successfully.', tutor });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.approveOrRejectNote = async (req, res, next) => {
   const { id } = req.params;
   const { status, points } = req.body;
   try {
     const note = await Notes.findByPk(id);
-    if (!note) return res.status(404).json({ error: 'Note not found' });
+    if (!note) return res.status(404).json({ error: 'Note not found.' });
 
     note.status = status;
     note.points = status === 'Approved' ? points : 0;
@@ -198,104 +174,80 @@ exports.approveOrRejectNote = async (req, res) => {
 
     res.json(note);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    next(err);
   }
 };
 
-
-exports.getSubjectMapping = async (req, res) => {
+exports.getSubjectMapping = async (req, res, next) => {
   try {
     const mappings = await SubjectTutor.findAll({
       where: { tutorid: req.params.id },
-      include: [{ model: Subject, as: 'subject' }, { model: Grade, as: 'grade' }]
+      include: [
+        { model: Subject, as: 'subject' },
+        { model: Grade, as: 'grade' },
+      ],
     });
 
     const result = mappings.map(m => ({
       id: m.id,
       subject: m.subject.name,
-      grade: m.grade.name
+      grade: m.grade.name,
     }));
 
     res.json({ subjects: result });
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    next(err);
   }
 };
 
-exports.addSubject = async (req, res) => {
+exports.addSubjectToTutor = async (req, res, next) => {
+  const { tutorid, subjectid, gradeid, fees } = req.body;
   try {
-    const { tutorid, subjectgradeid } = req.body;
-    const [subjectId, gradeId] = subjectgradeid.split('-');
-    const mapping = await SubjectTutor.create({ tutorid, subjectid: subjectId, gradeid: gradeId });
-    res.status(201).send(mapping);
+    const exists = await SubjectTutor.findOne({ where: { tutorid, subjectid, gradeid } });
+    if (exists) {
+      return res.status(409).json({ message: 'Mapping already exists.' });
+    }
+    const mapping = await SubjectTutor.create({ tutorid, subjectid, gradeid, fees });
+    res.status(201).json(mapping);
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    next(err);
   }
 };
 
-exports.removeSubject = async (req, res) => {
+exports.removeSubject = async (req, res, next) => {
   try {
     const mapping = await SubjectTutor.findByPk(req.params.mappingid);
-    if (!mapping) return res.status(404).send({ message: 'Mapping not found' });
-
+    if (!mapping) return res.status(404).json({ message: 'Mapping not found.' });
     await mapping.destroy();
-    res.send({ message: 'Subject mapping removed successfully' });
+    res.json({ message: 'Subject mapping removed successfully.' });
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    next(err);
   }
 };
 
-exports.getAllGrades = async (req, res) => {
+exports.getAllGrades = async (req, res, next) => {
   try {
     const grades = await Grade.findAll();
     res.json(grades);
   } catch (err) {
-    res.status(500).send({ message: err.message });
+    next(err);
   }
 };
 
-exports.getSubjectsByGrade = async (req, res) => {
+exports.getSubjectsByGrade = async (req, res, next) => {
   try {
-    const gradeid = req.params.gradeid;
-
+    const { gradeid } = req.params;
     const subjectTutors = await SubjectTutor.findAll({
       where: { gradeid },
-      include: [{ model: Subject, as: 'subject' }]
+      include: [{ model: Subject, as: 'subject' }],
     });
 
-    // Map unique subjects
-    const subjects = subjectTutors.map(st => ({
-      id: st.subject.id,
-      name: st.subject.name
-    }));
-
-    // Remove duplicates (optional)
     const uniqueSubjects = Array.from(
-      new Map(subjects.map(s => [s.id, s])).values()
+      new Map(subjectTutors.map(st => [st.subject.id, { id: st.subject.id, name: st.subject.name }])).values()
     );
 
     res.json(uniqueSubjects);
   } catch (err) {
-    res.status(500).send({ message: err.message });
-  }
-};
-
-exports.addSubjectToTutor = async (req, res) => {
-  const { tutorid, subjectid, gradeid, fees } = req.body;
-
-  try {
-    const exists = await SubjectTutor.findOne({
-      where: { tutorid, subjectid, gradeid }
-    });
-
-    if (exists) {
-      return res.status(400).json({ message: 'Mapping already exists' });
-    }
-
-    const mapping = await SubjectTutor.create({ tutorid, subjectid, gradeid, fees });
-    res.status(201).json(mapping);
-
-  } catch (err) {
-    res.status(500).send({ message: err.message });
+    next(err);
   }
 };

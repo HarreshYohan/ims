@@ -24,7 +24,7 @@ const Student = (sequelize) => {
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false, 
+      allowNull: true, 
     },
     firstname: {
       type: DataTypes.STRING,

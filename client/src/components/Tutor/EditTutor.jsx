@@ -1,10 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../services/api';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Header } from '../Header/Header';
 import { Navbar } from '../Navbar/Navbar';
 import { SectionHeader } from '../SectionHeader/SectionHeader';
-import './EditTutor.css';
+import { Card } from '../shared/Card';
+import { GenericTable } from '../shared/GenericTable';
+import { FormInput } from '../shared/FormInput';
+import { FormSelect } from '../shared/FormSelect';
+import { Trash2, Save, Plus } from 'lucide-react';
 
 export const EditTutor = () => {
   const { id } = useParams();
@@ -16,45 +20,47 @@ export const EditTutor = () => {
   const [subjectsByGrade, setSubjectsByGrade] = useState([]);
   const [selectedGrade, setSelectedGrade] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
+  const [subjectFees, setSubjectFees] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [subjectFees, setSubjectFees] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [tutorRes, subjectMapRes, gradesRes] = await Promise.all([
-          api.get(`/api/tutor/${id}`),
-          api.get(`/api/tutor/subject-mapping/${id}`),
-          api.get(`/api/tutor/grades/all`),
-        ]);
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [tutorRes, subjectMapRes, gradesRes] = await Promise.all([
+        api.get(`/tutors/${id}`),
+        api.get(`/tutors/subject-mapping/${id}`),
+        api.get(`/tutors/grades/all`),
+      ]);
 
-        setTutorData(tutorRes.data);
-        setSubjects(subjectMapRes.data.subjects);
-        setGrades(gradesRes.data);
-      } catch (err) {
-        console.error('Failed to load data:', err);
-        setError('Failed to load data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+      setTutorData(tutorRes.data);
+      setSubjects(subjectMapRes.data.subjects);
+      setGrades(gradesRes.data);
+    } catch (err) {
+      console.error('Failed to load data:', err);
+      setError('Failed to load data');
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setTutorData({ ...tutorData, [name]: value });
-  };
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleInputChange = (e) => setTutorData({ ...tutorData, [e.target.name]: e.target.value });
 
   const handleSave = async () => {
+    setIsSaving(true);
     try {
-      await api.put(`/api/tutor/${id}`, tutorData);
-      alert('Tutor updated successfully');
+      await api.put(`/tutors/${id}`, tutorData);
       navigate('/tutor');
     } catch (err) {
       console.error('Error saving tutor:', err);
+      alert('Failed to update tutor');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -66,117 +72,156 @@ export const EditTutor = () => {
       return;
     }
     try {
-      // const res = await api.get(`/api/tutor/subjects/${gradeid}`);
-      const res = await api.get(`/api/subject/all`)
+      const res = await api.get(`/subjects/all`);
       setSubjectsByGrade(res.data.data);
     } catch (err) {
       console.error('Error fetching subjects:', err);
     }
   };
 
-    const handleAddSubject = async () => {
+  const handleAddSubject = async () => {
     if (!selectedGrade || !selectedSubject || !subjectFees) {
-        alert('Please select grade, subject and enter fees');
-        return;
+      alert('Please select grade, subject and enter fees');
+      return;
     }
     try {
-        await api.post(`/api/tutor/add-subject`, {
+      await api.post(`/tutors/add-subject`, {
         tutorid: id,
         subjectid: selectedSubject,
         gradeid: selectedGrade,
         fees: subjectFees
-        });
-        const updated = await api.get(`/api/tutor/subject-mapping/${id}`);
-        setSubjects(updated.data.subjects);
-        setSelectedGrade('');
-        setSelectedSubject('');
-        setSubjectFees('');
-        setSubjectsByGrade([]);
+      });
+      setSelectedGrade('');
+      setSelectedSubject('');
+      setSubjectFees('');
+      setSubjectsByGrade([]);
+      fetchData();
     } catch (err) {
-        console.error('Error adding subject:', err);
+      console.error('Error adding subject:', err);
     }
-    };
-
+  };
 
   const handleRemoveSubject = async (subjectTutorId) => {
     if (!window.confirm('Are you sure you want to remove this subject?')) return;
     try {
-      await api.delete(`/api/tutor/remove-subject/${id}/${subjectTutorId}`);
-      const updated = await api.get(`/api/tutor/subject-mapping/${id}`);
-      setSubjects(updated.data.subjects);
+      await api.delete(`/tutors/remove-subject/${id}/${subjectTutorId}`);
+      fetchData();
     } catch (err) {
       console.error('Error removing subject:', err);
     }
   };
 
+  const subjectColumns = [
+    { label: 'Subject', accessor: 'subject', render: (val) => <span className="font-medium text-white">{val}</span> },
+    { label: 'Grade', accessor: 'grade', render: (val) => <span className="bg-primary/20 text-primary px-2 py-1 rounded text-xs">{val}</span> },
+    { 
+      label: 'Actions', 
+      accessor: 'id', 
+      render: (subTutorId) => (
+        <button onClick={() => handleRemoveSubject(subTutorId)} className="text-textMuted hover:text-danger transition-colors">
+          <Trash2 size={18} />
+        </button>
+      )
+    }
+  ];
+
+  const gradeOptions = grades.map(g => ({ value: g.id, label: g.name }));
+  const subjectOptions = subjectsByGrade.map(sub => ({ value: sub.id, label: sub.name }));
+
   return (
-    <div>
-      <Header type={'dashboard'} action={"Logout"} />
+    <div className="flex flex-col min-h-screen">
+      <Header type="dashboard" action="Logout" />
       <Navbar />
-      <SectionHeader section={'Edit Tutor'} is_create={false} />
-      <div className="main">
-        {loading && <p>Loading...</p>}
-        {error && <p className="error">{error}</p>}
-        {!loading && !error && (
-          <div className="edit-tutor-container">
-            <div className="tutor-form">
-              <h3>Edit Tutor Details</h3>
-              <label>Title:<br />
-                <input type="text" name="title" value={tutorData.title || ''} onChange={handleInputChange} />
-              </label>
-              <label>First Name:<br />
-                <input type="text" name="firstname" value={tutorData.firstname || ''} onChange={handleInputChange} />
-              </label>
-              <label>Last Name:<br />
-                <input type="text" name="lastname" value={tutorData.lastname || ''} onChange={handleInputChange} />
-              </label>
-              <label>Contact:<br />
-                <input type="text" name="contact" value={tutorData.contact || ''} onChange={handleInputChange} />
-              </label>
-              <button className="saveBtn" onClick={handleSave}>Save</button>
+      <SectionHeader section="Edit Tutor" />
+      
+      <main className="flex-1 lg:ml-64 p-6 lg:p-10 max-w-7xl mx-auto w-full space-y-8 animate-in fade-in duration-500">
+        <button onClick={() => navigate('/tutor')} className="text-primary hover:text-primaryHover mb-6 inline-flex items-center gap-2 font-medium">
+          &larr; Back to Tutors
+        </button>
 
-              <div className="subjects-section">
-                <h3>Teaching Subjects</h3>
-                <ul>
-                  {subjects.map(sub => (
-                    <li key={sub.id}>
-                      {sub.subject} - {sub.grade}
-                      <button className="remove-subject-btn" onClick={() => handleRemoveSubject(sub.id)}>Remove</button>
-                    </li>
-                  ))}
-                  {subjects.length === 0 && <li>No subjects mapped yet.</li>}
-                </ul>
+        {error && <div className="bg-danger/20 border border-danger/50 text-danger px-4 py-3 rounded-xl mb-6">{error}</div>}
 
-                <div className="add-subject">
-                  <select value={selectedGrade} onChange={(e) => handleGradeChange(e.target.value)}>
-                    <option value="">-- Select Grade --</option>
-                    {grades.map(grade => (
-                      <option key={grade.id} value={grade.id}>{grade.name}</option>
-                    ))}
-                  </select>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+          
+          <div className="lg:col-span-1 border-r border-slate-700/50 pr-0 lg:pr-8">
+            <Card title="Tutor Profile">
+              <div className="space-y-4">
+                <FormSelect 
+                  label="Title" 
+                  name="title" 
+                  value={tutorData.title || ''} 
+                  onChange={handleInputChange}
+                  options={[
+                    { label: 'Select Title', value: '' },
+                    { label: 'Mr', value: 'Mr' },
+                    { label: 'Mrs', value: 'Mrs' },
+                    { label: 'Ms', value: 'Ms' },
+                    { label: 'Miss', value: 'Miss' },
+                    { label: 'Dr', value: 'Dr' },
+                    { label: 'Rev', value: 'Rev' }
+                  ]}
+                />
+                <FormInput label="First Name" name="firstname" value={tutorData.firstname || ''} onChange={handleInputChange} />
+                <FormInput label="Last Name" name="lastname" value={tutorData.lastname || ''} onChange={handleInputChange} />
+                <FormInput label="Contact" name="contact" value={tutorData.contact || ''} onChange={handleInputChange} />
+                
+                <button onClick={handleSave} disabled={isSaving || loading} className="btn-primary w-full mt-4">
+                  <Save size={18} /> {isSaving ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </Card>
+          </div>
 
-                  <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)} disabled={!subjectsByGrade.length}>
-                    <option value="">-- Select Subject --</option>
-                    {subjectsByGrade.map(sub => (
-                      <option key={sub.id} value={sub.id}>{sub.name}</option>
-                    ))}
-                  </select>
-
-                  <input
+          <div className="lg:col-span-2 space-y-8">
+            <Card title="Teaching Subjects">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6 items-end">
+                <div className="sm:col-span-1 md:col-span-1">
+                  <FormSelect 
+                    label="Grade"
+                    name="selectedGrade" 
+                    value={selectedGrade} 
+                    onChange={(e) => handleGradeChange(e.target.value)}
+                    options={gradeOptions}
+                  />
+                </div>
+                <div className="sm:col-span-1 md:col-span-1">
+                  <FormSelect 
+                    label="Subject"
+                    name="selectedSubject" 
+                    value={selectedSubject} 
+                    onChange={(e) => setSelectedSubject(e.target.value)}
+                    options={subjectOptions}
+                    disabled={!subjectsByGrade.length}
+                  />
+                </div>
+                <div className="sm:col-span-1 md:col-span-1 mb-1">
+                  <FormInput 
+                    label="Fees (LKR)"
+                    name="subjectFees"
                     type="number"
-                    placeholder="Fees (LKR)"
                     value={subjectFees}
                     onChange={(e) => setSubjectFees(e.target.value)}
                     disabled={!selectedSubject}
-                />
-
-                  <button onClick={handleAddSubject}>Add Subject</button>
+                  />
+                </div>
+                <div className="sm:col-span-1 md:col-span-1 mb-5">
+                  <button onClick={handleAddSubject} disabled={!selectedGrade || !selectedSubject || !subjectFees} className="btn-primary w-full h-[46px]">
+                    <Plus size={18} /> Add
+                  </button>
                 </div>
               </div>
-            </div>
+              
+              <GenericTable 
+                columns={subjectColumns} 
+                data={subjects} 
+                loading={loading} 
+                emptyStateMessage="No subjects mapped yet."
+              />
+            </Card>
           </div>
-        )}
-      </div>
+          
+        </div>
+      </main>
     </div>
   );
 };

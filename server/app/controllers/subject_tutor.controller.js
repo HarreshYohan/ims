@@ -21,19 +21,26 @@ exports.create = async (req, res) => {
 
 exports.findAll = async (req, res) => {
   try {
+    const { page, limit, subjectid, tutorid, gradeid } = req.query;
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 20;
+    const offset = (pageNum - 1) * limitNum;
 
-    // const page = parseInt(req.query.page) || 1;
-    // const limit = parseInt(req.query.limit) || 10;
-    // const offset = (page - 1) * limit;
+    const where = {};
+    if (subjectid) where.subjectid = subjectid;
+    if (tutorid) where.tutorid = tutorid;
+    if (gradeid) where.gradeid = gradeid;
 
     const { count, rows }  = await SubjectTutor.findAndCountAll({
+      where,
       include: [
         { model: Subject, as: 'subject' , attributes: ['name']},
         { model: Tutor, as: 'tutor' ,  attributes: ['title','firstname','lastname'] },
         { model: Grade, as: 'grade' , attributes: ['name'] },
       ],
-      // limit,
-      // offset,
+      limit: limitNum,
+      offset,
+      order: [['id', 'DESC']]
     });
 
     const result = rows.map(item => ({
@@ -45,15 +52,17 @@ exports.findAll = async (req, res) => {
       tutor: item.tutor.title+" "+item.tutor.firstname+" "+item.tutor.lastname,
       subject : item.subject.name,
       grade : item.grade.name
-      
     }));
 
-    // const totalPages = Math.ceil(count / limit);
+    const totalPages = Math.ceil(count / limitNum);
 
     res.json({
-        data: result
-        // totalPages,
-      });
+      data: result,
+      total: count,
+      page: pageNum,
+      limit: limitNum,
+      totalPages
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -87,7 +96,7 @@ exports.findOne = async (req, res) => {
 
 exports.update = async (req, res) => {
   const id = req.params.id;
-  const { tutorid, subjectid, gradeid } = req.body;
+  const { tutorid, subjectid, gradeid, fees } = req.body;
 
   try {
     const subjectTutor = await SubjectTutor.findByPk(id);

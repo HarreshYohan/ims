@@ -1,252 +1,283 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
-import { useNavigate } from 'react-router-dom';
-import { Header } from '../Header/Header';
-import './TimeTable.css';
-import { Navbar } from '../Navbar/Navbar';
-import { SectionHeader } from '../SectionHeader/SectionHeader';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPencilAlt, faTrash, faPlus } from '@fortawesome/free-solid-svg-icons';
-import {jwtDecode} from 'jwt-decode';
-import { Pagination } from '../Pagination/Pagination';
+import { Layout } from '../shared/Layout';
+import { Card } from '../shared/Card';
+import { Modal } from '../shared/Modal';
+import { FormSelect } from '../shared/FormSelect';
+import { useFetch } from '../shared/useFetch';
+import { Edit3, Trash2, PlusCircle, Calendar as CalendarIcon } from 'lucide-react';
+import { jwtDecode } from 'jwt-decode';
 
 export const Timetable = () => {
-  const [data, setData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(7);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [userType, setUserType] = useState(null);
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) { try { setUserType(jwtDecode(token).user_type); } catch(e){} }
+  }, []);
+  const canEdit = userType === 'ADMIN' || userType === 'STAFF';
   const [showModal, setShowModal] = useState(false);
-  const [editData, setEditData] = useState({ id: null, day: null, timeslotid: null, gradeid: '', subjectid: '', tutorid: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editData, setEditData] = useState({ id: null, day: null, timeslotid: null });
   const [classroomid, setClassroomid] = useState('');
+  const [classrooms, setClassrooms] = useState([]);
   const [subjectTutorid, setSubjectTutorid] = useState('');
-  const [subjectTutors, setSubjectTutors] = useState([]); // List of subject tutors
-  const [role, setRole] = useState(null);
+  const [subjectTutors, setSubjectTutors] = useState([]);
 
-  const navigate = useNavigate();
-  const localToken = localStorage.getItem("authToken");
+  const { data, loading, error, pagination, refetch } = useFetch('/timetable/all', { classroomid });
 
   useEffect(() => {
-    if (!localToken) {
-      localStorage.removeItem('authToken');
-      navigate('/login');
-    }
-    if (localToken) {
+    const fetchDropdowns = async () => {
       try {
-        const decoded = jwtDecode(localToken);
-        setRole(decoded.role); // Assuming the token has a 'role' field
-      } catch (error) {
-        console.error('Failed to decode token', error);
-        localStorage.removeItem('authToken');
-        navigate('/login');
-      }
-    }
-  }, [localToken, navigate]);
-
-  // Fetch timetable data and classrooms
-  const fetchData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await api.get(`/api/timetable/all?page=${currentPage}&limit=${itemsPerPage}`);
-      if (response.status === 200) {
-        const { data, totalPages } = response.data;
-        setData(data);
-        setTotalPages(totalPages);
-
-        // Set classroomid from data
-        if (data.length > 0) {
-          setClassroomid(data[0]?.classroom?.id || ''); // Assuming id is available
+        const [clsRes, stRes] = await Promise.all([
+          api.get('/classrooms/all'),
+          api.get('/subject-tutors/all')
+        ]);
+        setClassrooms(clsRes.data.data || []);
+        setSubjectTutors(stRes.data.data || []);
+        
+        if (clsRes.data.data?.length > 0 && !classroomid) {
+            setClassroomid(clsRes.data.data[0].id);
         }
-
-      } else {
-        setData([]);
-        console.error('Failed to fetch data');
-      }
-    } catch (error) {
-      setError('Error during data fetch');
-      console.error('Error during data fetch:', error);
-      localStorage.removeItem('authToken');
-      navigate('/login');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Fetch subject tutor IDs
-  useEffect(() => {
-    const fetchSubjectTutors = async () => {
-      try {
-        const response = await api.get('/api/subject-tutor/all');
-        if (response.status === 200) {
-          const { data } = response.data;
-          setSubjectTutors(data.map(item => item.id)); // Assuming ID is the relevant field
-        } else {
-          console.error('Failed to fetch subject tutors');
-        }
-      } catch (error) {
-        console.error('Error fetching subject tutors:', error);
+      } catch (err) {
+        console.error('Dropdown fetch failed', err);
       }
     };
-
-    fetchSubjectTutors();
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [currentPage, itemsPerPage, navigate, localToken]);
-
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber > 0 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
+    fetchDropdowns();
+  }, [classroomid]);
 
   const handleEdit = (id, day, timeslotid) => {
     setEditData({ id, day, timeslotid });
+    setSubjectTutorid('');
     setShowModal(true);
   };
 
   const handleDelete = async (id, timeslotid, day) => {
-    console.log(`Delete user with ID: ${id} ${day} ${timeslotid}`);
-    try {
-      const response = await api.delete(`/timetable/${id}`, {
-        params: {
-          day: day,
-          timeslotid: timeslotid
-        }
-      });
-      console.log(response.data);
-      fetchData();
-    } catch (error) {
-      console.error(`Error deleting timetable: ${error.response ? error.response.data : error.message}`);
+    if (window.confirm('Are you sure you want to remove this class from the timetable?')) {
+      try {
+        await api.delete(`/timetable/${id}`, {
+          params: { day, timeslotid }
+        });
+        refetch();
+      } catch (err) {
+        console.error('Error deleting timetable item:', err);
+      }
     }
   };
 
-  const handleSave = async () => {
-    try {
-      const response = await api.post(`/api/timetable`, {
-        subjecttutorid: subjectTutorid,
-        classroomid: classroomid,
-        timeslotid: editData.timeslotid,
-        day: editData.day,
-        gradeid: editData.gradeid,
-        subjectid: editData.subjectid,
-        tutorid: editData.tutorid,
-      }, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Authorization': `Bearer ${localToken}`,
-        }
-      });
-      console.log(response.data);
-      setShowModal(false);
-      fetchData();
-    } catch (error) {
-      console.error(`Error saving timetable: ${error.response ? error.response.data : error.message}`);
+  const handleSave = async (e) => {
+    e.preventDefault();
+    if (!subjectTutorid) {
+      alert("Please select a valid subject tutor mapping.");
+      return;
     }
-  };
-
-  const Table = ({ data, currentPage, totalPages }) => (<>
     
-    <table className="data-table-timetable">
-      <thead>
-        <tr>
-          <th style={{ backgroundColor: 'white', color: 'black', fontSize: '24px' }} colSpan={5}>{data[0]?.classroom?.name ?? null}</th>
-          <th style={{ backgroundColor: 'white', color: 'black', fontSize: '24px' }} colSpan={3}>CAPACITY : {data[0]?.classroom?.capacity ?? null}</th>
-        </tr>
-        <tr>
-          <th style={{ width: '100px', maxWidth: '100px' }}>Timeslot</th>
-          <th>MONDAY</th>
-          <th>TUESDAY</th>
-          <th>WEDNESDAY</th>
-          <th>THURSDAY</th>
-          <th>FRIDAY</th>
-          <th>SATURDAY</th>
-          <th>SUNDAY</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((item) => (
-          <tr key={item.id}>
-            <td className='slot'>{item.timeslot}</td>
-            {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => (
-              <td key={day} style={{ position: 'relative' }}>
-                {item[`${day}cls`] ? (
-                  <>
-                    <div style={{ position: 'absolute', top: '5px', right: '5px' }}>
-                   
-                        <FontAwesomeIcon icon={faPencilAlt} className="editClass" style={{ marginRight: '5px', cursor: 'pointer' }} onClick={() => handleEdit(item.classroomid, day, item.timeslotid)} />
-                        <FontAwesomeIcon icon={faTrash} className="deleteClass" style={{ marginRight: '5px', cursor: 'pointer' }} onClick={() => handleDelete(item.classroomid, item.timeslotid, day)} />
-                      
-                    </div>
-                    <span>{item[`${day}cls`].grade.name}</span><br />
-                    <span>{item[`${day}cls`].subject.name}</span><br />
-                    <span>{item[`${day}cls`].tutor.title} {item[`${day}cls`].tutor.firstname}</span><br />
-                  </>
-                ) : (
-                  <div className="createClass" style={{ position: 'absolute', top: '5px', right: '5px' }}>
-                    
-                        <FontAwesomeIcon icon={faPlus} className="editClass" style={{ marginRight: '5px', cursor: 'pointer' }} onClick={() => handleEdit(item.classroomid, day, item.timeslotid)} />
-                      
-                  </div>
-                )}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange} 
-        />
-      </>
-  );
+    setIsSubmitting(true);
+    try {
+      await api.post(`/timetable`, {
+        subjecttutorid: Number(subjectTutorid),
+        classroomid: Number(classroomid),
+        timeslotid: Number(editData.timeslotid),
+        day: editData.day,
+      });
+      setShowModal(false);
+      refetch();
+    } catch (err) {
+      alert('Failed to update timetable.');
+      console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const daysOfWeek = [
+    { key: 'monday', label: 'Mon' },
+    { key: 'tuesday', label: 'Tue' },
+    { key: 'wednesday', label: 'Wed' },
+    { key: 'thursday', label: 'Thu' },
+    { key: 'friday', label: 'Fri' },
+    { key: 'saturday', label: 'Sat' },
+    { key: 'sunday', label: 'Sun' }
+  ];
+
+  const selectedClassroom = classrooms.find(c => String(c.id) === String(classroomid));
+  const classroomName = selectedClassroom?.name || 'Classroom';
+  const classroomCapacity = selectedClassroom?.capacity || '-';
 
   return (
-    <div>
-      <Header type={'dashboard'} action={"Logout"} />
-      <Navbar />
-      <SectionHeader section={'Classroom & Timetable'} />
-      <div className='main'>
-        {loading && <p>Loading...</p>}
-        {error && <p className="error">{error}</p>}
-        <div className="table-wrapper">
-          <Table data={data} currentPage={currentPage} totalPages={totalPages} />
-      </div>
-      </div>
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h2>Edit Timetable</h2>
-            <label>
-              Classroom:
-              <input type="text" value={classroomid} readOnly />
-            </label>
-            <label>
-              Timeslot:
-              <input type="text" value={editData.timeslotid} readOnly />
-            </label>
-            <label>
-              Day:
-              <input type="text" value={editData.day} readOnly />
-            </label>
-            <label>
-              Subject Tutor:
-              <select value={subjectTutorid} onChange={(e) => setSubjectTutorid(e.target.value)}>
-                {subjectTutors.map(tutor => (
-                  <option key={tutor} value={tutor}>{tutor}</option>
-                ))}
-              </select>
-            </label>
-            <button onClick={handleSave}>Save</button>
-            <button onClick={() => setShowModal(false)}>Cancel</button>
-          </div>
+    <Layout title="Time Table">
+        <div className="flex flex-col md:flex-row gap-4 mb-6 p-4 rounded-xl glass-card backdrop-blur-xl border border-slate-700/50 items-center">
+            <div className="flex items-center gap-2 text-textMuted mr-2">
+              <CalendarIcon size={18} /> <span className="font-medium text-sm uppercase tracking-wider">Select Classroom</span>
+            </div>
+            <div className="flex-1 md:max-w-xs">
+              <FormSelect 
+                name="classroomFilter" 
+                value={classroomid} 
+                onChange={(e) => setClassroomid(e.target.value)}
+                options={classrooms.map(c => ({ label: c.name, value: c.id }))}
+                placeholder="Choose Classroom"
+              />
+            </div>
+            <div className="flex-1 text-right text-textMuted text-xs italic">
+                {classroomCapacity !== '-' && `Max Capacity: ${classroomCapacity} students`}
+            </div>
         </div>
-      )}
-    </div>
+
+        <Card>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-slate-700/50 pb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                Viewing Schedule: <span className="text-primary">{classroomName}</span>
+              </h2>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto custom-scrollbar pb-4">
+            {loading ? (
+              <div className="p-8 text-center text-textMuted">Loading timetable...</div>
+            ) : (
+              <table className="w-full text-left border-collapse min-w-[900px]">
+                <thead>
+                  <tr className="border-b border-slate-700/50">
+                    <th className="py-4 px-2 text-textMuted font-medium w-[120px]">Timeslot</th>
+                    {daysOfWeek.map(day => (
+                      <th key={day.key} className="py-4 px-2 text-center text-secondary font-medium uppercase tracking-wider text-sm">
+                        {day.label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/50">
+                  {data.map((item) => (
+                    <tr key={item.id} className="group hover:bg-slate-800/20 transition-colors">
+                      <td className="py-4 px-2 whitespace-nowrap">
+                        <span className="bg-slate-800/60 text-emerald-400 px-3 py-1.5 rounded-lg text-sm font-medium border border-slate-700/50">
+                          {item.timeslot}
+                        </span>
+                      </td>
+                      {daysOfWeek.map(day => {
+                        const cellData = item[`${day.key}cls`];
+                        return (
+                          <td key={day.key} className="py-3 px-2 min-w-[140px] text-center align-top relative">
+                            {cellData ? (
+                              <div className="bg-primary/5 hover:bg-primary/10 border border-primary/20 rounded-xl p-3 transition-colors h-full flex flex-col justify-center items-center group/cell">
+                                {canEdit && (
+                                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover/cell:opacity-100 transition-opacity">
+                                    <button onClick={() => handleEdit(item.classroomid, day.key, item.timeslotid)} className="p-1 rounded hover:bg-black/20 text-textMuted hover:text-primary transition-colors" title="Edit Class">
+                                      <Edit3 size={14} />
+                                    </button>
+                                    <button onClick={() => handleDelete(item.classroomid, item.timeslotid, day.key)} className="p-1 rounded hover:bg-black/20 text-textMuted hover:text-danger transition-colors" title="Remove Class">
+                                      <Trash2 size={14} />
+                                    </button>
+                                  </div>
+                                )}
+                                <span className="text-xs font-semibold text-primary uppercase tracking-wider mb-1 block bg-primary/10 px-2 py-0.5 rounded-full">{cellData.grade.name}</span>
+                                <span className="text-sm font-medium text-white block truncate w-full" title={cellData.subject.name}>{cellData.subject.name}</span>
+                                <span className="text-xs text-textMuted mt-1 block truncate w-full">{cellData.tutor.title} {cellData.tutor.firstname}</span>
+                              </div>
+                            ) : (
+                              canEdit ? (
+                                <div className="h-full w-full min-h-[80px] rounded-xl border border-dashed border-slate-700/50 flex items-center justify-center hover:bg-slate-800/30 transition-colors group/empty cursor-pointer" onClick={() => handleEdit(item.classroomid, day.key, item.timeslotid)}>
+                                  <PlusCircle size={20} className="text-slate-600 group-hover/empty:text-primary transition-colors" />
+                                </div>
+                              ) : (
+                                <div className="h-full w-full min-h-[80px] rounded-xl border border-dashed border-slate-700/30 flex items-center justify-center">
+                                  <span className="text-slate-700 text-xs">—</span>
+                                </div>
+                              )
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                  {data.length === 0 && !loading && (
+                    <tr>
+                      <td colSpan={8} className="py-12 text-center text-textMuted">No timetable data available.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
+          </div>
+          
+          {/* Basic pagination controls wrapper since Timetable didn't seamlessly use the GenericTable */}
+          <div className="mt-6 flex flex-col md:flex-row justify-between items-center gap-4 border-t border-slate-700/50 pt-4">
+             <span className="text-sm text-textMuted">
+                Page {pagination.currentPage} of {pagination.totalPages || 1}
+             </span>
+             <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => pagination.handlePageChange(pagination.currentPage - 1)}
+                  disabled={pagination.currentPage === 1}
+                  className="px-4 py-2 border border-slate-700 rounded-lg bg-slate-800 text-sm font-medium hover:bg-slate-700 disabled:opacity-50 transition-colors"
+                >
+                  Previous
+                </button>
+                <div className="hidden sm:flex items-center gap-1">
+                  {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(pageNum => (
+                    <button
+                      key={pageNum}
+                      onClick={() => pagination.handlePageChange(pageNum)}
+                      className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                        pagination.currentPage === pageNum 
+                          ? 'bg-primary text-white border border-primary' 
+                          : 'border border-transparent text-textMuted hover:bg-slate-700 hover:text-white'
+                      }`}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
+                </div>
+                <button 
+                  onClick={() => pagination.handlePageChange(pagination.currentPage + 1)}
+                  disabled={pagination.currentPage >= pagination.totalPages}
+                  className="px-4 py-2 border border-slate-700 rounded-lg bg-slate-800 text-sm font-medium hover:bg-slate-700 disabled:opacity-50 transition-colors"
+                >
+                  Next
+                </button>
+             </div>
+          </div>
+        </Card>
+
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Schedule Class">
+        <form onSubmit={handleSave}>
+          <div className="space-y-5">
+            <div className="bg-slate-800/50 p-4 rounded-lg flex items-center justify-between border border-slate-700/50">
+              <div>
+                <span className="text-xs text-textMuted uppercase block mb-1">Schedule Day</span>
+                <span className="font-bold text-primary capitalize">{editData.day}</span>
+              </div>
+              <div className="text-right">
+                <span className="text-xs text-textMuted uppercase block mb-1">Time Window</span>
+                <span className="font-bold text-emerald-400">
+                  {data.find(d => d.timeslotid === editData.timeslotid)?.timeslot || `Slot #${editData.timeslotid}`}
+                </span>
+              </div>
+            </div>
+
+            <FormSelect 
+              label="Subject Tutor Allocation" 
+              name="subjectTutorid" 
+              value={subjectTutorid} 
+              onChange={(e) => setSubjectTutorid(e.target.value)}
+              options={subjectTutors.map(tutor => ({
+                value: tutor.id,
+                label: `${tutor.grade} • ${tutor.subject} (${tutor.tutor})`
+              }))}
+              required
+            />
+          </div>
+          <div className="mt-8 flex justify-end gap-3">
+            <button type="button" onClick={() => setShowModal(false)} className="px-5 py-2.5 rounded-lg text-textMuted hover:bg-slate-800 transition-colors font-medium">
+              Cancel
+            </button>
+            <button type="submit" disabled={isSubmitting} className="btn-primary">
+              {isSubmitting ? 'Saving...' : 'Save Schedule'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </Layout>
   );
 };

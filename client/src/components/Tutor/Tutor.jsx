@@ -1,146 +1,155 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
-import { Header } from '../Header/Header';
-import './Tutor.css';
-import { Navbar } from '../Navbar/Navbar';
-import { SectionHeader } from '../SectionHeader/SectionHeader';
-import { jwtDecode } from 'jwt-decode';
-import { Pagination } from '../Pagination/Pagination';
+import { Layout } from '../shared/Layout';
+import { useFetch } from '../shared/useFetch';
+import { GenericTable } from '../shared/GenericTable';
+import { Card } from '../shared/Card';
+import { Modal } from '../shared/Modal';
+import { FormInput } from '../shared/FormInput';
+import { FormSelect } from '../shared/FormSelect';
+import { UserPlus, Edit3, Trash2 } from 'lucide-react';
 
 export const Tutor = () => {
-  const [data, setData] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [role, setRole] = useState(null);
   const navigate = useNavigate();
-  const localToken = localStorage.getItem("authToken");
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  useEffect(() => {
-    if (localToken) {
+  // Debounce search input
+  React.useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(searchTerm), 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  const { data, loading, error, pagination, refetch } = useFetch('/tutors/all', {
+    search: debouncedSearch
+  });
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '', firstname: '', lastname: '', username: '', email: '', password: '', contact: ''
+  });
+
+  const handleEdit = (id) => navigate(`/edit-tutor/${id}`);
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this tutor?")) {
       try {
-        const decoded = jwtDecode(localToken);
-        setRole(decoded.role);
-      } catch (error) {
-        console.error('Failed to decode token', error);
-        localStorage.removeItem('authToken');
-        navigate('/login');
+        await api.delete(`/tutors/${id}`);
+        refetch();
+      } catch (err) {
+        console.error('Delete failed:', err);
       }
     }
-  }, [localToken]);
+  };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await api.get(`/api/tutor/all?page=${currentPage}&limit=${itemsPerPage}`);
-        if (response.status === 200) {
-          const { data, totalPages } = response.data;
-          setData(data);
-          setTotalPages(totalPages);
-        } else {
-          setData([]);
-          console.error('Failed to fetch data');
-        }
-      } catch (error) {
-        setError('Error during data fetch');
-        console.error('Error during data fetch:', error);
-        localStorage.removeItem('authToken');
-        navigate('/login');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handleFormChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-    fetchData();
-  }, [currentPage, itemsPerPage, navigate, localToken]);
-
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber > 0 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
+  const handleCreateSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await api.post('/tutors', formData);
+      setIsModalOpen(false);
+      setFormData({ title: '', firstname: '', lastname: '', username: '', email: '', password: '', contact: '' });
+      refetch();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to create tutor');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-const handleEdit = (id) => {
-  navigate(`/edit-tutor/${id}`);
-  };
-
-const handleDelete = async (id) => {
-  const confirmDelete = window.confirm('Are you sure you want to delete this tutor?');
-  if (!confirmDelete) return;
-
-  try {
-    const response = await api.delete(`/api/tutor/${id}`);
-    if (response.status === 200) {
-      alert('Tutor deleted successfully');
-      setData((prevData) => prevData.filter((item) => item.id !== id));
-    } else {
-      alert('Failed to delete tutor');
+  const columns = [
+    { label: 'ID', accessor: 'id', render: (val) => <span className="text-textMuted">#{val}</span> },
+    { label: 'Title', accessor: 'title', render: (val) => <span className="text-secondary font-medium">{val}</span> },
+    { label: 'Name', accessor: 'firstname', render: (_, row) => <span className="font-medium text-white">{row.firstname} {row.lastname}</span> },
+    { label: 'Contact', accessor: 'contact' },
+    { 
+      label: 'Actions', 
+      accessor: 'id',
+      render: (id) => (
+        <div className="flex items-center gap-3">
+          <button onClick={() => handleEdit(id)} className="text-textMuted hover:text-primary transition-colors">
+            <Edit3 size={18} />
+          </button>
+          <button onClick={() => handleDelete(id)} className="text-textMuted hover:text-danger transition-colors">
+            <Trash2 size={18} />
+          </button>
+        </div>
+      )
     }
-  } catch (err) {
-    console.error('Error deleting tutor:', err);
-    alert('Error occurred while deleting tutor');
-  }
-};
-  const handleCreate = () => {
-    navigate('/new-tutor');
-  };
+  ];
 
-
-  const Table = ({ data, currentPage, totalPages }) => (<>
-    <table className="data-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Title</th>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>Contact</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((item) => (
-          <tr key={item.id}>
-            <td>{item.id}</td>
-            <td>{item.title}</td>
-            <td>{item.firstname}</td>
-            <td>{item.lastname}</td>
-            <td>{item.contact}</td>
-            <td>
-            <button className="editBtn" onClick={() => handleEdit(item.id)}>Edit</button>
-            <button className="deleteBtn" onClick={() => handleDelete(item.id)}>Delete</button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-    <Pagination
-                       currentPage={currentPage}
-                       totalPages={totalPages}
-                       onPageChange={handlePageChange} 
-        /> </>
+  const TableActions = (
+    <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+      <div className="flex items-center gap-2 w-full md:w-64">
+        <FormInput 
+          placeholder="Search tutors..." 
+          value={searchTerm} 
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="!mb-0"
+        />
+      </div>
+      <button onClick={() => setIsModalOpen(true)} className="btn-primary ml-auto">
+        <UserPlus size={18} /> Add Tutor
+      </button>
+    </div>
   );
 
   return (
-    <div>
-      <Header type={'dashboard'} action={"Logout"} />
-      <Navbar />
-      <SectionHeader section={'Tutor'} is_create={true} />
-      <div className='main'>
-        {loading && <p>Loading...</p>}
-        {error && <p className="error">{error}</p>}
-        <div className="tutor-actions">
-            <button className="create-tutor-btn" onClick={handleCreate}>
-              ➕ Create New Tutor
+    <Layout title="Tutors">
+        {error && <div className="bg-danger/20 border border-danger/50 text-danger px-4 py-3 rounded-xl mb-6">{error}</div>}
+        
+        <Card title="Tutor Directory" action={TableActions}>
+          <GenericTable 
+            columns={columns} 
+            data={data} 
+            loading={loading} 
+            pagination={pagination}
+          />
+        </Card>
+
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add New Tutor">
+        <form onSubmit={handleCreateSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormSelect 
+              label="Title" 
+              name="title" 
+              value={formData.title} 
+              onChange={handleFormChange} 
+              required 
+              options={[
+                { label: 'Select Title', value: '' },
+                { label: 'Mr', value: 'Mr' },
+                { label: 'Mrs', value: 'Mrs' },
+                { label: 'Ms', value: 'Ms' },
+                { label: 'Miss', value: 'Miss' },
+                { label: 'Dr', value: 'Dr' },
+                { label: 'Rev', value: 'Rev' }
+              ]} 
+            />
+            <FormInput label="Contact" name="contact" value={formData.contact} onChange={handleFormChange} required />
+            <FormInput label="First Name" name="firstname" value={formData.firstname} onChange={handleFormChange} required />
+            <FormInput label="Last Name" name="lastname" value={formData.lastname} onChange={handleFormChange} required />
+            <FormInput label="Username" name="username" value={formData.username} onChange={handleFormChange} required />
+            <FormInput label="Email" name="email" type="email" value={formData.email} onChange={handleFormChange} required />
+            <div className="md:col-span-2">
+              <FormInput label="Password" name="password" type="password" value={formData.password} onChange={handleFormChange} required minLength={8} />
+            </div>
+          </div>
+          <div className="mt-8 flex justify-end gap-3">
+            <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-lg text-textMuted hover:bg-slate-800 transition-colors font-medium">
+              Cancel
             </button>
-        </div>
-        <Table data={data} currentPage={currentPage} totalPages={totalPages} />
-      </div>
-    </div>
+            <button type="submit" disabled={isSubmitting} className="btn-primary">
+              {isSubmitting ? 'Creating...' : 'Create Tutor'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </Layout>
   );
 };

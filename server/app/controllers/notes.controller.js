@@ -1,5 +1,6 @@
 const { Notes, SubjectTutor, Subject, Grade, Student, Tutor } = require('../models');
 const { check, validationResult } = require('express-validator');
+const logger = require('../lib/logger');
 
 // Validation rules
 exports.validate = (method) => {
@@ -157,7 +158,7 @@ exports.getNotesCountForTutor = async (req, res) => {
     res.json({ totalNotes: count });
 
   } catch (error) {
-    console.error('Error fetching notes count:', error);
+    logger.error('Error fetching notes count for tutor:', error);
     res.status(500).json({ message: 'Server Error' });
   }
 };
@@ -190,7 +191,7 @@ exports.getTutorSubjectsAndGrades = async (req, res) => {
     res.json({ subjects, grades });
 
   } catch (err) {
-    console.error('Get Tutor Subjects/Grades Error:', err);
+    logger.error('Get Tutor Subjects/Grades Error:', err);
     res.status(500).json({ message: 'Failed to fetch subjects and grades' });
   }
 };
@@ -222,7 +223,7 @@ exports.getNotesForApproval = async (req, res) => {
 
     res.status(200).json(notes);
   } catch (err) {
-    console.error('Get Notes for Approval Error:', err);
+    logger.error('Get Notes for Approval Error:', err);
     res.status(500).json({ message: 'Failed to fetch notes for approval' });
   }
 };
@@ -243,7 +244,7 @@ exports.reviewNote = async (req, res) => {
     res.status(200).json({ message: 'Note reviewed successfully.', note });
 
   } catch (err) {
-    console.error('Review Note Error:', err);
+    logger.error('Review Note Error:', err);
     res.status(500).json({ message: 'Failed to review note' });
   }
 };
@@ -271,7 +272,7 @@ exports.getApprovedNotes = async (req, res) => {
 
     res.status(200).json(notes);
   } catch (err) {
-    console.error('Get Approved Notes Error:', err);
+    logger.error('Get Approved Notes Error:', err);
     res.status(500).json({ message: 'Failed to fetch approved notes' });
   }
 };

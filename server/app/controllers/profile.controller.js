@@ -1,165 +1,109 @@
 const { User, Student, Tutor, Staff, Admin } = require('../models');
 const jwt = require('jsonwebtoken');
-const { sequelize } = require('../models/index');
 
 exports.getProfile = async (req, res) => {
-    const { id } = req.params;
-  
-    try {
-      const user = await User.findByPk(id);
-      if (!user) return res.status(404).send({ message: 'User not found' });
-  
-      const { user_type } = user;
-      switch (user_type) {
-        case 'STUDENT':
-          return await getStudentProfile(id, res);
-        case 'TUTOR':
-          return await getTutorProfile(id, res);
-        case 'STAFF':
-          return await getStaffProfile(id, res);
-        case 'ADMIN':
-          return await getAdminProfile(id, res);
-        default:
-          return res.status(400).send({ message: 'Invalid user type' });
-      }
-    } catch (error) {
-      return res.status(500).send({ message: 'Failed to get profile', error: error.message });
-    }
-  };
-  
+  const { id } = req.params;
 
-// Sub-profiles
-const getStudentProfile = async (id, res) => {
-    try {
-      const [student] = await sequelize.query(`
-        SELECT * FROM student WHERE user_id = :userId LIMIT 1
-      `, {
-        replacements: { userId: id },
-        type: sequelize.QueryTypes.SELECT
-      });
-      if (!student) {
-        return res.status(404).send({ message: 'Student not found' });
-      }
-  
-      return res.status(200).send(student);
-  
-    } catch (err) {
-      console.error('Error fetching student profile:', err);
-      return res.status(500).send({
-        message: 'Error fetching student profile',
-        error: err.message
-      });
-    }
-  };
-  
-
-const getTutorProfile = async (id, res) => {
-    try {
-        const [tutor] = await sequelize.query(`
-          SELECT * FROM tutor WHERE user_id = :userId LIMIT 1
-        `, {
-          replacements: { userId: id },
-          type: sequelize.QueryTypes.SELECT
-        });
-
-        if (!tutor) {
-          return res.status(404).send({ message: 'Tutor not found' });
-        }
-    
-        return res.status(200).send(tutor);
-    
-      } catch (err) {
-        console.error('Error fetching tutor profile:', err);
-        return res.status(500).send({
-          message: 'Error fetching tutor profile',
-          error: err.message
-        });
-      }
-};
-
-const getStaffProfile = async (id, res) => {
   try {
-    const staff = await Staff.findByPk(id, { include: User });
-    if (!staff) return res.status(404).send({ message: 'Staff not found' });
-    return res.status(200).send(staff);
-  } catch (err) {
-    return res.status(500).send({ message: 'Error fetching staff profile', error: err.message });
-  }
-};
+    const user = await User.findByPk(id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
 
-const getAdminProfile = async (id, res) => {
-  try {
-    const admin = await Admin.findByPk(id, { include: User });
-    if (!admin) return res.status(404).send({ message: 'Admin not found' });
-    return res.status(200).send(admin);
-  } catch (err) {
-    return res.status(500).send({ message: 'Error fetching admin profile', error: err.message });
+    const { user_type } = user;
+    let profileData = null;
+
+    switch (user_type) {
+      case 'STUDENT':
+        profileData = await Student.findOne({ where: { user_id: id } });
+        break;
+      case 'TUTOR':
+        profileData = await Tutor.findOne({ where: { user_id: id } });
+        break;
+      case 'STAFF':
+        profileData = await Staff.findOne({ where: { user_id: id } });
+        break;
+      case 'ADMIN':
+        profileData = await Admin.findOne({ where: { user_id: id } });
+        break;
+      default:
+        return res.status(400).json({ message: 'Invalid user type' });
+    }
+
+    if (!profileData) {
+      return res.status(404).json({ message: `${user_type.charAt(0) + user_type.slice(1).toLowerCase()} profile not found` });
+    }
+
+    res.status(200).json(profileData);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to get profile', error: error.message });
   }
 };
 
 exports.updateProfile = async (req, res) => {
-    const { id } = req.params;
-    const updatedData = req.body;
-  
-    try {
-      const user = await User.findByPk(id);
-      if (!user) return res.status(404).send({ message: 'User not found' });
-  
-      const { user_type } = user;
-      // Update base User table fields if needed
-      await user.update({
-        username: updatedData.username || user.username,
-        email: updatedData.email || user.email,
-        is_active: updatedData.is_active !== undefined ? updatedData.is_active : user.is_active,
-      });
-  
-      switch (user_type) {
-        case 'STUDENT':
-          return await updateStudentProfile(id, updatedData, res);
-        // case 'TUTOR':
-        //   return await updateTutorProfile(id, updatedData, res);
-        // case 'STAFF':
-        //   return await updateStaffProfile(id, updatedData, res);
-        // case 'ADMIN':
-        //   return await updateAdminProfile(id, updatedData, res);
-        default:
-          return res.status(400).send({ message: 'Invalid user type' });
-      }
-  
-    } catch (error) {
-      return res.status(500).send({ message: 'Failed to update profile', error: error.message });
-    }
-  };
+  const { id } = req.params;
+  const updatedData = req.body;
 
-  const updateStudentProfile = async (id, updatedData, res) => {
-    try {
-      await sequelize.query(`
-        UPDATE student SET 
-          firstname = :firstname,
-          lastname = :lastname,
-          contact = :contact,
-          grade = :grade,
-          username = :username,
-          email = :email,
-          updated_at = CURRENT_TIMESTAMP
-        WHERE user_id = :userId
-      `, {
-        replacements: {
-          firstname: updatedData.firstname,
-          lastname: updatedData.lastname,
-          contact: updatedData.contact,
-          grade: updatedData.grade,
-          email: updatedData.email,
-          username: updatedData.username,
-          userId: id
-        },
-        type: sequelize.QueryTypes.UPDATE
-      });
-  
-      return res.status(200).send({ message: 'Student profile updated successfully' });
-  
-    } catch (err) {
-      return res.status(500).send({ message: 'Error updating student profile', error: err.message });
+  try {
+    const user = await User.findByPk(id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const { user_type } = user;
+
+    // Update base User table fields
+    await user.update({
+      username: updatedData.username || user.username,
+      email: updatedData.email || user.email,
+    });
+
+    let profile = null;
+    const updatePayload = {
+      firstname: updatedData.firstname,
+      lastname: updatedData.lastname,
+      email: updatedData.email,
+      username: updatedData.username,
+      contact: updatedData.contact,
+    };
+
+    switch (user_type) {
+      case 'STUDENT':
+        profile = await Student.findOne({ where: { user_id: id } });
+        if (profile) {
+          await profile.update({
+            ...updatePayload,
+            grade: updatedData.grade || profile.grade
+          });
+        }
+        break;
+      case 'TUTOR':
+        profile = await Tutor.findOne({ where: { user_id: id } });
+        if (profile) {
+          await profile.update({
+            ...updatePayload,
+            title: updatedData.title || profile.title
+          });
+        }
+        break;
+      case 'STAFF':
+        profile = await Staff.findOne({ where: { user_id: id } });
+        if (profile) {
+            await profile.update({
+                ...updatePayload,
+                title: updatedData.title || profile.title,
+                position: updatedData.position || profile.position
+            });
+        }
+        break;
+      case 'ADMIN':
+        profile = await Admin.findOne({ where: { user_id: id } });
+        if (profile) {
+            await profile.update(updatePayload);
+        }
+        break;
+      default:
+        return res.status(400).json({ message: 'Invalid user type' });
     }
-  };
-  
+
+    res.status(200).json({ message: 'Profile updated successfully', profile });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update profile', error: error.message });
+  }
+};

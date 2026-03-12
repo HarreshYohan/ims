@@ -1,20 +1,18 @@
 # Use an official Node.js runtime as a parent image
-FROM docker.io/library/node:14
+FROM node:20-alpine
 
-# Set the working directory to /app
-WORKDIR /app
+# Working directory — must match docker-compose volume mount
+WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json to the working directory
+# Install dependencies first (cached layer)
 COPY package*.json ./
-
-# Install app dependencies
 RUN npm install
 
-# Bundle your app source code inside the Docker image
+# Copy source
 COPY . .
 
-# Expose the port the app runs on
-EXPOSE 3000
+# Expose app port (reads from env, defaults to 8083)
+EXPOSE 8083
 
-# Define the command to run your app using CMD which runs at container startup
-CMD ["node", "server.js"]
+# Start with nodemon for hot-reload in development
+CMD ["npm", "run", "dev"]

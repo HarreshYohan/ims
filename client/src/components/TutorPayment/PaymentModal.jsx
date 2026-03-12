@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './TutorPayment.css'; 
+ 
 
 export const PaymentModal = ({ tutorId, onClose, onSave }) => {
   const [paymentType, setPaymentType] = useState('PAID'); // PAID | PARTIAL | PENDING
