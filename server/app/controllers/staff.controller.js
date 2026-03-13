@@ -35,8 +35,8 @@ exports.findAll = async (req, res) => {
       where[Op.or] = [
         { firstname: { [Op.iLike]: `%${search}%` } },
         { lastname: { [Op.iLike]: `%${search}%` } },
-        { email: { [Op.iLike]: `%${search}%` } },
-        { username: { [Op.iLike]: `%${search}%` } }
+        { '$user.email$': { [Op.iLike]: `%${search}%` } },
+        { '$user.username$': { [Op.iLike]: `%${search}%` } }
       ];
     }
 
@@ -46,9 +46,10 @@ exports.findAll = async (req, res) => {
 
     const { count, rows } = await Staff.findAndCountAll({
       where,
+      include: [{ model: User, as: 'user', attributes: ['username', 'email'] }],
       limit: limitNum,
       offset,
-      order: [['id', 'DESC']]
+      order: [['user_id', 'DESC']]
     });
 
     const totalPages = Math.ceil(count / limitNum);
@@ -96,10 +97,7 @@ exports.create = async (req, res) => {
         });
 
         const newStaff = await Staff.create({
-          username: username,
-          email: email,
           user_id: newUser.id,
-          password: hashedPassword,
           firstname: firstname,
           lastname: lastname,
           position: position,
@@ -108,21 +106,24 @@ exports.create = async (req, res) => {
           salary: salary
         });
 
-        return newStaff
+        return Staff.findByPk(newUser.id, {
+          include: [{ model: User, as: 'user', attributes: ['username', 'email'] }]
+        });
       }
       const result = await newStaffData();
-    res.status(201).send(result);
+      res.status(201).send(result);
   } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred while creating the User.'
-    });
+    const errorMsg = err.response?.data?.message || err.message || 'Some error occurred while creating the Staff.';
+    res.status(500).send({ message: errorMsg });
   }
 };
 
 exports.findOne = (req, res) => {
   const id = req.params.id;
 
-  Staff.findByPk(id)
+  Staff.findByPk(id, {
+    include: [{ model: User, as: 'user', attributes: ['username', 'email'] }]
+  })
     .then(data => {
       if (data) {
         res.send(data);
@@ -155,9 +156,8 @@ exports.delete = async (req, res) => {
       return res.status(404).send({ message: `Cannot find Staff with id=${id}.` });
     }
 
-    await Staff.destroy({ where: { id } });
-
-    res.send({ message: "User was deleted successfully!", staff });
+    await User.destroy({ where: { id: staff.user_id } });
+    res.send({ message: "Staff and associated account deleted successfully!" });
 
   } catch (err) {
     res.status(500).send({ message: `Could not delete User with id=${id}: ${err.message}` });
@@ -191,7 +191,6 @@ exports.update = async (req, res) => {
     const hashedPassword = password ? await bcrypt.hash(password, 10) : staff.password;
 
     await staff.update({
-      username: username || staff.username,
       email: email || staff.email,
       password: hashedPassword,
       firstname: firstname || staff.firstname,

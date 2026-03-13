@@ -12,7 +12,7 @@ exports.validate = (method) => {
         check('chapter', 'Chapter is required').notEmpty(),
         check('heading', 'Heading is required').notEmpty(),
         check('subject', 'Subject is required').notEmpty(),
-        check('studentid', 'Student ID is required').notEmpty(),
+        check('userid', 'User ID is required').notEmpty(),
       ];
     }
   }
@@ -26,7 +26,10 @@ exports.create = async (req, res) => {
    const { note, subject, heading, chapter, userid, subjecttutorid } = req.body;
 
   try {
-    const student = await Student.findOne({where: {user_id : userid}}, {attributes: ['id']})
+    const student = await Student.findOne({
+      where: { user_id: userid }
+    });
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
     const studentid = student.id
     const newNote = await Notes.create({ note, subject, heading, chapter, studentid , subjecttutorid });
@@ -99,7 +102,8 @@ exports.delete = async (req, res) => {
 exports.findByStudentAndSubject = async (req, res) => {
   const { userid, subject } = req.params;
   try {
-    const student = await Student.findOne({where: {user_id : userid}}, {attributes: ['id']})
+    const student = await Student.findOne({where: {user_id : userid}})
+    if (!student) return res.status(404).json({ message: 'Student not found' });
 
     const studentid = student.id
     const notes = await Notes.findAll({
@@ -117,7 +121,8 @@ exports.findByStudentAndSubject = async (req, res) => {
 
 exports.getNotesCountForStudent = async (req, res) => {
   const { userid } = req.params;
-  const student = await Student.findOne({where: {user_id : userid}}, {attributes: ['id']})
+  const student = await Student.findOne({where: {user_id : userid}})
+  if (!student) return res.status(404).json({ message: 'Student not found' });
   const studentid = student.id
   const count = await Notes.count({ where: { studentid : studentid } });
   res.json({ totalNotes: count });
@@ -166,7 +171,10 @@ exports.getNotesCountForTutor = async (req, res) => {
 exports.getTutorSubjectsAndGrades = async (req, res) => {
   const { userid } = req.params;
   try {
-    const tutor = await Tutor.findOne({where: {user_id : userid}}, {attributes: ['id']})
+    const tutor = await Tutor.findOne({
+      where: { user_id: userid },
+      attributes: ['id']
+    });
     const tutorid = tutor.id
     const assignments = await SubjectTutor.findAll({
       where: { tutorid },
@@ -200,8 +208,11 @@ exports.getNotesForApproval = async (req, res) => {
   const { userid, subject, grade } = req.query;
 
   try {
-    const tutor = await Tutor.findOne({where: {user_id : userid}}, {attributes: ['id']})
-    const tutorid = tutor.id
+    const tutor = await Tutor.findOne({
+      where: { user_id: userid },
+      attributes: ['id']
+    });
+    const tutorid = tutor.id;
     const subjectTutor = await SubjectTutor.findOne({
       where: {
         tutorid: tutorid,
@@ -249,13 +260,15 @@ exports.reviewNote = async (req, res) => {
   }
 };
 
-// Controller logic for fetching approved notes
 exports.getApprovedNotes = async (req, res) => {
   const { userid, subject, grade } = req.query;
 
   try {
-    const tutor = await Tutor.findOne({where: {user_id : userid}}, {attributes: ['id']})
-    const tutorid = tutor.id
+    const tutor = await Tutor.findOne({
+      where: { user_id: userid },
+      attributes: ['id']
+    });
+    const tutorid = tutor.id;
     const subjectTutor = await SubjectTutor.findOne({
       where: { tutorid, subjectid: subject, gradeid: grade }
     });

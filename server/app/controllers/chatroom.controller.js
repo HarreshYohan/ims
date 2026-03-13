@@ -59,7 +59,7 @@ exports.findAll = async (req, res) => {
 
 exports.findOne = async (req, res) => {
   try {
-    const subjectId = req.params.id;
+    const subjectId = Number(req.params.id);
 
     const chatrooms = await Chatroom.findAll({
       where:{

@@ -41,8 +41,8 @@ exports.findAll = async (req, res, next) => {
       where[Op.or] = [
         { firstname: { [Op.iLike]: `%${search}%` } },
         { lastname: { [Op.iLike]: `%${search}%` } },
-        { email: { [Op.iLike]: `%${search}%` } },
-        { username: { [Op.iLike]: `%${search}%` } }
+        { '$user.email$': { [Op.iLike]: `%${search}%` } },
+        { '$user.username$': { [Op.iLike]: `%${search}%` } }
       ];
     }
 
@@ -52,9 +52,11 @@ exports.findAll = async (req, res, next) => {
 
     const { count, rows } = await Student.findAndCountAll({
       where,
-      order: [['id', 'DESC']],
+      include: [{ model: User, as: 'user', attributes: ['username', 'email'] }],
+      order: [['user_id', 'DESC']],
       limit: limitNum,
       offset,
+      subQuery: false, // Prevents issues with limit+association filtering
     });
     res.json({ total: count, page: pageNum, limit: limitNum, data: rows });
   } catch (error) {
@@ -71,18 +73,15 @@ exports.create = async (req, res, next) => {
   const { email, firstname, lastname, grade, contact } = req.body;
 
   try {
-    const existingStudent = await Student.findOne({ where: { email } });
-    if (existingStudent) {
-      return res.status(409).json({ message: 'A student with this email already exists.' });
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(409).json({ message: 'A user with this email already exists.' });
     }
 
-    // Auto-generate username: first.last + random suffix
-    const baseUsername = `${firstname.toLowerCase()}.${lastname.toLowerCase()}`;
-    const username = `${baseUsername}.${Math.floor(1000 + Math.random() * 9000)}`;
-
-    // Auto-generate secure password
-    const rawPassword = Math.random().toString(36).slice(-10);
-    const hashedPassword = await bcrypt.hash(rawPassword, 12);
+    // Use provided password/username or generate them
+    const username = req.body.username || `ST${Math.floor(1000 + Math.random() * 9000)}`;
+    const rawPassword = req.body.password || Math.random().toString(36).slice(-8);
+    const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
     const newUser = await User.create({
       username,
@@ -93,14 +92,17 @@ exports.create = async (req, res, next) => {
     });
 
     const newStudent = await Student.create({
-      username,
       user_id: newUser.id,
-      email,
-      password: hashedPassword, // satisfy old model requirement if not yet migrated, but model is updated to allow null
       firstname,
       lastname,
       grade,
       contact,
+    });
+    
+    // Refresh to include joined user data
+    const studentWithUser = await Student.findOne({
+      where: { user_id: newUser.id },
+      include: [{ model: User, as: 'user', attributes: ['username', 'email'] }]
     });
 
     // Send Greeting Email (non-blocking)
@@ -111,7 +113,7 @@ exports.create = async (req, res, next) => {
 
     logger.info(`Student created with auto-creds: ${email}`);
     res.status(201).json({
-        ...newStudent.toJSON(),
+        ...studentWithUser.toJSON(),
         generatedUsername: username,
         generatedPassword: rawPassword // Send back so UI can display it once
     });
@@ -123,7 +125,9 @@ exports.create = async (req, res, next) => {
 exports.findOne = async (req, res, next) => {
   const id = req.params.id;
   try {
-    const data = await Student.findByPk(id);
+    const data = await Student.findByPk(id, {
+      include: [{ model: User, as: 'user', attributes: ['username', 'email'] }]
+    });
     if (data) {
       res.json(data);
     } else {
@@ -141,9 +145,9 @@ exports.delete = async (req, res, next) => {
     if (!student) {
       return res.status(404).json({ message: `Student with id=${id} not found.` });
     }
-    await student.destroy();
-    logger.info(`Student deleted: id=${id}`);
-    res.json({ message: 'Student was deleted successfully.', student });
+    await User.destroy({ where: { id: student.user_id } }); // Cascades to Student
+    logger.info(`Student/User deleted: id=${id}`);
+    res.json({ message: 'Student and associated account deleted successfully.' });
   } catch (err) {
     next(err);
   }
@@ -154,22 +158,27 @@ exports.update = async (req, res, next) => {
   const { username, password, email, firstname, lastname, grade, contact } = req.body;
 
   try {
-    const student = await Student.findByPk(id);
+    const student = await Student.findByPk(id, { include: ['user'] });
     if (!student) {
       return res.status(404).json({ message: `Student with id=${id} not found.` });
     }
 
-    // Only hash if a new password was provided
-    const hashedPassword = password ? await bcrypt.hash(password, 12) : undefined;
+    // Update User account if fields provided
+    if (username || email || password) {
+      const userUpdate = {};
+      if (username) userUpdate.username = username;
+      if (email)    userUpdate.email    = email;
+      if (password) userUpdate.password = await bcrypt.hash(password, 12);
+      
+      await User.update(userUpdate, { where: { id: student.user_id } });
+    }
 
+    // Update Student profile
     await student.update({
-      username:  username  || student.username,
-      email:     email     || student.email,
       firstname: firstname || student.firstname,
       lastname:  lastname  || student.lastname,
       grade:     grade     || student.grade,
       contact:   contact   || student.contact,
-      ...(hashedPassword ? { password: hashedPassword } : {}),
     });
 
     logger.info(`Student updated: id=${id}`);
@@ -182,7 +191,7 @@ exports.update = async (req, res, next) => {
 exports.student_subject = async (req, res, next) => {
   const id = req.params.id;
   try {
-    const student = await Student.findOne({ where: { user_id: id }, attributes: ['id'] });
+    const student = await Student.findOne({ where: { user_id: id } });
     if (!student) {
       return res.status(404).json({ message: `Student for user_id=${id} not found.` });
     }

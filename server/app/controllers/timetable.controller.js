@@ -46,8 +46,8 @@ exports.create = async (req, res) => {
 
     let timetable = await Timetable.findOne({
       where: {
-        classroomid: classroomid,
-        timeslotid: timeslotid
+        classroomid: Number(classroomid),
+        timeslotid: Number(timeslotid)
       }
     });
 
@@ -57,9 +57,9 @@ exports.create = async (req, res) => {
     } 
     else {
       const newTimetable = {
-        timeslotid: timeslotid,
+        timeslotid: Number(timeslotid),
         timeslot: timeslot,
-        classroomid: classroomid,
+        classroomid: Number(classroomid),
         [day]: subjecttutorid
       };
       timetable = await Timetable.create(newTimetable);
@@ -164,11 +164,11 @@ exports.findOne = async (req, res) => {
   const id = req.params.id;
 
   try {
-    const Timetable = await Timetable.findByPk(id);
-    if (!Timetable) {
+    const timetable = await Timetable.findByPk(id);
+    if (!timetable) {
       return res.status(404).send({ message: `Cannot find Timetable with id=${id}.` });
     }
-    res.status(200).send(Timetable);
+    res.status(200).send(timetable);
   } catch (err) {
     res.status(500).send({
       message: `Error retrieving Timetable with id=${id}`
@@ -186,15 +186,13 @@ exports.update = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { name } = req.body;
-
   try {
     const timetable = await Timetable.findByPk(id);
     if (!timetable) {
       return res.status(404).send({ message: `Cannot find Timetable with id=${id}.` });
     }
 
-    await Timetable.update({ name });
+    await timetable.update(req.body);
     res.status(200).send({ message: "Timetable was updated successfully." });
   } catch (err) {
     if (err.name === 'SequelizeUniqueConstraintError') {
@@ -237,9 +235,14 @@ const getStudentTimetableRecords = async (studentId) => {
     const student = await Student.findOne({
       where: {
         user_id : studentId
-      },
-      attributes: ['id'], 
+      }
     })
+
+    if (!student) {
+      console.log("Student not found for user_id:", studentId);
+      return [];
+    }
+
     const studentSubjects = await StudentSubject.findAll({
       where: {
         studentid: student.id,

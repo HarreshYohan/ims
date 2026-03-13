@@ -13,16 +13,32 @@ exports.getProfile = async (req, res) => {
 
     switch (user_type) {
       case 'STUDENT':
-        profileData = await Student.findOne({ where: { user_id: id } });
+        profileData = await Student.findOne({ 
+          where: { user_id: id },
+          include: [{ model: User, as: 'user', attributes: ['username', 'email', 'user_type'] }]
+        });
         break;
       case 'TUTOR':
-        profileData = await Tutor.findOne({ where: { user_id: id } });
+        profileData = await Tutor.findOne({ 
+          where: { user_id: id },
+          include: [{ model: User, as: 'user', attributes: ['username', 'email', 'user_type'] }]
+        });
         break;
       case 'STAFF':
-        profileData = await Staff.findOne({ where: { user_id: id } });
+        profileData = await Staff.findOne({ 
+          where: { user_id: id },
+          include: [{ model: User, as: 'user', attributes: ['username', 'email', 'user_type'] }]
+        });
         break;
       case 'ADMIN':
-        profileData = await Admin.findOne({ where: { user_id: id } });
+        profileData = await Admin.findOne({ 
+          where: { user_id: id },
+          include: [{ model: User, as: 'user', attributes: ['username', 'email', 'user_type'] }]
+        });
+        // If no admin profile exists, return base user info
+        if (!profileData) {
+          profileData = { user: user, ...user.get(), firstname: '', lastname: '', contact: '' };
+        }
         break;
       default:
         return res.status(400).json({ message: 'Invalid user type' });
@@ -58,8 +74,6 @@ exports.updateProfile = async (req, res) => {
     const updatePayload = {
       firstname: updatedData.firstname,
       lastname: updatedData.lastname,
-      email: updatedData.email,
-      username: updatedData.username,
       contact: updatedData.contact,
     };
 
@@ -95,7 +109,9 @@ exports.updateProfile = async (req, res) => {
       case 'ADMIN':
         profile = await Admin.findOne({ where: { user_id: id } });
         if (profile) {
-            await profile.update(updatePayload);
+          await profile.update(updatePayload);
+        } else {
+          profile = await Admin.create({ user_id: id, ...updatePayload });
         }
         break;
       default:

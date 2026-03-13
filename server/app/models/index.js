@@ -17,6 +17,7 @@ const User = require('./user.model')(sequelize, Sequelize.DataTypes);
 const Student = require('./student.model')(sequelize, Sequelize.DataTypes);
 const Tutor = require('./tutor.model')(sequelize, Sequelize.DataTypes);
 const Staff = require('./staff.model')(sequelize, Sequelize.DataTypes);
+const Admin = require('./admin.model')(sequelize, Sequelize.DataTypes);
 const Grade = require('./grade.model')(sequelize, Sequelize.DataTypes);
 const Subject = require('./subject.model')(sequelize, Sequelize.DataTypes);
 const Classroom = require('./classroom.model')(sequelize, Sequelize.DataTypes);
@@ -32,6 +33,16 @@ const TutorPayment = require('./tutor_payment.model')(sequelize, Sequelize.DataT
 const Flashcard = require('./flashcard.model')(sequelize, Sequelize.DataTypes);
 const QuizAttempt = require('./quiz_attempt.model')(sequelize, Sequelize.DataTypes);
 const ActivityLog = require('./activity_log.model')(sequelize, Sequelize.DataTypes);
+// Associations
+User.hasOne(Student, { foreignKey: 'user_id', as: 'student' });
+User.hasOne(Tutor, { foreignKey: 'user_id', as: 'tutor' });
+User.hasOne(Staff, { foreignKey: 'user_id', as: 'staff' });
+User.hasOne(Admin, { foreignKey: 'user_id', as: 'admin' });
+
+Student.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+Tutor.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+Staff.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
+Admin.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 SubjectTutor.belongsTo(Tutor, { foreignKey: 'tutorid', as: 'tutor' });
 SubjectTutor.belongsTo(Subject, { foreignKey: 'subjectid', as: 'subject' });
@@ -71,6 +82,7 @@ module.exports = {
   Student,
   Tutor,
   Staff,
+  Admin,
   Grade,
   Subject,
   Classroom,

@@ -1,21 +1,14 @@
-# server 
-go inside server folder cd server/
-then build the docker image "docker-compose up --build -d"
+# IMS - API Server
 
-if any issues with net/http: TLS handshake timeout
-run unset http_proxy
-unset https_proxy
-this will fix the above
-for windows run netsh winhttp reset proxy
+The central Node.js/Express API that serves both the Admin App and the Student Portal.
 
-if any issue with This version of npm is compatible with lockfileVersion@1, but package-lock.json was generated for lockfileVersion@3
-rename the package.json file and run again compose up build command and revert the file name back again
+## Setup
+1. Create `.env` file based on `.env.example`.
+2. Install dependencies: `npm install`
+3. Run server: `npm start`
 
-npm install
-npm run dev
-to start the project run node app.js inside the project root folder
-if any issues releated with port not available delete all images in docker and try re-building them using "docker-compose up --build -d"
-
-id faced this error "Error response from daemon: error while creating mount source path '/host_mnt/Users/haresh/Documents/projects/ims/server': mkdir /host_mnt/Users/haresh: permission denied"
-
-if facing listen EADDRINUSE: address already in use :::8080 change the port value in .env and try again
+## Technologies
+- Node.js & Express
+- Sequelize ORM (PostgreSQL)
+- JWT Authentication
+- HTTP Proxying to Analytics

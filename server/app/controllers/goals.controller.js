@@ -4,7 +4,10 @@ const { Op } = require('sequelize');
 exports.getGoalsByStudent = async (req, res) => {
   try {
     const { studentId } = req.params;
-    const goals = await Goals.findAll({ where: { studentid :studentId } ,order: [['createdAt', 'DESC']]});
+    const goals = await Goals.findAll({ 
+      where: { studentid : studentId },
+      order: [['createdAt', 'DESC']]
+    });
     res.json(goals);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -20,7 +23,8 @@ exports.createGoal = async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const student = await Student.findOne({where: {user_id : userid}}, {attributes: ['id']})
+    const student = await Student.findOne({where: {user_id : userid}})
+    if (!student) return res.status(404).json({ error: 'Student not found' });
     const studentid = student.id
     const lastprogressupdate = new Date().toISOString().slice(0, 10); 
     const newGoal = await Goals.create({ studentid, goaltitle, targetdate, lastprogressupdate , subjecttutorid});
@@ -102,10 +106,16 @@ exports.getGoalsByTutorSubjectGrade = async (req, res) => {
   try {
     const { userid, subject, grade } = req.query;
 
-    const tutor = await Tutor.findOne({where: {user_id : userid}}, {attributes: ['id']})
-    const tutorid = tutor.id
+    const tutor = await Tutor.findOne({
+      where: { user_id: userid },
+      attributes: ['id']
+    });
+    const tutorid = tutor.id;
 
-    const st = await SubjectTutor.findOne({where: {subjectid : subject ,gradeid: grade}}, {attributes: ['id']})
+    const st = await SubjectTutor.findOne({
+      where: { subjectid : subject ,gradeid: grade },
+      attributes: ['id']
+    });
     const subjecttutorid = st.id
 
     const goals = await Goals.findAll({
@@ -165,10 +175,16 @@ exports.updateGoalProgress = async (req, res) => {
 exports.getActiveTutorGoalsCount = async (req, res) => {
   const { userid } = req.params;
 
-  const tutor = await Tutor.findOne({where: {user_id : userid}}, {attributes: ['id']})
-  const tutorid = tutor.id
+  const tutor = await Tutor.findOne({
+    where: { user_id: userid },
+    attributes: ['id']
+  });
+  const tutorid = tutor.id;
 
-  const st = await SubjectTutor.findAll({where: {tutorid:tutorid}}, {attributes: ['id']})
+  const st = await SubjectTutor.findAll({
+    where: { tutorid: tutorid },
+    attributes: ['id']
+  });
 
   const subjectTutorIds = st.map(s => s.id);
   const count = await Goals.count({

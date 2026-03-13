@@ -68,13 +68,14 @@ exports.deletePayment = async (req, res) => {
 exports.calculateAndSaveTutorPayment = async (req, res) => {
   try {
     const { tutorid, month, year } = req.body;
-    if (!tutorid || !month || !year) {
-      return res.status(400).json({ message: 'tutorid, month, and year are required' });
-    }
+    // Map user_id to serial id if necessary (assuming tutorid from request might be user_id)
+    const tutor = await Tutor.findOne({ where: { user_id: tutorid } });
+    if (!tutor) return res.status(404).json({ message: 'Tutor not found' });
+    const serialTutorId = tutor.id;
 
     // Fetch all subject assignments for the tutor
     const subjects = await SubjectTutor.findAll({
-      where: { tutorid },
+      where: { tutorid: serialTutorId },
       attributes: ['id', 'fees']
     });
 
@@ -91,7 +92,7 @@ exports.calculateAndSaveTutorPayment = async (req, res) => {
     // Check if payment record exists for this month/year
     let payment = await TutorPayment.findOne({
       where: {
-        tutorid,
+        tutorid: serialTutorId,
         month,
         year,
       },
@@ -102,7 +103,7 @@ exports.calculateAndSaveTutorPayment = async (req, res) => {
       await payment.save();
     } else {
       payment = await TutorPayment.create({
-        tutorid,
+        tutorid: serialTutorId,
         month,
         year,
         totalpayment: totalPayment,

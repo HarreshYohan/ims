@@ -45,19 +45,21 @@ exports.create = async (req, res, next) => {
       is_active: true,
     });
 
-    // Tutor table stores profile data only — no password duplication
     const newTutor = await Tutor.create({
-      firstname,
-      username,
       user_id: newUser.id,
-      email,
-      lastname,
       title,
+      firstname,
+      lastname,
       contact,
     });
 
+    const tutorWithUser = await Tutor.findOne({
+      where: { user_id: newUser.id },
+      include: [{ model: User, as: 'user', attributes: ['username', 'email'] }]
+    });
+
     logger.info(`Tutor created: ${email}`);
-    res.status(201).json(newTutor);
+    res.status(201).json(tutorWithUser);
   } catch (err) {
     next(err);
   }
@@ -77,14 +79,15 @@ exports.findAll = async (req, res, next) => {
       where[Op.or] = [
         { firstname: { [Op.iLike]: `%${search}%` } },
         { lastname: { [Op.iLike]: `%${search}%` } },
-        { email: { [Op.iLike]: `%${search}%` } },
-        { username: { [Op.iLike]: `%${search}%` } }
+        { '$user.email$': { [Op.iLike]: `%${search}%` } },
+        { '$user.username$': { [Op.iLike]: `%${search}%` } }
       ];
     }
 
     const { count, rows } = await Tutor.findAndCountAll({
       where,
-      order: [['id', 'DESC']],
+      include: [{ model: User, as: 'user', attributes: ['username', 'email'] }],
+      order: [['user_id', 'DESC']],
       limit: limitNum,
       offset,
     });
@@ -97,7 +100,9 @@ exports.findAll = async (req, res, next) => {
 exports.findOne = async (req, res, next) => {
   const id = req.params.id;
   try {
-    const data = await Tutor.findByPk(id);
+    const data = await Tutor.findByPk(id, {
+      include: [{ model: User, as: 'user', attributes: ['username', 'email'] }]
+    });
     if (data) {
       res.json(data);
     } else {
@@ -119,24 +124,23 @@ exports.update = async (req, res, next) => {
       return res.status(404).json({ message: `Tutor with id=${id} not found.` });
     }
 
-    // Check email uniqueness (exclude current record)
-    if (email && email !== tutor.email) {
-      const existing = await Tutor.findOne({ where: { email } });
-      if (existing && existing.id !== tutor.id) {
-        return res.status(409).json({ message: 'Email already in use by another tutor.' });
-      }
-    }
-
     const hashedPassword = password ? await bcrypt.hash(password, 12) : undefined;
 
+    // Update User record
+    if (username || email || hashedPassword) {
+      const userUpdate = {};
+      if (username) userUpdate.username = username;
+      if (email) userUpdate.email = email;
+      if (hashedPassword) userUpdate.password = hashedPassword;
+      await User.update(userUpdate, { where: { id: tutor.user_id } });
+    }
+
+    // Update Tutor profile
     await tutor.update({
-      username:  username  || tutor.username,
-      email:     email     || tutor.email,
       firstname: firstname || tutor.firstname,
       lastname:  lastname  || tutor.lastname,
       title:     title     || tutor.title,
       contact:   contact   || tutor.contact,
-      ...(hashedPassword ? { password: hashedPassword } : {}),
     });
 
     logger.info(`Tutor updated: id=${id}`);
@@ -153,9 +157,9 @@ exports.delete = async (req, res, next) => {
     if (!tutor) {
       return res.status(404).json({ message: `Tutor with id=${id} not found.` });
     }
-    await tutor.destroy();
-    logger.info(`Tutor deleted: id=${id}`);
-    res.json({ message: 'Tutor deleted successfully.', tutor });
+    await User.destroy({ where: { id: tutor.user_id } });
+    logger.info(`Tutor/User deleted: id=${id}`);
+    res.json({ message: 'Tutor and associated account deleted successfully.' });
   } catch (err) {
     next(err);
   }
@@ -180,8 +184,12 @@ exports.approveOrRejectNote = async (req, res, next) => {
 
 exports.getSubjectMapping = async (req, res, next) => {
   try {
+    const tutor = await Tutor.findOne({ where: { user_id: req.params.id } });
+    if (!tutor) {
+      return res.status(404).json({ message: 'Tutor not found' });
+    }
     const mappings = await SubjectTutor.findAll({
-      where: { tutorid: req.params.id },
+      where: { tutorid: tutor.id },
       include: [
         { model: Subject, as: 'subject' },
         { model: Grade, as: 'grade' },

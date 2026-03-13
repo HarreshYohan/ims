@@ -1,0 +1,197 @@
+:root {
+  --primary-background: #DCC9B6;
+  --secondary-background: #A39171;
+  --primary-text: #6D4C3D;
+  --secondary-text: #727D71;
+  --text-color: #2c3e50;
+  --border-color: #bdc3c7;
+  --link-color: #2980b9;
+  --button-bg-color: #3498db;
+  --button-text-color: #fff;
+  --button-hover-bg-color: #2980b9;
+  --button-hover-text-color: #fff;
+  --header-bg-color: #34495e;
+  --header-text-color: #ecf0f1;
+}
+
+.main {
+position: absolute;
+background-color: var(--login-background);
+width: 85%;
+margin-top: 3%;
+margin-left: 15%;
+gap: 30px;
+display: flex;
+flex-direction: column;
+}
+
+.data-table select {
+  width: 40%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  color: #333;
+  font-size: 14px;
+  transition: border-color 0.3s;
+}
+
+.filter-input,
+.filter-select {
+  margin-left: 5px;
+  padding: 5px;
+  box-sizing: border-box; 
+}
+
+.download-all-btn {
+  background-color: #d0b635; 
+  border:#333; 
+  padding: 10px 20px; 
+  text-align: center; 
+  text-decoration: none; 
+  display: inline-block;
+  font-size: 16px; 
+  margin: 4px 2px; 
+  cursor: pointer;
+  border-radius: 5px; 
+  box-shadow: 0 0 0 1px rgba(38, 143, 255, 0.3);
+  transition: background-color 0.3s ease; 
+}
+
+.download-all-btn:hover {
+  background-color: #fffb22; 
+  color: #2c3e50;
+}
+
+.download-all-btn:focus {
+  outline: none; 
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.5); 
+}
+
+
+.data-table select:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
+
+.filter-header {
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-header select {
+  margin-left: 10px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto; /* Let browser calculate column width */
+  background-color: #f9f9f9;
+  margin: 10px auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.data-table th,
+.data-table td {
+  border: 1px solid #ddd;
+  padding: 8px 10px;
+  text-align: center;
+  white-space: nowrap; /* Prevents text wrapping */
+  max-width: 200px; /* Optional: limit max width */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.data-table th {
+  background-color: #a7b99e;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.data-table tr:hover {
+  background-color: #e0f2f1;
+  transform: scale(1.01);
+  transition: 0.3s;
+}
+
+
+.data-table td {
+color: #555;
+font-size: 14px;
+}
+
+.data-table button {
+margin: 0 15px; 
+padding: 8px 10px;
+color: #fff;
+border: none;
+border-radius: 5px;
+cursor: pointer;
+transition: background-color 0.3s, transform 0.3s;
+font-size: 14px;
+width: 80px;
+}
+
+.editBtn{
+  background-color: #3376bd;
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(38, 143, 255, 0.3);
+}
+
+.deleteBtn{
+  background-color: #f03737;
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(230, 50, 50, 0.938);
+}
+
+.data-table button:hover {
+transform: scale(1.15);
+}
+
+.pagination {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pagination button {
+  background-color: #3498db;
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 50px;
+  font-size: 15px;
+  min-width: 40px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+.pagination button:disabled {
+  background-color: #bdc3c7;
+  color: #fff;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pagination .active {
+  background-color: #27ae60;
+  font-weight: bold;
+  transform: scale(1.1);
+}
+
+@media (max-width: 480px) {
+  .pagination button {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+}

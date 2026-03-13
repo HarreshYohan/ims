@@ -5,10 +5,10 @@ exports.create = async (req, res) => {
 
   try {
     const newSubjectTutor = await SubjectTutor.create({
-      tutorid,
-      subjectid,
-      gradeid,
-      fees
+      tutorid: parseInt(tutorid),
+      subjectid: parseInt(subjectid),
+      gradeid: parseInt(gradeid),
+      fees: parseFloat(fees) || 0
     });
 
     res.status(201).send(newSubjectTutor);
@@ -106,10 +106,10 @@ exports.update = async (req, res) => {
     }
 
     await subjectTutor.update({
-      tutorid: tutorid || subjectTutor.tutorid,
-      subjectid: subjectid || subjectTutor.subjectid,
-      gradeid: gradeid || subjectTutor.gradeid,
-      fees: fees || subjectTutor.fees,
+      tutorid: parseInt(tutorid) || subjectTutor.tutorid,
+      subjectid: parseInt(subjectid) || subjectTutor.subjectid,
+      gradeid: parseInt(gradeid) || subjectTutor.gradeid,
+      fees: parseFloat(fees) || subjectTutor.fees,
     });
 
     res.status(200).send({ message: "SubjectTutor was updated successfully!", subjectTutor });

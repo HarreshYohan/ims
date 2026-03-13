@@ -31,6 +31,12 @@ const User = (sequelize) => {
     is_active: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+      defaultValue: true,
+    },
+    deleted_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: null,
     },
     createdAt: {
       type: DataTypes.DATE,

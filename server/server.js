@@ -12,16 +12,14 @@ app.set('trust proxy', 1);
 
 // ── Security middleware ──────────────────────────────────────
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['http://localhost:3000', 'http://localhost:3001'],
+  origin: true, // Dynamically allow the requesting origin
   credentials: true,
 }));
 
 // Global rate limiter: 200 requests per 15 minutes per IP
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
+  max: 1000,
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: 'Too many requests. Please try again later.' },
@@ -58,7 +56,7 @@ app.use('/api/v1/profile', profileRouter);
 
 // ── Analytics proxy (Python FastAPI server) ───────────────────
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const ANALYTICS_URL = process.env.ANALYTICS_URL || 'http://localhost:8084';
+const ANALYTICS_URL = process.env.ANALYTICS_URL || 'http://localhost:8000';
 
 // Use pathFilter to ensure we only proxy what we want
 const analyticsProxyOptions = {

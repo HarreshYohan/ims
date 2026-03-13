@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: #020617;
+    --surface: rgba(30, 41, 59, 0.5);
+    --surface-highlight: rgba(51, 65, 85, 0.6);
+    --primary: #8b5cf6;
+    --primary-hover: #7c3aed;
+    --secondary: #06b6d4;
+    --secondary-hover: #0891b2;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --danger: #ef4444;
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+  }
+
+  body {
+    @apply bg-[#020617] text-slate-100 font-sans antialiased min-h-screen relative overflow-x-hidden;
+    background-image: 
+      radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.15), transparent 35%),
+      radial-gradient(circle at 100% 100%, rgba(6, 182, 212, 0.15), transparent 35%),
+      radial-gradient(circle at 50% 50%, #020617, #020617);
+    background-attachment: fixed;
+  }
+
+  /* Custom minimal scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-800 rounded-full hover:bg-slate-700;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-slate-900/50 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl transition-all duration-500 overflow-hidden;
+    box-shadow: var(--glass-shadow);
+  }
+
+  .glass-card:hover {
+    @apply border-white/20 bg-slate-900/60 -translate-y-1;
+    box-shadow: 0 12px 48px 0 rgba(139, 92, 246, 0.2);
+  }
+
+  .input-field {
+    @apply w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all duration-300 placeholder:text-slate-600;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary to-violet-600 hover:from-primaryHover hover:to-violet-700 text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-primary/25 hover:shadow-primary/40 active:scale-95 flex items-center justify-center gap-2;
+  }
+
+  .btn-secondary {
+    @apply bg-slate-800 hover:bg-slate-700 text-slate-100 font-semibold py-3 px-6 rounded-xl border border-white/5 transition-all duration-300 active:scale-95 flex items-center justify-center gap-2;
+  }
+
+  .btn-danger {
+    @apply bg-danger/10 text-danger hover:bg-danger hover:text-white border border-danger/20 hover:border-danger font-medium py-2 px-4 rounded-lg transition-all duration-200 active:scale-95 flex items-center justify-center gap-2;
+  }
+}
+
+/* Flashcard 3D Flip Utility Classes */
+.perspective-1000 {
+  perspective: 1000px;
+}
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Text clamping */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@keyframes shine {
+  0% { left: -100%; transition: all 0.5s ease-in; }
+  100% { left: 100%; transition: all 0.5s ease-in; }
+}
+.animate-shine {
+  animation: shine 0.75s ease-in;
+}
