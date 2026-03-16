@@ -35,15 +35,15 @@ export const Welcome = () => {
         <nav className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
           <div className="flex items-center gap-2 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30 group-hover:scale-110 transition-transform">
-              <span className="text-white font-bold text-xl italic">I</span>
+              <span className="text-slate-200 font-bold text-xl italic">I</span>
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-widest uppercase italic">ADMIN SYSTEM</h1>
+            <h1 className="text-2xl font-bold text-slate-200 tracking-widest uppercase italic">ADMIN SYSTEM</h1>
           </div>
           
           <div className="hidden lg:flex items-center gap-6">
             <a 
               href="http://localhost:3001" 
-              className="text-xs font-bold text-white/40 hover:text-primary transition-colors uppercase tracking-[0.2em] border border-white/5 px-4 py-2 rounded-lg bg-white/[0.02]"
+              className="text-xs font-bold text-slate-200/40 hover:text-primary transition-colors uppercase tracking-[0.2em] border border-white/5 px-4 py-2 rounded-lg bg-white/[0.02]"
             >
               Go to Student Portal →
             </a>
@@ -54,7 +54,7 @@ export const Welcome = () => {
               <button 
                 key={item}
                 onClick={() => scrollToSection(item.toLowerCase().replace(' ', '-'))}
-                className="text-sm font-medium text-textMuted hover:text-white transition-colors uppercase tracking-widest py-2"
+                className="text-sm font-medium text-textMuted hover:text-slate-200 transition-colors uppercase tracking-widest py-2"
               >
                 {item}
               </button>
@@ -76,7 +76,7 @@ export const Welcome = () => {
             <span className="inline-block px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-[0.2em] mb-6">
               Modern Education Management
             </span>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-tight mb-8">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-slate-200 leading-tight mb-8">
               Pioneering the <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-indigo-400 to-secondary">Future of Learning</span>
             </h1>
@@ -88,7 +88,7 @@ export const Welcome = () => {
               <button onClick={handleLogin} className="btn-primary px-10 py-4 !rounded-full shadow-2xl">
                 Get Started Now
               </button>
-              <button onClick={() => scrollToSection('why-us')} className="px-10 py-4 rounded-full border border-white/10 hover:bg-white/5 transition-colors text-white font-bold">
+              <button onClick={() => scrollToSection('why-us')} className="px-10 py-4 rounded-full border border-white/10 hover:bg-white/5 transition-colors text-slate-200 font-bold">
                 Learn More
               </button>
             </div>
@@ -100,7 +100,7 @@ export const Welcome = () => {
           
           <div id="why-us" className="glass-card p-12 relative overflow-hidden group">
             <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors" />
-            <h2 className="text-3xl font-bold text-white mb-8 flex items-center gap-4">
+            <h2 className="text-3xl font-bold text-slate-200 mb-8 flex items-center gap-4">
               <span className="w-10 h-1 bg-primary rounded-full" /> Why Choose Us
             </h2>
             <p className="text-lg text-textMuted leading-relaxed">
@@ -114,7 +114,7 @@ export const Welcome = () => {
 
           <div id="about-us" className="glass-card p-12 relative overflow-hidden group">
             <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-secondary/5 rounded-full blur-3xl group-hover:bg-secondary/10 transition-colors" />
-            <h2 className="text-3xl font-bold text-white mb-8 flex items-center gap-4">
+            <h2 className="text-3xl font-bold text-slate-200 mb-8 flex items-center gap-4">
               <span className="w-10 h-1 bg-secondary rounded-full" /> About Our Mission
             </h2>
             <p className="text-lg text-textMuted leading-relaxed font-light italic">
@@ -129,7 +129,7 @@ export const Welcome = () => {
           </div>
 
           <div id="contact-us" className="glass-card p-12">
-            <h2 className="text-3xl font-bold text-white mb-12 text-center">Get In Touch</h2>
+            <h2 className="text-3xl font-bold text-slate-200 mb-12 text-center">Get In Touch</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
               <div className="text-center space-y-4">
                 <div className="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center mx-auto text-primary">
@@ -138,7 +138,7 @@ export const Welcome = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
-                <h3 className="text-white font-bold">Our Location</h3>
+                <h3 className="text-slate-200 font-bold">Our Location</h3>
                 <p className="text-sm text-textMuted leading-relaxed">
                   IMS Tuition Center<br/>
                   123 Learning Lane<br/>
@@ -152,7 +152,7 @@ export const Welcome = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                 </div>
-                <h3 className="text-white font-bold">Call Us</h3>
+                <h3 className="text-slate-200 font-bold">Call Us</h3>
                 <p className="text-sm text-textMuted leading-relaxed">
                   Phone: +1 (555) 123-4567<br/>
                   Fax: +1 (555) 987-6543
@@ -165,7 +165,7 @@ export const Welcome = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h3 className="text-white font-bold">Hours</h3>
+                <h3 className="text-slate-200 font-bold">Hours</h3>
                 <p className="text-sm text-textMuted">
                   Mon - Fri: 9AM - 6PM<br/>
                   Sat: 10AM - 4PM

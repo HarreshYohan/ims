@@ -66,7 +66,7 @@ export const Grade = () => {
 
   const columns = [
     { label: 'ID', accessor: 'id', render: (val) => <span className="text-textMuted">#{val}</span> },
-    { label: 'Grade Name', accessor: 'name', render: (val) => <span className="font-medium text-white">{val}</span> },
+    { label: 'Grade Name', accessor: 'name', render: (val) => <span className="font-medium text-slate-200">{val}</span> },
     { 
       label: 'Actions', 
       accessor: 'id',

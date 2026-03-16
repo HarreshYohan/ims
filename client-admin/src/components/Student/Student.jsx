@@ -111,7 +111,7 @@ export const Student = () => {
 
   const columns = [
     { label: 'ID', accessor: 'user_id', render: (val) => <span className="text-textMuted">#{val}</span> },
-    { label: 'Name', accessor: 'firstname', render: (_, row) => <span className="font-medium text-white">{row.firstname} {row.lastname}</span> },
+    { label: 'Name', accessor: 'firstname', render: (_, row) => <span className="font-medium text-slate-200">{row.firstname} {row.lastname}</span> },
     { label: 'Grade', accessor: 'grade', render: (val) => <span className="bg-primary/20 text-primary px-2 py-1 rounded text-xs">{val}</span> },
     { label: 'Contact', accessor: 'contact' },
     { label: 'Email', accessor: 'email', render: (val) => <span className="text-textMuted text-sm">{val}</span> },
@@ -150,7 +150,7 @@ export const Student = () => {
         />
       </div>
       <div className="flex items-center gap-3 ml-auto">
-        <button onClick={handleDownload} className="text-sm flex items-center gap-2 text-textMuted hover:text-white transition-colors">
+        <button onClick={handleDownload} className="text-sm flex items-center gap-2 text-textMuted hover:text-slate-200 transition-colors">
           <Download size={16} /> Export CSV
         </button>
         <button onClick={() => setIsModalOpen(true)} className="btn-primary">
@@ -182,14 +182,14 @@ export const Student = () => {
               <div className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-4 text-emerald-400">
                 <UserPlus size={32} />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Student Created Successfully!</h3>
+              <h3 className="text-xl font-bold text-slate-200 mb-2">Student Created Successfully!</h3>
               <p className="text-textMuted text-sm">An email has been sent to the student. Here are the login details for your reference:</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
                 <span className="text-xs text-textMuted uppercase block mb-1">Username</span>
-                <span className="text-lg font-mono text-white select-all">{generatedCreds.username}</span>
+                <span className="text-lg font-mono text-slate-200 select-all">{generatedCreds.username}</span>
               </div>
               <div className="bg-slate-800/50 p-4 rounded-xl border border-slate-700/50">
                 <span className="text-xs text-textMuted uppercase block mb-1">Password</span>

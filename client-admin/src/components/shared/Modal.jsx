@@ -30,7 +30,7 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = 'max-w-2xl'
       {/* Modal Card */}
       <div className={`glass-card relative w-full ${maxWidth} max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200 z-10 shadow-[0_0_50px_rgba(0,0,0,0.5)]`}>
         <div className="flex items-center justify-between p-6 border-b border-slate-700/50 sticky top-0 bg-surface/80 backdrop-blur-md z-20">
-          <h2 className="text-xl font-semibold text-white tracking-tight">{title}</h2>
+          <h2 className="text-xl font-semibold text-slate-200 tracking-tight">{title}</h2>
           <button 
             onClick={onClose}
             className="p-2 text-textMuted hover:text-white hover:bg-danger/20 hover:text-danger rounded-lg transition-colors"

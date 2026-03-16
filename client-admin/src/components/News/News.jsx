@@ -27,7 +27,7 @@ export const News = () => {
               <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto text-primary animate-pulse">
                 <FileText size={40} />
               </div>
-              <h2 className="text-3xl font-bold tracking-tight text-white">Bulletin Board</h2>
+              <h2 className="text-3xl font-bold tracking-tight text-slate-200">Bulletin Board</h2>
               <p className="text-textMuted max-w-sm mx-auto">This section is currently under development. Soon you'll be able to publish news and announcements here.</p>
            </div>
         </Card>

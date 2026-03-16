@@ -112,7 +112,7 @@ export const RevenueIntelligence = () => {
     <Layout title="Revenue Intelligence" maxWidth="max-w-[1600px]">
       {/* Header Actions */}
       <div className="flex justify-end gap-3 mb-2">
-         <button onClick={handleDownloadCsv} className="px-4 py-2 border border-slate-700 rounded-xl text-textMuted hover:text-white transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
+         <button onClick={handleDownloadCsv} className="px-4 py-2 border border-slate-700 rounded-xl text-textMuted hover:text-slate-200 transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
             <Download size={14} /> CSV
          </button>
          <button onClick={handleDownloadPdf} className="btn-primary !py-2 !px-6 flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
@@ -208,7 +208,7 @@ export const RevenueIntelligence = () => {
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[idx] }} />
                       <span className="text-textMuted">{item.subject}</span>
                    </div>
-                   <span className="font-bold text-white">{((item.revenue / (totalMonthlyRevenue || 1)) * 100).toFixed(1)}%</span>
+                   <span className="font-bold text-slate-200">{((item.revenue / (totalMonthlyRevenue || 1)) * 100).toFixed(1)}%</span>
                 </div>
               ))}
            </div>
@@ -242,7 +242,7 @@ export const RevenueIntelligence = () => {
 
 const InsightCard = ({ title, value, sub, icon, color }) => (
   <Card className="relative overflow-hidden group">
-    <div className="absolute -right-4 -top-4 text-white/5 group-hover:text-white/10 transition-all">
+    <div className="absolute -right-4 -top-4 text-slate-200/5 group-hover:text-slate-200/10 transition-all">
        {React.cloneElement(icon, { size: 100 })}
     </div>
     <p className="text-textMuted text-xs uppercase font-bold tracking-widest mb-1">{title}</p>

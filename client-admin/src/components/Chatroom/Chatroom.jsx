@@ -131,7 +131,7 @@ export const Chatroom = () => {
                  <Users size={20} />
               </div>
               <div>
-                 <h2 className="text-sm font-bold text-white uppercase tracking-wider">Subject Discussions</h2>
+                 <h2 className="text-sm font-bold text-slate-200 uppercase tracking-wider">Subject Discussions</h2>
                  <p className="text-xs text-textMuted">Select a subject to view messages</p>
               </div>
            </div>
@@ -165,7 +165,7 @@ export const Chatroom = () => {
                   <div className={`max-w-[70%] group`}>
                     <div className={`flex items-center gap-2 mb-1 px-1 ${isMine ? 'justify-end' : 'justify-start'}`}>
                        <span className="text-[10px] font-bold text-textMuted uppercase tracking-widest">{item.user.username}</span>
-                       <span className="text-[10px] text-slate-600 font-medium">{format(new Date(item.createdAt), 'hh:mm a')}</span>
+                       <span className="text-[10px] text-slate-500 font-medium">{format(new Date(item.createdAt), 'hh:mm a')}</span>
                     </div>
                     <div className={`p-4 rounded-2xl shadow-lg ${
                       isMine 
@@ -191,7 +191,7 @@ export const Chatroom = () => {
                 <input
                   type="text"
                   placeholder="Type your message..."
-                  className="flex-1 bg-slate-800/50 border border-slate-700 rounded-xl px-5 py-3 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-slate-600 transition-all"
+                  className="flex-1 bg-slate-800/50 border border-slate-700 rounded-xl px-5 py-3 text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder:text-slate-500 transition-all"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   onKeyDown={(e) => {

@@ -36,7 +36,7 @@ export const Navbar = () => {
     <div className="space-y-1">
       {to ? (
         <NavLink to={to} onClick={onClick}
-          className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${isActive ? 'bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(99,102,241,0.2)]' : 'text-textMuted hover:text-white hover:bg-slate-800/50 border border-transparent'}`}
+          className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all group ${isActive ? 'bg-primary/10 text-primary border border-primary/20' : 'text-textMuted hover:text-primary hover:bg-primary/10 border border-transparent'}`}
         >
           <Icon size={20} className="transition-transform group-hover:scale-110" />
           <span className="font-medium text-sm">{label}</span>
@@ -44,7 +44,7 @@ export const Navbar = () => {
         </NavLink>
       ) : (
         <button onClick={onClick}
-          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all group ${isOpen ? 'bg-slate-800/80 text-white' : 'text-textMuted hover:text-white hover:bg-slate-800/50'}`}
+          className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all group ${isOpen ? 'bg-primary/10 text-primary' : 'text-textMuted hover:text-primary hover:bg-primary/10'}`}
         >
           <div className="flex items-center gap-3">
             <Icon size={20} className="transition-transform group-hover:scale-110" />
@@ -56,7 +56,7 @@ export const Navbar = () => {
     </div>
   );
 
-  const navClass = `fixed left-0 top-[72px] bottom-0 w-64 glass-card !rounded-none !border-y-0 !border-l-0 bg-slate-900/90 backdrop-blur-2xl p-4 z-40 overflow-y-auto custom-scrollbar transition-transform duration-300 ease-in-out ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`;
+  const navClass = `fixed left-0 top-[72px] bottom-0 w-64 glass-card !rounded-none !border-y-0 !border-l-0 bg-white/95 backdrop-blur-2xl p-4 z-40 overflow-y-auto custom-scrollbar transition-transform duration-300 ease-in-out border-r border-slate-200/60 ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`;
 
   // ─── STUDENT NAV ─────────────────────────────────────────
   if (userType === 'STUDENT') {

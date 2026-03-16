@@ -118,7 +118,7 @@ export const EditTutor = () => {
   };
 
   const subjectColumns = [
-    { label: 'Subject', accessor: 'subject', render: (val) => <span className="font-medium text-white">{val}</span> },
+    { label: 'Subject', accessor: 'subject', render: (val) => <span className="font-medium text-slate-200">{val}</span> },
     { label: 'Grade', accessor: 'grade', render: (val) => <span className="bg-primary/20 text-primary px-2 py-1 rounded text-xs">{val}</span> },
     { 
       label: 'Actions', 

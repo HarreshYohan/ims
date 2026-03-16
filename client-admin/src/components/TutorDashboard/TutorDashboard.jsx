@@ -73,12 +73,12 @@ export const TutorDashboard = () => {
   const StatTile = ({ icon: Icon, label, value, color, sub }) => (
     <div className="glass-card p-5 flex items-center gap-4 hover:scale-[1.02] transition-transform">
       <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
-        <Icon size={22} className="text-white" />
+        <Icon size={22} className="text-slate-200" />
       </div>
       <div>
-        <p className="text-2xl font-bold text-white">{value}</p>
+        <p className="text-2xl font-bold text-slate-200">{value}</p>
         <p className="text-xs text-textMuted uppercase tracking-wider">{label}</p>
-        {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
+        {sub && <p className="text-xs text-slate-500 mt-0.5">{sub}</p>}
       </div>
     </div>
   );
@@ -89,7 +89,7 @@ export const TutorDashboard = () => {
       <div className="glass-card p-6 mb-6 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 border-indigo-500/20">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-white mb-1">Welcome back, {tutorName} 👋</h2>
+            <h2 className="text-2xl font-bold text-slate-200 mb-1">Welcome back, {tutorName} 👋</h2>
             <p className="text-textMuted text-sm">
               {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
@@ -123,11 +123,11 @@ export const TutorDashboard = () => {
                       <BookOpen size={18} className="text-indigo-400" />
                     </div>
                     <div>
-                      <p className="font-medium text-white text-sm">{s.subject}</p>
+                      <p className="font-medium text-slate-200 text-sm">{s.subject}</p>
                       <p className="text-xs text-textMuted">{s.grade} • Fee: ${s.fees}</p>
                     </div>
                   </div>
-                  <span className="text-xs text-slate-400 bg-slate-800 px-3 py-1 rounded-full">ID #{s.id}</span>
+                  <span className="text-xs text-slate-500 bg-slate-800 px-3 py-1 rounded-full">ID #{s.id}</span>
                 </div>
               ))}
             </div>
@@ -143,7 +143,7 @@ export const TutorDashboard = () => {
               {payments.slice(0, 6).map((p, i) => (
                 <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-slate-800/40 border border-slate-700/30">
                   <div>
-                    <p className="text-sm font-medium text-white">
+                    <p className="text-sm font-medium text-slate-200">
                       {['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][p.month]} {p.year}
                     </p>
                     <p className="text-xs text-textMuted mt-0.5">Total: ${Number(p.totalpayment).toLocaleString()}</p>

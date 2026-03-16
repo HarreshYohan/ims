@@ -175,7 +175,7 @@ export const TutorPayment = () => {
           <div className="space-y-8">
             {/* Header Actions */}
             <div className="flex justify-end gap-3 mb-2">
-               <button onClick={handleDownloadCsv} className="px-4 py-2 border border-slate-700 rounded-xl text-textMuted hover:text-white transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-widest leading-none">
+               <button onClick={handleDownloadCsv} className="px-4 py-2 border border-slate-700 rounded-xl text-textMuted hover:text-slate-200 transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-widest leading-none">
                   <Download size={14} /> CSV
                </button>
                <button onClick={handleDownloadPdf} className="btn-primary !py-2 !px-6 flex items-center gap-2 text-xs font-bold uppercase tracking-widest leading-none">
@@ -187,7 +187,7 @@ export const TutorPayment = () => {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                <div className="bg-slate-900/40 p-6 rounded-2xl border border-white/5 backdrop-blur-sm">
                   <p className="text-textMuted text-xs uppercase font-bold tracking-widest mb-2">Total Monthly Libality</p>
-                  <p className="text-3xl font-bold text-white">
+                  <p className="text-3xl font-bold text-slate-200">
                     LKR {(Object.values(groupedData || {}).reduce((sum, t) => sum + (parseFloat(t.totalPayment) || 0), 0)).toLocaleString()}
                   </p>
                </div>
@@ -225,7 +225,7 @@ export const TutorPayment = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
                    <div className="bg-slate-900/40 p-4 rounded-xl border border-white/5">
                       <p className="text-textMuted text-xs uppercase font-bold tracking-widest mb-1">Total Agreed Payment</p>
-                      <p className="text-2xl font-bold text-white">LKR {tutor.totalPayment.toFixed(2)}</p>
+                      <p className="text-2xl font-bold text-slate-200">LKR {tutor.totalPayment.toFixed(2)}</p>
                    </div>
                    <div className="bg-slate-900/40 p-4 rounded-xl border border-white/5">
                       <p className="text-textMuted text-xs uppercase font-bold tracking-widest mb-1">Total Received</p>
@@ -244,7 +244,7 @@ export const TutorPayment = () => {
                       <h4 className="text-sm font-bold text-textMuted uppercase tracking-widest mb-4">Detailed Breakdown</h4>
                       <GenericTable 
                         columns={[
-                          { label: 'Subject', accessor: 'subject', render: (val) => <span className="font-medium text-white">{val}</span> },
+                          { label: 'Subject', accessor: 'subject', render: (val) => <span className="font-medium text-slate-200">{val}</span> },
                           { label: 'Grade', accessor: 'grade', render: (val) => <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-xs">{val}</span> },
                           { label: 'Students', accessor: 'studentCount', render: (val) => <span className="text-secondary">{val}</span> },
                           { label: 'Amount', accessor: 'payment', render: (val) => <span className="font-bold">LKR {val.toFixed(2)}</span> }
@@ -306,7 +306,7 @@ export const TutorPayment = () => {
                              </button>
                              <button 
                                onClick={cancelEditing}
-                               className="px-4 py-2 border border-slate-700 rounded-lg text-textMuted hover:text-white transition-all"
+                               className="px-4 py-2 border border-slate-700 rounded-lg text-textMuted hover:text-slate-200 transition-all"
                              >
                                Cancel
                              </button>
@@ -317,7 +317,7 @@ export const TutorPayment = () => {
                            <p className="text-sm text-textMuted mb-4 italic">Update the payment history for this tutor to track settled balances.</p>
                            <button 
                              onClick={() => startEditing(tutor.tutorid)}
-                             className="w-full bg-slate-800 text-white py-2.5 rounded-xl font-bold hover:bg-slate-700 border border-white/5 transition-all"
+                             className="w-full bg-slate-800 text-slate-200 py-2.5 rounded-xl font-bold hover:bg-slate-700 border border-white/5 transition-all"
                            >
                              Log New Payment
                            </button>

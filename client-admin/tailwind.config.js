@@ -6,25 +6,40 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        background: '#0f172a', // Deep slate
-        surface: 'rgba(30, 41, 59, 0.7)', // Glassmorphic slate
-        surfaceHighlight: 'rgba(51, 65, 85, 0.9)',
-        primary: '#6366f1', // Indigo
-        primaryHover: '#4f46e5',
-        secondary: '#10b981', // Emerald
-        secondaryHover: '#059669',
-        danger: '#ef4444', // Rose
-        textLight: '#f8fafc',
-        textMuted: '#94a3b8',
+        white: '#f8fafc', // Overriding default pure white with greyish white
+        background: '#f1f5f9', // Slightly darker greyish white for background
+        surface: '#f8fafc', // Greyish White
+        surfaceHighlight: '#e2e8f0', // Light Grey Highlight
+        primary: '#0ea5e9', // Elegant Light Blue
+        primaryHover: '#0284c7', // Darker Blue for hover
+        secondary: '#64748b', // Slate Grey (neutral)
+        secondaryHover: '#475569',
+        danger: '#e11d48', // Elegant Red
+        textLight: '#1e293b', // Dark Slate for main text
+        textMuted: '#64748b', // Medium Slate for muted text
+        slate: {
+          // Inverting the slate palette so that legacy "bg-slate-900" becomes light and "bg-slate-100" becomes dark.
+          950: '#f1f5f9',
+          900: '#f8fafc',
+          800: '#e2e8f0',
+          700: '#cbd5e1', // borders
+          600: '#94a3b8',
+          500: '#64748b', // textMuted
+          400: '#475569',
+          300: '#334155',
+          200: '#1e293b', // textLight
+          100: '#0f172a',
+          50: '#020617',
+        }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
-        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
+        'glass': '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)',
       },
       backdropBlur: {
-        'glass': '12px',
+        'glass': '4px',
       }
     },
   },

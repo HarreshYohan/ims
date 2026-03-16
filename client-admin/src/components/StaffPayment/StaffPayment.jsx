@@ -56,7 +56,7 @@ export const StaffPayment = () => {
           </div>
           <div>
             <p className="text-textMuted text-xs uppercase font-bold tracking-widest">Monthly Salary Liability</p>
-            <h3 className="text-2xl font-bold text-white mt-1">LKR {totalLiability.toLocaleString()}</h3>
+            <h3 className="text-2xl font-bold text-slate-200 mt-1">LKR {totalLiability.toLocaleString()}</h3>
           </div>
         </Card>
         
@@ -66,7 +66,7 @@ export const StaffPayment = () => {
           </div>
           <div>
             <p className="text-textMuted text-xs uppercase font-bold tracking-widest">Total Staff Count</p>
-            <h3 className="text-2xl font-bold text-white mt-1">{staff.length} Members</h3>
+            <h3 className="text-2xl font-bold text-slate-200 mt-1">{staff.length} Members</h3>
           </div>
         </Card>
 
@@ -97,7 +97,7 @@ export const StaffPayment = () => {
           columns={[
             { label: 'Staff Member', accessor: 'firstname', render: (_, row) => (
               <div className="flex flex-col">
-                <span className="text-white font-medium">{row.firstname} {row.lastname}</span>
+                <span className="text-slate-200 font-medium">{row.firstname} {row.lastname}</span>
                 <span className="text-[10px] text-textMuted uppercase tracking-wider">{row.position}</span>
               </div>
             )},

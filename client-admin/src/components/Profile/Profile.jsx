@@ -85,7 +85,7 @@ export const Profile = () => {
   const ReadOnlyField = ({ label, value }) => (
     <div className="space-y-1">
       <label className="text-xs font-bold text-textMuted uppercase ml-1">{label}</label>
-      <div className="input-field !py-2.5 bg-slate-900/60 text-slate-400 cursor-not-allowed border border-slate-700/50 rounded-xl px-4">{value || '—'}</div>
+      <div className="input-field !py-2.5 bg-slate-900/60 text-slate-500 cursor-not-allowed border border-slate-700/50 rounded-xl px-4">{value || '—'}</div>
     </div>
   );
 
@@ -95,7 +95,7 @@ export const Profile = () => {
       <input
         type={type}
         name={name}
-        className={`input-field !py-2.5 w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 text-white focus:border-primary transition-colors ${!editable ? 'bg-slate-900/60 text-slate-400 cursor-not-allowed' : ''}`}
+        className={`input-field !py-2.5 w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 text-slate-200 focus:border-primary transition-colors ${!editable ? 'bg-slate-900/60 text-slate-500 cursor-not-allowed' : ''}`}
         value={value || ''}
         onChange={editable ? handleChange : undefined}
         readOnly={!editable}
@@ -130,7 +130,7 @@ export const Profile = () => {
                <div className="space-y-3">
                   <div className="flex justify-between border-b border-slate-800/50 pb-2">
                     <span className="text-textMuted text-xs uppercase">Internal ID</span>
-                    <span className="text-white font-mono text-sm">{user.user_id || user.id}</span>
+                    <span className="text-slate-200 font-mono text-sm">{user.user_id || user.id}</span>
                   </div>
                   <div className="flex justify-between border-b border-slate-800/50 pb-2">
                     <span className="text-textMuted text-xs uppercase">Role</span>
@@ -159,7 +159,7 @@ export const Profile = () => {
               {(isTutorOrStaff || isAdmin) && (role === 'TUTOR' || role === 'STAFF') && (
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-textMuted uppercase ml-1">Title</label>
-                  <select name="title" className="input-field !py-2.5 w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 text-white" value={user.title || ''} onChange={canEditTitle ? handleChange : undefined} disabled={!canEditTitle}>
+                  <select name="title" className="input-field !py-2.5 w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 text-slate-200" value={user.title || ''} onChange={canEditTitle ? handleChange : undefined} disabled={!canEditTitle}>
                     <option value="Mr">Mr</option>
                     <option value="Mrs">Mrs</option>
                     <option value="Ms">Ms</option>

@@ -59,7 +59,7 @@ export const Dashboard = () => {
           </div>
           <div>
             <p className="text-textMuted text-sm uppercase tracking-wider font-semibold">Total Students</p>
-            <h3 className="text-4xl font-bold text-white mt-1">{totalStudents}</h3>
+            <h3 className="text-4xl font-bold text-slate-200 mt-1">{totalStudents}</h3>
           </div>
         </Card>
         
@@ -69,7 +69,7 @@ export const Dashboard = () => {
           </div>
           <div>
             <p className="text-textMuted text-sm uppercase tracking-wider font-semibold">Total Teachers</p>
-            <h3 className="text-4xl font-bold text-white mt-1">{totalTeachers}</h3>
+            <h3 className="text-4xl font-bold text-slate-200 mt-1">{totalTeachers}</h3>
           </div>
         </Card>
         
@@ -79,7 +79,7 @@ export const Dashboard = () => {
           </div>
           <div>
             <p className="text-textMuted text-sm uppercase tracking-wider font-semibold">Total Staff</p>
-            <h3 className="text-4xl font-bold text-white mt-1">{totalStaff}</h3>
+            <h3 className="text-4xl font-bold text-slate-200 mt-1">{totalStaff}</h3>
           </div>
         </Card>
       </div>

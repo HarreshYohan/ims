@@ -69,10 +69,10 @@ export const ActivityLog = () => {
   const StatCard = ({ label, value, icon: Icon, color }) => (
     <div className="glass-card p-4 flex items-center gap-3">
       <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${color}`}>
-        <Icon size={18} className="text-white" />
+        <Icon size={18} className="text-slate-200" />
       </div>
       <div>
-        <p className="text-xl font-bold text-white">{value}</p>
+        <p className="text-xl font-bold text-slate-200">{value}</p>
         <p className="text-xs text-textMuted uppercase tracking-wider">{label}</p>
       </div>
     </div>
@@ -184,7 +184,7 @@ export const ActivityLog = () => {
                       <td className="py-3 px-3 whitespace-nowrap">
                         <div className="flex items-center gap-2">
                           <Clock size={14} className="text-slate-500" />
-                          <span className="text-sm text-slate-300">{formatTime(log.created_at)}</span>
+                          <span className="text-sm text-slate-500">{formatTime(log.created_at)}</span>
                         </div>
                       </td>
                       <td className="py-3 px-3">
@@ -195,7 +195,7 @@ export const ActivityLog = () => {
                       </td>
                       <td className="py-3 px-3">
                         <div>
-                          <p className="text-sm font-medium text-white">{log.username || '—'}</p>
+                          <p className="text-sm font-medium text-slate-200">{log.username || '—'}</p>
                           <p className="text-xs text-textMuted">{log.email || ''}</p>
                         </div>
                       </td>
@@ -205,11 +205,11 @@ export const ActivityLog = () => {
                         </span>
                       </td>
                       <td className="py-3 px-3">
-                        <span className="text-sm text-slate-300 capitalize">{log.entity || '—'}</span>
+                        <span className="text-sm text-slate-500 capitalize">{log.entity || '—'}</span>
                         {log.entity_id && <span className="text-xs text-textMuted ml-1">#{log.entity_id}</span>}
                       </td>
                       <td className="py-3 px-3 max-w-[300px]">
-                        <p className="text-sm text-slate-400 truncate" title={log.details}>{log.details || '—'}</p>
+                        <p className="text-sm text-slate-500 truncate" title={log.details}>{log.details || '—'}</p>
                       </td>
                       <td className="py-3 px-3">
                         <span className="text-xs text-slate-500 font-mono">{log.ip_address || '—'}</span>

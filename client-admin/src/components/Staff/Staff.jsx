@@ -93,7 +93,7 @@ export const Staff = () => {
   const columns = [
     { label: 'ID', accessor: 'id', render: (val) => <span className="text-textMuted">#{val}</span> },
     { label: 'Title', accessor: 'title', render: (val) => <span className="text-secondary font-medium">{val}</span> },
-    { label: 'Name', accessor: 'firstname', render: (_, row) => <span className="font-medium text-white">{row.firstname} {row.lastname}</span> },
+    { label: 'Name', accessor: 'firstname', render: (_, row) => <span className="font-medium text-slate-200">{row.firstname} {row.lastname}</span> },
     { label: 'Position', accessor: 'position', render: (val) => (
       <span className="flex items-center gap-2">
         <Briefcase size={14} className="text-emerald-400" />

@@ -64,7 +64,7 @@ export const GenericTable = ({
       {pagination && pagination.total > 1 && (
         <div className="flex items-center justify-between mt-6 px-2">
           <span className="text-sm text-textMuted">
-            Page <span className="font-semibold text-white">{pagination.current}</span> of <span className="font-semibold text-white">{pagination.total}</span>
+            Page <span className="font-semibold text-slate-200">{pagination.current}</span> of <span className="font-semibold text-slate-200">{pagination.total}</span>
           </span>
           <div className="flex gap-2">
             <button

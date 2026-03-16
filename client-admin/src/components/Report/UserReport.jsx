@@ -115,7 +115,7 @@ export const UserReport = () => {
 
   const columns = [
     { label: 'ID', accessor: 'id', render: (val) => <span className="text-textMuted">#{val}</span> },
-    { label: 'Username', accessor: 'username', render: (val) => <span className="text-white font-medium">{val}</span> },
+    { label: 'Username', accessor: 'username', render: (val) => <span className="text-slate-200 font-medium">{val}</span> },
     { label: 'Email', accessor: 'email' },
     { 
       label: 'Role', 
@@ -193,7 +193,7 @@ export const UserReport = () => {
            <div className="md:col-span-6 flex justify-end gap-3">
               <button 
                 onClick={handleDownloadCsv} 
-                className="px-4 py-2 border border-slate-700 rounded-xl text-textMuted hover:text-white transition-all flex items-center gap-2"
+                className="px-4 py-2 border border-slate-700 rounded-xl text-textMuted hover:text-slate-200 transition-all flex items-center gap-2"
               >
                 <Download size={18} />
                 <span>CSV</span>

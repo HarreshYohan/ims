@@ -130,7 +130,7 @@ export const Timetable = () => {
         <Card>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-slate-700/50 pb-4">
             <div>
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <h2 className="text-2xl font-bold text-slate-200 flex items-center gap-2">
                 Viewing Schedule: <span className="text-primary">{classroomName}</span>
               </h2>
             </div>
@@ -176,13 +176,13 @@ export const Timetable = () => {
                                   </div>
                                 )}
                                 <span className="text-xs font-semibold text-primary uppercase tracking-wider mb-1 block bg-primary/10 px-2 py-0.5 rounded-full">{cellData.grade.name}</span>
-                                <span className="text-sm font-medium text-white block truncate w-full" title={cellData.subject.name}>{cellData.subject.name}</span>
+                                <span className="text-sm font-medium text-slate-200 block truncate w-full" title={cellData.subject.name}>{cellData.subject.name}</span>
                                 <span className="text-xs text-textMuted mt-1 block truncate w-full">{cellData.tutor.title} {cellData.tutor.firstname}</span>
                               </div>
                             ) : (
                               canEdit ? (
                                 <div className="h-full w-full min-h-[80px] rounded-xl border border-dashed border-slate-700/50 flex items-center justify-center hover:bg-slate-800/30 transition-colors group/empty cursor-pointer" onClick={() => handleEdit(item.classroomid, day.key, item.timeslotid)}>
-                                  <PlusCircle size={20} className="text-slate-600 group-hover/empty:text-primary transition-colors" />
+                                  <PlusCircle size={20} className="text-slate-500 group-hover/empty:text-primary transition-colors" />
                                 </div>
                               ) : (
                                 <div className="h-full w-full min-h-[80px] rounded-xl border border-dashed border-slate-700/30 flex items-center justify-center">
@@ -226,7 +226,7 @@ export const Timetable = () => {
                       className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-medium transition-colors ${
                         pagination.currentPage === pageNum 
                           ? 'bg-primary text-white border border-primary' 
-                          : 'border border-transparent text-textMuted hover:bg-slate-700 hover:text-white'
+                          : 'border border-transparent text-textMuted hover:bg-slate-700 hover:text-slate-200'
                       }`}
                     >
                       {pageNum}

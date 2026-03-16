@@ -72,7 +72,7 @@ export const AnalyticsDashboard = () => {
         {sub?.trend === 'up' && <span className="text-emerald-400 text-xs flex items-center gap-0.5"><TrendingUp size={12}/> +{sub.val}%</span>}
         {sub?.trend === 'down' && <span className="text-rose-400 text-xs flex items-center gap-0.5"><TrendingDown size={12}/> -{sub.val}%</span>}
       </div>
-      <p className="text-2xl font-bold text-white tracking-tight">{value}</p>
+      <p className="text-2xl font-bold text-slate-200 tracking-tight">{value}</p>
       <p className="text-xs text-textMuted uppercase tracking-wider font-medium">{label}</p>
     </div>
   );
@@ -88,7 +88,7 @@ export const AnalyticsDashboard = () => {
           <button 
             onClick={() => downloadReport('csv')} 
             disabled={isDownloading}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 transition-colors border border-slate-700 text-sm font-medium"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 text-slate-500 hover:bg-slate-700 transition-colors border border-slate-700 text-sm font-medium"
           >
             <DownloadCloud size={18}/> CSV
           </button>
@@ -202,7 +202,7 @@ export const AnalyticsDashboard = () => {
       {(userType === 'STAFF' || userType === 'TUTOR') && (
         <div className="flex flex-col items-center justify-center p-20 glass-card">
            <BarChart3 size={48} className="text-primary mb-4 opacity-50"/>
-           <h3 className="text-xl font-bold text-white mb-2">{userType} Analytics Ready</h3>
+           <h3 className="text-xl font-bold text-slate-200 mb-2">{userType} Analytics Ready</h3>
            <p className="text-textMuted text-center max-w-md">Your personalized analytics dashboard is active. Download the intelligence report to see full forecasts.</p>
         </div>
       )}

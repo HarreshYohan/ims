@@ -86,7 +86,7 @@ export const Classroom = () => {
 
   const columns = [
     { label: 'ID', accessor: 'id', render: (val) => <span className="text-textMuted">#{val}</span> },
-    { label: 'Name', accessor: 'name', render: (val) => <span className="font-medium text-white">{val}</span> },
+    { label: 'Name', accessor: 'name', render: (val) => <span className="font-medium text-slate-200">{val}</span> },
     { label: 'Capacity', accessor: 'capacity', render: (val) => <span className="text-secondary">{val} students</span> },
     ...(canEdit ? [{
       label: 'Actions', 

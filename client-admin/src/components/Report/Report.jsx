@@ -75,7 +75,7 @@ const ReportCard = ({ title, desc, icon, badge, onClick }) => (
         </span>
       )}
     </div>
-    <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
+    <h3 className="text-lg font-bold text-slate-200 mb-2">{title}</h3>
     <p className="text-sm text-textMuted leading-relaxed">{desc}</p>
     <div className="mt-6 flex items-center gap-2 text-primary text-xs font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
       View Report →

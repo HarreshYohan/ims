@@ -16,7 +16,7 @@ export const FormSelect = ({
   return (
     <div className="flex flex-col space-y-1.5 mb-4">
       {label && (
-        <label htmlFor={name} className="text-sm font-medium text-slate-300">
+        <label htmlFor={name} className="text-sm font-medium text-slate-500">
           {label} {required && <span className="text-danger">*</span>}
         </label>
       )}

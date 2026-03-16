@@ -66,7 +66,7 @@ export const Tutor = () => {
   const columns = [
     { label: 'ID', accessor: 'user_id', render: (val) => <span className="text-textMuted">#{val}</span> },
     { label: 'Title', accessor: 'title', render: (val) => <span className="text-secondary font-medium">{val}</span> },
-    { label: 'Name', accessor: 'firstname', render: (_, row) => <span className="font-medium text-white">{row.firstname} {row.lastname}</span> },
+    { label: 'Name', accessor: 'firstname', render: (_, row) => <span className="font-medium text-slate-200">{row.firstname} {row.lastname}</span> },
     { label: 'Contact', accessor: 'contact' },
     { 
       label: 'Actions', 

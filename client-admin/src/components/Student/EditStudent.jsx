@@ -103,7 +103,7 @@ export const EditStudent = () => {
   };
 
   const subjectColumns = [
-    { label: 'Subject Name', accessor: 'subject', render: (val) => <span className="font-medium text-white">{val}</span> },
+    { label: 'Subject Name', accessor: 'subject', render: (val) => <span className="font-medium text-slate-200">{val}</span> },
     { 
       label: 'Actions', 
       accessor: 'subject_id', 

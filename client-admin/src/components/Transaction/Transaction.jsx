@@ -107,7 +107,7 @@ export const Transaction = () => {
         </span>
       )
     },
-    { label: 'Amount', accessor: 'amount', render: (val) => <span className="font-bold text-white">LKR {val}</span> },
+    { label: 'Amount', accessor: 'amount', render: (val) => <span className="font-bold text-slate-200">LKR {val}</span> },
     { label: 'Description', accessor: 'description' },
     { label: 'Participant', accessor: 'participant_id', render: (val) => <span className="text-textMuted text-xs">{val || 'N/A'}</span> },
     { label: 'Date', accessor: 'createdAt', render: (val) => <span className="text-textMuted">{format(new Date(val), 'MMM dd, yyyy')}</span> },
@@ -115,7 +115,7 @@ export const Transaction = () => {
 
   const TableActions = (
     <div className="flex items-center gap-3">
-       <button onClick={handleDownload} className="p-2.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-textMuted hover:text-white transition-all">
+       <button onClick={handleDownload} className="p-2.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-textMuted hover:text-slate-200 transition-all">
           <Download size={20} />
        </button>
        <button onClick={() => setShowCreateModal(true)} className="btn-primary">

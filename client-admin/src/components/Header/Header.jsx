@@ -48,12 +48,12 @@ export const Header = ({ type, action }) => {
   const link = type === "welcome" ? "/" : branding.link;
 
   return (
-    <header className="sticky top-0 z-50 w-full glass-card !rounded-none !border-t-0 !border-x-0 backdrop-blur-xl bg-slate-900/80 px-6 py-4 flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full glass-card !rounded-none !border-t-0 !border-x-0 border-b border-slate-200/60 backdrop-blur-xl bg-white/90 px-6 py-4 flex items-center justify-between">
       <div className="flex items-center gap-4">
         {/* Mobile Toggle */}
         <button 
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="lg:hidden p-2 text-textMuted hover:text-white transition-colors"
+          className="lg:hidden p-2 text-textMuted hover:text-slate-200 transition-colors"
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -61,23 +61,23 @@ export const Header = ({ type, action }) => {
         <Link to={link} className="transition-transform hover:scale-105 active:scale-95">
           <img src={logo_icon} alt="Logo" className="h-10 w-auto" />
         </Link>
-        <div className="h-6 w-[1px] bg-slate-700 mx-2 hidden md:block" />
-        <h1 className="text-lg font-semibold text-white tracking-tight hidden md:block">IMS <span className="text-primary">{branding.label}</span></h1>
+        <div className="h-6 w-[1px] bg-slate-300 mx-2 hidden md:block" />
+        <h1 className="text-lg font-semibold text-slate-200 tracking-tight hidden md:block">IMS <span className="text-primary">{branding.label}</span></h1>
       </div>
 
       <div className="flex items-center gap-4">
         <button 
-          className="flex items-center gap-2 p-1.5 pr-4 rounded-full border border-slate-700/50 hover:bg-slate-800 transition-all group hidden sm:flex" 
+          className="flex items-center gap-2 p-1.5 pr-4 rounded-full border border-gray-200 hover:bg-gray-100 transition-all group hidden sm:flex" 
           onClick={handleProfileClick}
         >
-          <div className="w-8 h-8 rounded-full bg-slate-700 overflow-hidden border border-primary/30 flex items-center justify-center">
-            {profile_icon ? <img src={profile_icon} alt="Profile" className="w-full h-full object-cover" /> : <UserIcon size={16} />}
+          <div className="w-8 h-8 rounded-full bg-gray-50 overflow-hidden border border-gray-200 flex items-center justify-center">
+            {profile_icon ? <img src={profile_icon} alt="Profile" className="w-full h-full object-cover" /> : <UserIcon size={16} className="text-gray-500" />}
           </div>
-          <span className="text-sm font-medium text-textMuted group-hover:text-white transition-colors">Profile</span>
+          <span className="text-sm font-medium text-textMuted group-hover:text-gray-900 transition-colors">Profile</span>
         </button>
 
         <button 
-          className="bg-danger/10 text-danger hover:bg-danger hover:text-white border border-danger/30 px-4 py-2 rounded-lg text-sm font-semibold transition-all shadow-[0_0_15px_rgba(239,68,68,0.1)] hover:shadow-[0_0_20px_rgba(239,68,68,0.3)] active:scale-95 flex items-center gap-2" 
+          className="bg-danger/10 text-danger hover:bg-danger hover:text-white border border-danger/30 px-4 py-2 rounded-lg text-sm font-semibold transition-all active:scale-95 flex items-center gap-2" 
           onClick={handleLogout}
         >
           <LogOut size={16} />
