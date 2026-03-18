@@ -175,7 +175,7 @@ export const Timetable = () => {
                                     </button>
                                   </div>
                                 )}
-                                <span className="text-xs font-semibold text-primary uppercase tracking-wider mb-1 block bg-primary/10 px-2 py-0.5 rounded-full">{cellData.grade.name}</span>
+                                <span className="text-xs font-semibold text-primary uppercase tracking-wider mb-1 block bg-primary/10 px-2 py-0.5 rounded-full">{cellData.grade.name} • {cellData.syllabus?.name || 'N/A'}</span>
                                 <span className="text-sm font-medium text-slate-200 block truncate w-full" title={cellData.subject.name}>{cellData.subject.name}</span>
                                 <span className="text-xs text-textMuted mt-1 block truncate w-full">{cellData.tutor.title} {cellData.tutor.firstname}</span>
                               </div>
@@ -267,7 +267,7 @@ export const Timetable = () => {
               onChange={(e) => setSubjectTutorid(e.target.value)}
               options={subjectTutors.map(tutor => ({
                 value: tutor.id,
-                label: `${tutor.grade} • ${tutor.subject} (${tutor.tutor})`
+                label: `${tutor.grade} • ${tutor.subject} (${tutor.syllabus || 'N/A'}) • ${tutor.tutor}`
               }))}
               required
             />

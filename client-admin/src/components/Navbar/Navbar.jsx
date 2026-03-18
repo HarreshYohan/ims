@@ -116,6 +116,7 @@ export const Navbar = () => {
         {/* Staff does NOT see Staff page */}
         <NavItem to="/classroom" icon={Building2} label="Classrooms" />
         <NavItem to="/grade" icon={GraduationCap} label="Grades" />
+        <NavItem to="/syllabus" icon={Layers} label="Syllabus" />
         <NavItem to="/transaction" icon={ArrowLeftRight} label="Transactions" />
         <NavItem to="/subject-tutor" icon={BookOpen} label="Subject Allocs" />
         <div>
@@ -153,6 +154,7 @@ export const Navbar = () => {
       <NavItem to="/staff" icon={Users} label="Staff" />
       <NavItem to="/classroom" icon={Building2} label="Classrooms" />
       <NavItem to="/grade" icon={GraduationCap} label="Grades" />
+      <NavItem to="/syllabus" icon={Layers} label="Syllabus" />
       <NavItem to="/transaction" icon={ArrowLeftRight} label="Transactions" />
       <NavItem to="/subject-tutor" icon={BookOpen} label="Subject Allocs" />
       <div>

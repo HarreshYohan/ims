@@ -13,6 +13,7 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
 // Use 'npm run migrate' (sequelize-cli db:migrate) to manage schema changes safely.
 // See: server/app/migrations/
 
+const Syllabus = require('./syllabus.model')(sequelize, Sequelize.DataTypes);
 const User = require('./user.model')(sequelize, Sequelize.DataTypes);
 const Student = require('./student.model')(sequelize, Sequelize.DataTypes);
 const Tutor = require('./tutor.model')(sequelize, Sequelize.DataTypes);
@@ -47,6 +48,9 @@ Admin.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 SubjectTutor.belongsTo(Tutor, { foreignKey: 'tutorid', as: 'tutor' });
 SubjectTutor.belongsTo(Subject, { foreignKey: 'subjectid', as: 'subject' });
 SubjectTutor.belongsTo(Grade, { foreignKey: 'gradeid', as: 'grade' });
+SubjectTutor.belongsTo(Syllabus, { foreignKey: 'syllabusid', as: 'syllabus' });
+
+Student.belongsTo(Syllabus, { foreignKey: 'syllabusid', as: 'syllabus' });
 
 StudentSubject.belongsTo(SubjectTutor, { foreignKey: 'subjecttutorid', as: 'subjectTutor' });
 StudentSubject.belongsTo(Student, { foreignKey: 'studentid', as: 'student' });
@@ -79,6 +83,7 @@ QuizAttempt.belongsTo(Student, { foreignKey: 'studentid', as: 'student' });
 module.exports = {
   sequelize,
   User,
+  Syllabus,
   Student,
   Tutor,
   Staff,

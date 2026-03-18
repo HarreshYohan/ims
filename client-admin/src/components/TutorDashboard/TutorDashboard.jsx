@@ -102,11 +102,35 @@ export const TutorDashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatTile icon={BookOpen} label="My Subjects" value={subjects.length} color="bg-indigo-500" />
         <StatTile icon={Users} label="Total Students" value={totalStudents} color="bg-emerald-500" sub="across all subjects" />
         <StatTile icon={Calendar} label="Today" value={today.charAt(0).toUpperCase() + today.slice(1)} color="bg-purple-500" />
         <StatTile icon={CreditCard} label="Total Received" value={`$${totalEarnings.toLocaleString()}`} color="bg-amber-500" />
+      </div>
+
+      {/* Quick Actions moved up */}
+      <div className="mb-8">
+        <Card title="Quick Actions">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+            {[
+              { label: 'My Schedule', icon: Calendar, route: '/timetable', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
+              { label: 'My Students', icon: Users, route: '/student', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+              { label: 'Classrooms', icon: Clock, route: '/classroom', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
+              { label: 'Chatroom', icon: TrendingUp, route: '/chatroom', color: 'bg-pink-500/10 text-pink-400 border-pink-500/20' },
+            ].map(({ label, icon: Icon, route, color }) => (
+              <button key={label} onClick={() => navigate(route)}
+                className={`flex items-center justify-between p-4 rounded-xl border transition-all hover:scale-[1.02] ${color}`}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon size={20} />
+                  <span className="font-medium text-sm">{label}</span>
+                </div>
+                <ChevronRight size={16} className="opacity-50" />
+              </button>
+            ))}
+          </div>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -158,30 +182,6 @@ export const TutorDashboard = () => {
               ))}
             </div>
           )}
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="mt-6">
-        <Card title="Quick Actions">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-            {[
-              { label: 'My Schedule', icon: Calendar, route: '/timetable', color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
-              { label: 'My Students', icon: Users, route: '/student', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
-              { label: 'Classrooms', icon: Clock, route: '/classroom', color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20' },
-              { label: 'Chatroom', icon: TrendingUp, route: '/chatroom', color: 'bg-pink-500/10 text-pink-400 border-pink-500/20' },
-            ].map(({ label, icon: Icon, route, color }) => (
-              <button key={label} onClick={() => navigate(route)}
-                className={`flex items-center justify-between p-4 rounded-xl border transition-all hover:scale-[1.02] ${color}`}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon size={20} />
-                  <span className="font-medium text-sm">{label}</span>
-                </div>
-                <ChevronRight size={16} className="opacity-50" />
-              </button>
-            ))}
-          </div>
         </Card>
       </div>
     </Layout>

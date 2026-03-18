@@ -129,7 +129,10 @@ exports.delete = async (req, res) => {
 };
 
 exports.getSubjectsForStudentGrade = async (req, res) => {
-  const { studentid } = req.params;
+  const studentid = parseInt(req.params.studentid);
+  if (isNaN(studentid)) {
+    return res.status(400).json({ message: 'Invalid student ID format.' });
+  }
 
   try {
     const student = await Student.findByPk(studentid);
@@ -138,10 +141,15 @@ exports.getSubjectsForStudentGrade = async (req, res) => {
       return res.status(404).json({ message: 'Student not found' });
     }
 
-    const grade = await Grade.findOne({ where: { name: student.grade } });
+    let gradeName = student.grade;
+    if (gradeName && !isNaN(gradeName) && !gradeName.startsWith('Grade ')) {
+      gradeName = `Grade ${gradeName}`;
+    }
+
+    const grade = await Grade.findOne({ where: { name: gradeName } });
 
     if (!grade) {
-      return res.status(404).json({ message: 'Grade not found for the student' });
+      return res.json({ subjects: [], message: 'Grade not found for the student' });
     }
 
     const subjectTutors = await SubjectTutor.findAll({
@@ -183,10 +191,15 @@ exports.addSubjectToStudent = async (req, res) => {
       return res.status(404).json({ message: 'Student not found' });
     }
 
-    const grade = await Grade.findOne({ where: { name: student.grade } });
+    let gradeName = student.grade;
+    if (gradeName && !isNaN(gradeName) && !gradeName.startsWith('Grade ')) {
+      gradeName = `Grade ${gradeName}`;
+    }
+
+    const grade = await Grade.findOne({ where: { name: gradeName } });
 
     if (!grade) {
-      return res.status(404).json({ message: 'Grade not found for the student' });
+      return res.status(400).json({ message: 'Grade not found. Please update student grade in profile.' });
     }
 
     const subjectTutor = await SubjectTutor.findOne({

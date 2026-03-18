@@ -1,14 +1,19 @@
-const { SubjectTutor, Tutor, Subject, Grade } = require('../models');
+const { SubjectTutor, Tutor, Subject, Grade, Syllabus } = require('../models');
 
 exports.create = async (req, res) => {
-  const { tutorid, subjectid, gradeid , fees } = req.body;
+  const { tutorid, subjectid, gradeid , syllabusid, fees } = req.body;
+
+  if (parseFloat(fees) <= 0) {
+    return res.status(400).send({ message: 'Fees must be a positive value greater than zero.' });
+  }
 
   try {
     const newSubjectTutor = await SubjectTutor.create({
       tutorid: parseInt(tutorid),
       subjectid: parseInt(subjectid),
       gradeid: parseInt(gradeid),
-      fees: parseFloat(fees) || 0
+      syllabusid: syllabusid ? parseInt(syllabusid) : null,
+      fees: parseFloat(fees)
     });
 
     res.status(201).send(newSubjectTutor);
@@ -21,7 +26,7 @@ exports.create = async (req, res) => {
 
 exports.findAll = async (req, res) => {
   try {
-    const { page, limit, subjectid, tutorid, gradeid } = req.query;
+    const { page, limit, subjectid, tutorid, gradeid, syllabusid } = req.query;
     const pageNum = parseInt(page) || 1;
     const limitNum = parseInt(limit) || 20;
     const offset = (pageNum - 1) * limitNum;
@@ -30,6 +35,7 @@ exports.findAll = async (req, res) => {
     if (subjectid) where.subjectid = subjectid;
     if (tutorid) where.tutorid = tutorid;
     if (gradeid) where.gradeid = gradeid;
+    if (syllabusid) where.syllabusid = syllabusid;
 
     const { count, rows }  = await SubjectTutor.findAndCountAll({
       where,
@@ -37,6 +43,7 @@ exports.findAll = async (req, res) => {
         { model: Subject, as: 'subject' , attributes: ['name']},
         { model: Tutor, as: 'tutor' ,  attributes: ['title','firstname','lastname'] },
         { model: Grade, as: 'grade' , attributes: ['name'] },
+        { model: Syllabus, as: 'syllabus', attributes: ['name'] }
       ],
       limit: limitNum,
       offset,
@@ -51,7 +58,8 @@ exports.findAll = async (req, res) => {
       fees: item.fees,
       tutor: item.tutor.title+" "+item.tutor.firstname+" "+item.tutor.lastname,
       subject : item.subject.name,
-      grade : item.grade.name
+      grade : item.grade.name,
+      syllabus: item.syllabus?.name || 'N/A'
     }));
 
     const totalPages = Math.ceil(count / limitNum);
@@ -76,7 +84,8 @@ exports.findOne = async (req, res) => {
       include: [
         { model: Tutor,  as: 'tutor' },
         { model: Subject , as: 'subject' },
-        { model: Grade  , as: 'grade' }
+        { model: Grade  , as: 'grade' },
+        { model: Syllabus, as: 'syllabus' }
       ]
     });
 
@@ -96,7 +105,7 @@ exports.findOne = async (req, res) => {
 
 exports.update = async (req, res) => {
   const id = req.params.id;
-  const { tutorid, subjectid, gradeid, fees } = req.body;
+  const { tutorid, subjectid, gradeid, syllabusid, fees } = req.body;
 
   try {
     const subjectTutor = await SubjectTutor.findByPk(id);
@@ -105,11 +114,16 @@ exports.update = async (req, res) => {
       return res.status(404).send({ message: `Cannot find SubjectTutor with id=${id}.` });
     }
 
+    if (fees !== undefined && parseFloat(fees) <= 0) {
+      return res.status(400).send({ message: 'Fees must be a positive value greater than zero.' });
+    }
+
     await subjectTutor.update({
       tutorid: parseInt(tutorid) || subjectTutor.tutorid,
       subjectid: parseInt(subjectid) || subjectTutor.subjectid,
       gradeid: parseInt(gradeid) || subjectTutor.gradeid,
-      fees: parseFloat(fees) || subjectTutor.fees,
+      syllabusid: syllabusid !== undefined ? (syllabusid ? parseInt(syllabusid) : null) : subjectTutor.syllabusid,
+      fees: fees !== undefined ? parseFloat(fees) : subjectTutor.fees,
     });
 
     res.status(200).send({ message: "SubjectTutor was updated successfully!", subjectTutor });

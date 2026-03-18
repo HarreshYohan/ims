@@ -23,7 +23,7 @@ const StudentFees = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    totalamount: {
+    amount: {
       type: DataTypes.FLOAT,
       allowNull: false,
     },

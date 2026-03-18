@@ -6,7 +6,7 @@ import HomePage from './components/HomePage';
 import { LoginSignup } from "./components/LoginSignup/LoginSignup";
 import { Dashboard }   from './components/Dashboard/Dashboard';
 import { Welcome }     from './components/Welcome/Welcome';
-import { Timetable }   from "./components/TimeTable/TimeTable";
+import { Timetable }   from "./components/Timetable/Timetable";
 import { Student }     from "./components/Student/Student";
 import { Staff }       from "./components/Staff/Staff";
 import { Report }      from "./components/Report/Report";
@@ -24,6 +24,7 @@ import { UserReport }   from "./components/Report/UserReport";
 import { Grade }        from "./components/Grade/Grade";
 import { RevenueIntelligence } from "./components/Report/RevenueIntelligence";
 import { StaffPayment } from "./components/StaffPayment/StaffPayment";
+import { Syllabus } from "./components/Syllabus/Syllabus";
 
 
 
@@ -79,6 +80,7 @@ function App() {
         <Route path="/grade"            element={<Protected element={<Grade />} />} />
         <Route path="/revenue"          element={<Protected element={<RevenueIntelligence />} />} />
         <Route path="/staff-payment"    element={<Protected element={<StaffPayment />} />} />
+        <Route path="/syllabus"         element={<Protected element={<Syllabus />} />} />
 
         {/* Admin/Staff Tools */}
         <Route path="/activity-log"       element={<Protected element={<ActivityLog />} />} />

@@ -12,7 +12,11 @@ export const FormInput = ({
   placeholder, 
   required = false,
   error,
-  disabled = false
+  disabled = false,
+  maxLength,
+  min,
+  step,
+  ...props
 }) => {
   return (
     <div className="flex flex-col space-y-1.5 mb-4">
@@ -30,6 +34,10 @@ export const FormInput = ({
         placeholder={placeholder}
         required={required}
         disabled={disabled}
+        maxLength={maxLength}
+        min={min}
+        step={step}
+        {...props}
         className={`input-field ${error ? 'border-danger focus:ring-danger/50' : ''} ${disabled ? 'opacity-50 cursor-not-allowed bg-slate-900 border-slate-800' : ''}`}
       />
       {error && <span className="text-xs text-danger mt-1">{error}</span>}

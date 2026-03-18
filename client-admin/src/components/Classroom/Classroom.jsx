@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
@@ -63,6 +63,13 @@ export const Classroom = () => {
     }
   };
 
+  const isFormValid = useMemo(() => {
+    return (
+      formData.name && formData.name.trim() !== '' && 
+      formData.capacity && parseInt(formData.capacity) > 0
+    );
+  }, [formData]);
+
   const handleFormChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleModalSubmit = async (e) => {
@@ -108,19 +115,23 @@ export const Classroom = () => {
   ];
 
   const TableActions = (
-    <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-      <div className="flex items-center gap-2 w-full md:w-64">
-        <FormInput 
-          placeholder="Search rooms..." 
-          value={searchTerm} 
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="!mb-0"
-        />
+    <div className="flex flex-col md:flex-row items-center gap-4 w-full">
+      <div className="flex flex-1 items-center gap-3 w-full">
+        <div className="w-full md:w-64">
+          <FormInput 
+            placeholder="Search rooms..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="!mb-0"
+          />
+        </div>
       </div>
       {canEdit && (
-        <button onClick={openCreateModal} className="btn-primary ml-auto">
-          <PlusCircle size={18} /> Add Classroom
-        </button>
+        <div className="flex items-center gap-3 w-full md:w-auto shrink-0 justify-end">
+          <button onClick={openCreateModal} className="btn-primary">
+            <PlusCircle size={18} /> Add Classroom
+          </button>
+        </div>
       )}
     </div>
   );
@@ -141,14 +152,18 @@ export const Classroom = () => {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={modalMode === 'CREATE' ? "Add New Classroom" : "Edit Classroom"}>
         <form onSubmit={handleModalSubmit}>
           <div className="space-y-4">
-            <FormInput label="Classroom Name" name="name" value={formData.name} onChange={handleFormChange} placeholder="e.g. Hall A, Chemistry Lab" required />
-            <FormInput label="Capacity" name="capacity" type="number" value={formData.capacity} onChange={handleFormChange} placeholder="e.g. 40" required />
+            <FormInput label="Classroom Name" name="name" value={formData.name} onChange={handleFormChange} placeholder="e.g. Hall A, Chemistry Lab" required autoFocus />
+            <FormInput label="Capacity" name="capacity" type="number" value={formData.capacity} onChange={handleFormChange} placeholder="e.g. 40" required min={1} />
           </div>
           <div className="mt-8 flex justify-end gap-3">
             <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-lg text-textMuted hover:bg-slate-800 transition-colors font-medium">
               Cancel
             </button>
-            <button type="submit" disabled={isSubmitting} className="btn-primary">
+            <button 
+              type="submit" 
+              disabled={isSubmitting || !isFormValid} 
+              className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
+            >
               {isSubmitting ? 'Saving...' : (modalMode === 'CREATE' ? 'Create Classroom' : 'Save Changes')}
             </button>
           </div>

@@ -6,8 +6,10 @@ import { FormInput } from '../shared/FormInput';
 import { FormSelect } from '../shared/FormSelect';
 import { 
   Activity, Search, Filter, Clock, User, Shield,
-  LogIn, Plus, Pencil, Trash2, ChevronLeft, ChevronRight 
+  LogIn, Plus, Pencil, Trash2, ChevronLeft, ChevronRight, Eye 
 } from 'lucide-react';
+import { GenericTable } from '../shared/GenericTable';
+import { Modal } from '../shared/Modal';
 
 const ACTION_ICONS = {
   LOGIN:  { icon: LogIn,  color: 'text-emerald-400 bg-emerald-500/10' },
@@ -32,6 +34,9 @@ export const ActivityLog = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filters, setFilters] = useState({ search: '', action: '', role: '', entity: '' });
+  
+  const [selectedLog, setSelectedLog] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
@@ -81,7 +86,88 @@ export const ActivityLog = () => {
   const formatTime = (ts) => {
     if (!ts) return '—';
     const d = new Date(ts);
-    return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+    return d.toLocaleString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric',
+      hour: '2-digit', 
+      minute: '2-digit', 
+      hour12: true 
+    });
+  };
+
+  const columns = [
+    { 
+      label: 'Time', 
+      accessor: 'created_at', 
+      render: (val) => (
+        <div className="flex items-center gap-2">
+          <Clock size={14} className="text-slate-500" />
+          <span className="text-sm text-slate-500">{formatTime(val)}</span>
+        </div>
+      )
+    },
+    { 
+      label: 'Action', 
+      accessor: 'action',
+      render: (val) => {
+        const style = ACTION_ICONS[val] || ACTION_ICONS.CREATE;
+        const badge = ACTION_BADGE[val] || ACTION_BADGE.CREATE;
+        const ActionIcon = style.icon;
+        return (
+          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${badge}`}>
+            <ActionIcon size={12} />
+            {val}
+          </span>
+        );
+      }
+    },
+    { 
+      label: 'User', 
+      accessor: 'username',
+      render: (val, row) => (
+        <div>
+          <p className="text-sm font-medium text-slate-200">{val || '—'}</p>
+          <p className="text-xs text-textMuted">{row.email || ''}</p>
+        </div>
+      )
+    },
+    { 
+      label: 'Role', 
+      accessor: 'role',
+      render: (val) => (
+        <span className="bg-primary/20 text-primary px-2 py-0.5 rounded-full text-xs font-bold">
+          {val || '—'}
+        </span>
+      )
+    },
+    { 
+      label: 'Entity', 
+      accessor: 'entity',
+      render: (val, row) => (
+        <span className="text-sm text-slate-500 capitalize">
+          {val || '—'}
+          {row.entity_id && <span className="text-xs text-textMuted ml-1">#{row.entity_id}</span>}
+        </span>
+      )
+    },
+    { 
+      label: 'Details', 
+      accessor: 'details',
+      render: (val) => (
+        <p className="text-sm text-slate-500 truncate max-w-[200px]" title={val}>{val || '—'}</p>
+      )
+    },
+    {
+      label: 'IP Address',
+      accessor: 'ip_address',
+      render: (val) => <span className="text-xs text-slate-500 font-mono">{val || '—'}</span>
+    }
+  ];
+
+  const handleRowClick = (log) => {
+    setSelectedLog(log);
+    setIsModalOpen(true);
   };
 
   return (
@@ -156,89 +242,93 @@ export const ActivityLog = () => {
 
       {/* Log Table */}
       <Card title="Audit Trail">
-        <div className="overflow-x-auto custom-scrollbar mt-4">
-          {loading ? (
-            <div className="text-center text-textMuted py-12">Loading activity logs...</div>
-          ) : logs.length === 0 ? (
-            <div className="text-center text-textMuted py-12">No activity logs found.</div>
-          ) : (
-            <table className="w-full text-left min-w-[900px]">
-              <thead>
-                <tr className="border-b border-slate-700/50">
-                  <th className="py-3 px-3 text-textMuted text-xs uppercase tracking-wider font-medium">Time</th>
-                  <th className="py-3 px-3 text-textMuted text-xs uppercase tracking-wider font-medium">Action</th>
-                  <th className="py-3 px-3 text-textMuted text-xs uppercase tracking-wider font-medium">User</th>
-                  <th className="py-3 px-3 text-textMuted text-xs uppercase tracking-wider font-medium">Role</th>
-                  <th className="py-3 px-3 text-textMuted text-xs uppercase tracking-wider font-medium">Entity</th>
-                  <th className="py-3 px-3 text-textMuted text-xs uppercase tracking-wider font-medium">Details</th>
-                  <th className="py-3 px-3 text-textMuted text-xs uppercase tracking-wider font-medium">IP</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/50">
-                {logs.map((log) => {
-                  const actionStyle = ACTION_ICONS[log.action] || ACTION_ICONS.CREATE;
-                  const badge = ACTION_BADGE[log.action] || ACTION_BADGE.CREATE;
-                  const ActionIcon = actionStyle.icon;
-                  return (
-                    <tr key={log.id} className="hover:bg-slate-800/20 transition-colors">
-                      <td className="py-3 px-3 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <Clock size={14} className="text-slate-500" />
-                          <span className="text-sm text-slate-500">{formatTime(log.created_at)}</span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-3">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border ${badge}`}>
-                          <ActionIcon size={12} />
-                          {log.action}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3">
-                        <div>
-                          <p className="text-sm font-medium text-slate-200">{log.username || '—'}</p>
-                          <p className="text-xs text-textMuted">{log.email || ''}</p>
-                        </div>
-                      </td>
-                      <td className="py-3 px-3">
-                        <span className="bg-primary/20 text-primary px-2 py-0.5 rounded-full text-xs font-bold">
-                          {log.role || '—'}
-                        </span>
-                      </td>
-                      <td className="py-3 px-3">
-                        <span className="text-sm text-slate-500 capitalize">{log.entity || '—'}</span>
-                        {log.entity_id && <span className="text-xs text-textMuted ml-1">#{log.entity_id}</span>}
-                      </td>
-                      <td className="py-3 px-3 max-w-[300px]">
-                        <p className="text-sm text-slate-500 truncate" title={log.details}>{log.details || '—'}</p>
-                      </td>
-                      <td className="py-3 px-3">
-                        <span className="text-xs text-slate-500 font-mono">{log.ip_address || '—'}</span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          )}
-        </div>
+        <GenericTable 
+          columns={columns} 
+          data={logs} 
+          loading={loading}
+          onRowClick={handleRowClick}
+          pagination={{
+            current: page,
+            total: totalPages,
+            onPageChange: (p) => setPage(p)
+          }}
+        />
+      </Card>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-6 flex justify-between items-center border-t border-slate-700/50 pt-4">
-            <span className="text-sm text-textMuted">Page {page} of {totalPages}</span>
-            <div className="flex items-center gap-2">
-              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-                className="px-3 py-2 border border-slate-700 rounded-lg bg-slate-800 text-sm hover:bg-slate-700 disabled:opacity-50 transition-colors flex items-center gap-1">
-                <ChevronLeft size={16} /> Prev
-              </button>
-              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-                className="px-3 py-2 border border-slate-700 rounded-lg bg-slate-800 text-sm hover:bg-slate-700 disabled:opacity-50 transition-colors flex items-center gap-1">
-                Next <ChevronRight size={16} />
+      {/* Log Detail Modal */}
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        title="Activity Details"
+        size="lg"
+      >
+        {selectedLog && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs uppercase tracking-wider text-textMuted font-semibold">User Information</label>
+                  <div className="mt-2 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50">
+                    <p className="text-slate-200 font-medium">{selectedLog.username || 'Anonymous'}</p>
+                    <p className="text-sm text-textMuted">{selectedLog.email || 'No email provided'}</p>
+                    <div className="mt-2 inline-block bg-primary/20 text-primary px-2 py-0.5 rounded text-xs font-bold">
+                      {selectedLog.role || 'GUEST'}
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs uppercase tracking-wider text-textMuted font-semibold">Event Metadata</label>
+                  <div className="mt-2 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-textMuted">Timestamp</span>
+                      <span className="text-slate-200">{formatTime(selectedLog.created_at)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-textMuted">IP Address</span>
+                      <span className="text-slate-200 font-mono">{selectedLog.ip_address || '—'}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-textMuted">Action Type</span>
+                      <span className="text-slate-200 font-bold">{selectedLog.action}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="text-xs uppercase tracking-wider text-textMuted font-semibold">Target Entity</label>
+                  <div className="mt-2 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50">
+                    <p className="text-lg text-slate-200 capitalize font-semibold">{selectedLog.entity || 'Generic'}</p>
+                    {selectedLog.entity_id && (
+                      <p className="text-sm text-textMuted mt-1">
+                        Resource ID: <span className="text-primary font-mono font-bold">#{selectedLog.entity_id}</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs uppercase tracking-wider text-textMuted font-semibold">Activity Details</label>
+                  <div className="mt-2 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 min-h-[100px]">
+                    <p className="text-sm text-slate-300 leading-relaxed italic">
+                      "{selectedLog.details || 'No additional details logged for this event.'}"
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4 border-t border-slate-700/50">
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                className="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors border border-slate-700 font-medium"
+              >
+                Close Details
               </button>
             </div>
           </div>
         )}
-      </Card>
+      </Modal>
     </Layout>
   );
 };

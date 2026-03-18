@@ -13,7 +13,8 @@ export const GenericTable = ({
   data, 
   loading, 
   pagination,
-  emptyStateMessage = "No records found" 
+  emptyStateMessage = "No records found",
+  onRowClick
 }) => {
   return (
     <div className="w-full flex flex-col">
@@ -40,7 +41,8 @@ export const GenericTable = ({
               data.map((row, rowIndex) => (
                 <tr 
                   key={row.id || rowIndex} 
-                  className="hover:bg-slate-700/20 transition-colors duration-200"
+                  onClick={() => onRowClick && onRowClick(row)}
+                  className={`hover:bg-slate-700/20 transition-colors duration-200 ${onRowClick ? 'cursor-pointer' : ''}`}
                 >
                   {columns.map((col, colIndex) => (
                     <td key={colIndex} className="px-6 py-4 whitespace-nowrap">

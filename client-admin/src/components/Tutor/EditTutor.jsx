@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -49,6 +49,15 @@ export const EditTutor = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const isFormValid = useMemo(() => {
+    return (
+      tutorData?.title && tutorData.title.trim() !== '' &&
+      tutorData?.firstname && tutorData.firstname.trim() !== '' &&
+      tutorData?.lastname && tutorData.lastname.trim() !== '' &&
+      tutorData?.contact && tutorData.contact.toString().length === 10
+    );
+  }, [tutorData]);
 
   const handleInputChange = (e) => setTutorData({ ...tutorData, [e.target.name]: e.target.value });
 
@@ -120,6 +129,7 @@ export const EditTutor = () => {
   const subjectColumns = [
     { label: 'Subject', accessor: 'subject', render: (val) => <span className="font-medium text-slate-200">{val}</span> },
     { label: 'Grade', accessor: 'grade', render: (val) => <span className="bg-primary/20 text-primary px-2 py-1 rounded text-xs">{val}</span> },
+    { label: 'Fees', accessor: 'fees', render: (val) => <span className="text-secondary font-medium">${val}</span> },
     { 
       label: 'Actions', 
       accessor: 'id', 
@@ -171,7 +181,11 @@ export const EditTutor = () => {
                 <FormInput label="Last Name" name="lastname" value={tutorData.lastname || ''} onChange={handleInputChange} />
                 <FormInput label="Contact" name="contact" value={tutorData.contact || ''} onChange={handleInputChange} />
                 
-                <button onClick={handleSave} disabled={isSaving || loading} className="btn-primary w-full mt-4">
+                <button 
+                  onClick={handleSave} 
+                  disabled={isSaving || loading || !isFormValid} 
+                  className="btn-primary w-full mt-4 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
                   <Save size={18} /> {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>

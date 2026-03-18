@@ -30,6 +30,13 @@ const Student = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    syllabusid: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Syllabus',
+        key: 'id'
+      }
+    },
     createdAt: {
       type: DataTypes.DATE,
       field: 'created_at'

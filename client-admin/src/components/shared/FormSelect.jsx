@@ -11,7 +11,8 @@ export const FormSelect = ({
   options, 
   required = false,
   error,
-  disabled = false
+  disabled = false,
+  ...props
 }) => {
   return (
     <div className="flex flex-col space-y-1.5 mb-4">
@@ -27,6 +28,7 @@ export const FormSelect = ({
         onChange={onChange}
         required={required}
         disabled={disabled}
+        {...props}
         className={`input-field bg-slate-800 ${error ? 'border-danger focus:ring-danger/50' : ''} ${disabled ? 'opacity-50 cursor-not-allowed border-slate-800' : ''}`}
       >
         <option value="" disabled>Select an option</option>

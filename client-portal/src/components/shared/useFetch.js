@@ -23,6 +23,7 @@ export const useFetch = (endpoint, initialParams = {}) => {
 
   const navigate = useNavigate();
 
+  const initialParamsString = JSON.stringify(initialParams);
   const fetchData = useCallback(async (params = {}) => {
     setLoading(true);
     setError(null);
@@ -31,7 +32,7 @@ export const useFetch = (endpoint, initialParams = {}) => {
         params: {
           page: currentPage,
           limit: itemsPerPage,
-          ...initialParams,
+          ...JSON.parse(initialParamsString),
           ...params
         }
       });
@@ -69,7 +70,7 @@ export const useFetch = (endpoint, initialParams = {}) => {
     } finally {
       setLoading(false);
     }
-  }, [endpoint, currentPage, itemsPerPage, navigate, JSON.stringify(initialParams)]);
+  }, [endpoint, currentPage, itemsPerPage, navigate, initialParamsString]);
 
   // Initial Fetch on Mount or Parameter Change
   useEffect(() => {

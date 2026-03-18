@@ -4,14 +4,20 @@ const fs = require('fs');
 const path = require('path');
 
 exports.create = async (req, res) => {
+  const { transaction_type, amount, description, user_id, participant_id, date } = req.body;
+  
+  if (parseFloat(amount) <= 0) {
+    return res.status(400).json({ message: 'Transaction amount must be a positive value greater than zero.' });
+  }
+
   try {
-    const { transaction_type, amount, description, user_id, participant_id } = req.body;
     const newTransaction = await Transaction.create({
       transaction_type,
       amount,
       description,
       user_id,
-      participant_id
+      participant_id,
+      createdAt: date ? new Date(date) : new Date()
     });
     res.status(201).json(newTransaction);
   } catch (error) {
@@ -71,18 +77,23 @@ exports.findOne = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
+  const { id } = req.params;
+  const { transaction_type, amount, description, user_id, participant_id } = req.body;
+
+  if (amount !== undefined && parseFloat(amount) <= 0) {
+    return res.status(400).json({ message: 'Transaction amount must be a positive value greater than zero.' });
+  }
+
   try {
-    const { id } = req.params;
-    const { transaction_type, amount, description, user_id, participant_id } = req.body;
     const transaction = await Transaction.findByPk(id);
     if (!transaction) {
       return res.status(404).json({ message: 'Transaction not found' });
     }
-    transaction.transaction_type = transaction_type;
-    transaction.amount = amount;
-    transaction.description = description;
-    transaction.user_id = user_id;
-    transaction.participant_id = participant_id;
+    transaction.transaction_type = transaction_type || transaction.transaction_type;
+    transaction.amount = amount !== undefined ? amount : transaction.amount;
+    transaction.description = description || transaction.description;
+    transaction.user_id = user_id || transaction.user_id;
+    transaction.participant_id = participant_id || transaction.participant_id;
     await transaction.save();
     res.status(200).json(transaction);
   } catch (error) {

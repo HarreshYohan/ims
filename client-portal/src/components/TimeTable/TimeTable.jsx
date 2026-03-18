@@ -8,14 +8,27 @@ import { FormSelect } from '../shared/FormSelect';
 import { useFetch } from '../shared/useFetch';
 import { Edit3, Trash2, PlusCircle, Calendar as CalendarIcon } from 'lucide-react';
 import { jwtDecode } from 'jwt-decode';
+import { GenericTable } from '../shared/GenericTable';
 
 export const Timetable = () => {
+  const [uid, setUid] = useState(null);
   const [userType, setUserType] = useState(null);
   useEffect(() => {
     const token = localStorage.getItem('authToken');
-    if (token) { try { setUserType(jwtDecode(token).user_type); } catch(e){} }
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setUserType(decoded.user_type);
+        setUid(decoded.user_id);
+      } catch (e) {
+        console.error('Failed to decode token', e);
+      }
+    }
   }, []);
+
   const canEdit = userType === 'ADMIN' || userType === 'STAFF';
+  const isStudent = userType === 'STUDENT';
+
   const [showModal, setShowModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editData, setEditData] = useState({ id: null, day: null, timeslotid: null });
@@ -24,7 +37,13 @@ export const Timetable = () => {
   const [subjectTutorid, setSubjectTutorid] = useState('');
   const [subjectTutors, setSubjectTutors] = useState([]);
 
-  const { data, loading, error, pagination, refetch } = useFetch('/timetable/all', { classroomid });
+  const fetchUrl = isStudent 
+    ? `/timetable/student/${uid}` 
+    : (userType === 'TUTOR' ? `/timetable/tutor/${uid}` : '/timetable/all');
+
+  const { data, loading, pagination, refetch } = useFetch(fetchUrl, { 
+    classroomid: (!isStudent && userType !== 'TUTOR') ? classroomid : undefined,
+  });
 
   useEffect(() => {
     const fetchDropdowns = async () => {
@@ -107,38 +126,61 @@ export const Timetable = () => {
   const classroomName = selectedClassroom?.name || 'Classroom';
   const classroomCapacity = selectedClassroom?.capacity || '-';
 
+  const studentColumns = [
+    { label: 'Day', accessor: 'day', render: (val) => <span className="capitalize font-medium text-slate-200">{val}</span> },
+    { label: 'Timeslot', accessor: 'timeslot' },
+    { label: 'Subject', accessor: 'subject' },
+    { label: 'Syllabus', accessor: 'syllabus' },
+    { label: 'Tutor', accessor: 'tutor' },
+    { label: 'Grade', accessor: 'grade', render: (val) => <span className="bg-primary/20 text-primary px-2 py-1 rounded text-xs">{val}</span> },
+    { label: 'Classroom', accessor: 'classroom' },
+  ];
+
   return (
     <Layout title="Time Table">
-        <div className="flex flex-col md:flex-row gap-4 mb-6 p-4 rounded-xl glass-card backdrop-blur-xl border border-slate-700/50 items-center">
-            <div className="flex items-center gap-2 text-textMuted mr-2">
-              <CalendarIcon size={18} /> <span className="font-medium text-sm uppercase tracking-wider">Select Classroom</span>
-            </div>
-            <div className="flex-1 md:max-w-xs">
-              <FormSelect 
-                name="classroomFilter" 
-                value={classroomid} 
-                onChange={(e) => setClassroomid(e.target.value)}
-                options={classrooms.map(c => ({ label: c.name, value: c.id }))}
-                placeholder="Choose Classroom"
-              />
-            </div>
-            <div className="flex-1 text-right text-textMuted text-xs italic">
-                {classroomCapacity !== '-' && `Max Capacity: ${classroomCapacity} students`}
-            </div>
-        </div>
+        {(!isStudent && userType !== 'TUTOR') && (
+          <div className="flex flex-col md:flex-row gap-4 mb-6 p-4 rounded-xl glass-card backdrop-blur-xl border border-slate-700/50 items-center">
+              <div className="flex items-center gap-2 text-textMuted mr-2">
+                <CalendarIcon size={18} /> <span className="font-medium text-sm uppercase tracking-wider">Select Classroom</span>
+              </div>
+              <div className="flex-1 md:max-w-xs">
+                <FormSelect 
+                  name="classroomFilter" 
+                  value={classroomid} 
+                  onChange={(e) => setClassroomid(e.target.value)}
+                  options={classrooms.map(c => ({ label: c.name, value: c.id }))}
+                  placeholder="Choose Classroom"
+                />
+              </div>
+              <div className="flex-1 text-right text-textMuted text-xs italic">
+                  {classroomCapacity !== '-' && `Max Capacity: ${classroomCapacity} students`}
+              </div>
+          </div>
+        )}
 
         <Card>
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-slate-700/50 pb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                Viewing Schedule: <span className="text-primary">{classroomName}</span>
-              </h2>
+          {(!isStudent && userType !== 'TUTOR') && (
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-slate-700/50 pb-4">
+              <div>
+                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                  Viewing Schedule: <span className="text-primary">{classroomName}</span>
+                </h2>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="overflow-x-auto custom-scrollbar pb-4">
             {loading ? (
               <div className="p-8 text-center text-textMuted">Loading timetable...</div>
+            ) : (isStudent || userType === 'TUTOR') ? (
+              <div className="space-y-4">
+                <GenericTable 
+                  columns={studentColumns} 
+                  data={data} 
+                  loading={loading}
+                  emptyStateMessage="No classes scheduled for you."
+                />
+              </div>
             ) : (
               <table className="w-full text-left border-collapse min-w-[900px]">
                 <thead>
@@ -175,7 +217,7 @@ export const Timetable = () => {
                                     </button>
                                   </div>
                                 )}
-                                <span className="text-xs font-semibold text-primary uppercase tracking-wider mb-1 block bg-primary/10 px-2 py-0.5 rounded-full">{cellData.grade.name}</span>
+                                <span className="text-xs font-semibold text-primary uppercase tracking-wider mb-1 block bg-primary/10 px-2 py-0.5 rounded-full">{cellData.grade.name} • {cellData.syllabus?.name || 'N/A'}</span>
                                 <span className="text-sm font-medium text-white block truncate w-full" title={cellData.subject.name}>{cellData.subject.name}</span>
                                 <span className="text-xs text-textMuted mt-1 block truncate w-full">{cellData.tutor.title} {cellData.tutor.firstname}</span>
                               </div>
@@ -267,7 +309,7 @@ export const Timetable = () => {
               onChange={(e) => setSubjectTutorid(e.target.value)}
               options={subjectTutors.map(tutor => ({
                 value: tutor.id,
-                label: `${tutor.grade} • ${tutor.subject} (${tutor.tutor})`
+                label: `${tutor.grade} • ${tutor.subject} (${tutor.syllabus || 'N/A'}) • ${tutor.tutor}`
               }))}
               required
             />

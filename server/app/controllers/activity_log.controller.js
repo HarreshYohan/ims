@@ -40,7 +40,7 @@ exports.findAll = async (req, res) => {
       currentPage: page,
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
 
@@ -55,6 +55,6 @@ exports.stats = async (req, res) => {
 
     res.json({ total, logins, creates, updates, deletes });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };

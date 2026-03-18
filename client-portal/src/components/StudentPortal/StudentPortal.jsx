@@ -12,6 +12,7 @@ import {
 export const StudentPortal = () => {
   const navigate = useNavigate();
   const [studentName, setStudentName] = useState('');
+  const [syllabusName, setSyllabusName] = useState('');
   const [userId, setUserId] = useState(null);
   const [stats, setStats] = useState({
     totalNotes: 0, activeGoals: 0, streak: 0,
@@ -48,6 +49,7 @@ export const StudentPortal = () => {
       if (profileRes.status === 'fulfilled') {
         const p = profileRes.value.data;
         setStudentName(p.firstname || 'Student');
+        setSyllabusName(p.syllabus?.name || '');
       }
 
       setStats({
@@ -121,6 +123,11 @@ export const StudentPortal = () => {
           <h1 className="text-4xl font-black text-white mt-1">
             {studentName} <span className="text-3xl">👋</span>
           </h1>
+          {syllabusName && (
+            <div className="inline-block bg-white/10 backdrop-blur-md border border-white/10 px-3 py-1 rounded-full mt-2">
+              <span className="text-white/80 text-xs font-bold uppercase tracking-widest">{syllabusName} Syllabus</span>
+            </div>
+          )}
           <p className="text-slate-400 mt-2 text-sm">
             {stats.flashcardsDue > 0
               ? `You have ${stats.flashcardsDue} flashcards due for review today!`

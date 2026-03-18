@@ -32,6 +32,14 @@ const SubjectTutor = (sequelize) => {
         },
         allowNull: false,
     },
+    syllabusid: {
+      type: DataTypes.INTEGER,
+      references: {
+          model: 'Syllabus', 
+          key: 'id',
+      },
+      allowNull: true,
+    },
     fees: {
       type: DataTypes.INTEGER,
       allowNull: false,

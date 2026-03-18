@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -21,6 +21,7 @@ export const EditStudent = () => {
   const [error, setError] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [grades, setGrades] = useState([]);
+  const [syllabuses, setSyllabuses] = useState([]);
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -35,23 +36,26 @@ export const EditStudent = () => {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
-      const [studentRes, feesRes, subjectsRes, allSubjectsRes, gradesRes] = await Promise.all([
-        api.get(`/students/${id}`),
-        api.get(`/student-fees/${id}`),
-        api.get(`/students/student-subject/${id}`),
-        api.get(`/student-subjects/subjects/${id}`),
-        api.get('/grades')
+      const [studentRes, feesRes, subjectsRes, allSubjectsRes, gradesRes, syllabusesRes] = await Promise.all([
+        api.get(`/students/${id}`).catch(e => { console.error('Student fetch failed:', e); throw e; }),
+        api.get(`/student-fees/${id}`).catch(e => { console.error('Fees fetch failed:', e); throw e; }),
+        api.get(`/students/student-subject/${id}`).catch(e => { console.error('Enrolled subjects fetch failed:', e); return { data: { data: { subjects: [] } } }; }),
+        api.get(`/student-subjects/subjects/${id}`).catch(e => { console.error('Available subjects fetch failed:', e); return { data: { subjects: [] } }; }),
+        api.get('/grades').catch(e => { console.error('Grades fetch failed:', e); return { data: [] }; }),
+        api.get('/syllabus').catch(e => { console.error('Syllabus fetch failed:', e); return { data: [] }; })
       ]);
 
-      setStudentData(studentRes.data);
-      setFeesData(feesRes.data);
+      setStudentData(studentRes.data || {});
+      setFeesData(feesRes.data || []);
       setSubjects(subjectsRes.data.data?.subjects || []);
-      setAllSubjects(allSubjectsRes.data.subjects || []);
-      setGrades(gradesRes.data.map(g => ({ label: g.name, value: g.id })));
+      setAllSubjects(allSubjectsRes.data?.subjects || []);
+      setGrades(Array.isArray(gradesRes.data) ? gradesRes.data.map(g => ({ label: g.name, value: g.name })) : []);
+      setSyllabuses(Array.isArray(syllabusesRes.data) ? syllabusesRes.data.map(s => ({ label: s.name, value: String(s.id) })) : []);
     } catch (err) {
       console.error('Error fetching data:', err);
-      setError('Failed to load student data');
+      setError(`Failed to load student data: ${err.response?.data?.message || err.message}`);
     } finally {
       setLoading(false);
     }
@@ -60,6 +64,16 @@ export const EditStudent = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const isFormValid = useMemo(() => {
+    return (
+      studentData?.firstname && studentData.firstname.trim() !== '' &&
+      studentData?.lastname && studentData.lastname.trim() !== '' &&
+      studentData?.contact && studentData.contact.toString().length === 10 &&
+      studentData?.grade && studentData.grade.trim() !== '' &&
+      studentData?.syllabusid
+    );
+  }, [studentData]);
 
   const handleInputChange = (e) => setStudentData({ ...studentData, [e.target.name]: e.target.value });
 
@@ -80,7 +94,7 @@ export const EditStudent = () => {
   const handleRemoveSubject = async (subjectid) => {
     if (!window.confirm('Are you sure you want to remove this subject?')) return;
     try {
-      await api.delete(`/student-subject/remove-subject/${id}/${subjectid}`);
+      await api.delete(`/student-subjects/remove-subject/${id}/${subjectid}`);
       toast.success('Subject removed');
       fetchData(); // Reload all data to refresh dropdowns and lists
     } catch (err) {
@@ -92,7 +106,7 @@ export const EditStudent = () => {
   const handleAddSubject = async () => {
     if (!selectedSubject) return;
     try {
-      await api.post('/student-subject/add-subject', { studentid: id, subjectid: selectedSubject });
+      await api.post('/student-subjects/add-subject', { studentid: id, subjectid: selectedSubject });
       toast.success('Subject added');
       setSelectedSubject('');
       fetchData();
@@ -118,7 +132,7 @@ export const EditStudent = () => {
   const feeColumns = [
     { label: 'Month', accessor: 'month' },
     { label: 'Year', accessor: 'year' },
-    { label: 'Amount', accessor: 'totalAmount', render: (val) => <span className="text-secondary font-medium">${val}</span> },
+    { label: 'Amount', accessor: 'amount', render: (val) => <span className="text-secondary font-medium">${val}</span> },
     { 
       label: 'Status', 
       accessor: 'status',
@@ -130,7 +144,7 @@ export const EditStudent = () => {
     }
   ];
 
-  const subjectOptions = allSubjects.map(sub => ({ value: sub.id, label: sub.subject }));
+  const subjectOptions = (allSubjects || []).map(sub => ({ value: String(sub.id), label: sub.subject }));
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -153,7 +167,7 @@ export const EditStudent = () => {
               <div className="space-y-4">
                 <FormInput label="First Name" name="firstname" value={studentData.firstname || ''} onChange={handleInputChange} />
                 <FormInput label="Last Name" name="lastname" value={studentData.lastname || ''} onChange={handleInputChange} />
-                <FormInput label="Contact" name="contact" value={studentData.contact || ''} onChange={handleInputChange} />
+                <FormInput label="Contact (10 Digits)" name="contact" value={studentData.contact || ''} onChange={handleInputChange} maxLength={10} />
                 <FormSelect 
                   label="Grade" 
                   name="grade" 
@@ -161,8 +175,19 @@ export const EditStudent = () => {
                   onChange={handleInputChange}
                   options={grades}
                 />
+                <FormSelect 
+                  label="Syllabus" 
+                  name="syllabusid" 
+                  value={String(studentData.syllabusid || '')} 
+                  onChange={handleInputChange}
+                  options={syllabuses}
+                />
                 
-                <button onClick={handleSave} disabled={isSaving || loading} className="btn-primary w-full mt-4">
+                <button 
+                  onClick={handleSave} 
+                  disabled={isSaving || loading || !isFormValid} 
+                  className="btn-primary w-full mt-4 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
                   <Save size={18} /> {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>

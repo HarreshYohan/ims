@@ -1,4 +1,4 @@
-const { Timetable, Classroom , SubjectTutor, Subject, Grade, Tutor, Student, StudentSubject} = require('../models');
+const { Timetable, Classroom , SubjectTutor, Subject, Grade, Tutor, Student, StudentSubject, Syllabus} = require('../models');
 const { check, validationResult } = require('express-validator');
 const { TimetableData } = require('../helpers/helpers');
 const { Op } = require('sequelize');
@@ -83,53 +83,56 @@ exports.create = async (req, res) => {
 
 exports.findAll = async (req, res) => {
   try {
-    const classroomid = req.query.classroomid;
+    const { classroomid, studentid } = req.query;
     
-    if (!classroomid) {
+    if (!classroomid && !studentid) {
        return res.json({ data: [], total: 0 });
     }
 
-    const where = { classroomid };
+    const where = {};
+    if (classroomid) where.classroomid = classroomid;
+
+    let studentSubjectTutorIds = null;
+    if (studentid) {
+      const student = await Student.findOne({ where: { user_id: studentid } });
+      if (student) {
+        const studentSubjects = await StudentSubject.findAll({
+          where: { studentid: student.id },
+          attributes: ['subjecttutorid'],
+        });
+        studentSubjectTutorIds = studentSubjects.map(s => s.subjecttutorid);
+      }
+    }
+
+    const includeFilter = (as) => {
+      const inc = {
+        model: SubjectTutor,
+        as,
+        include: [
+          { model: Subject, as: 'subject' }, 
+          { model: Tutor, as: 'tutor' }, 
+          { model: Grade, as: 'grade' },
+          { model: Syllabus, as: 'syllabus' }
+        ],
+        required: false
+      };
+      if (studentSubjectTutorIds) {
+        inc.where = { id: { [Op.in]: studentSubjectTutorIds } };
+      }
+      return inc;
+    };
 
     const rows = await Timetable.findAll({
         where,
         include: [
             { model: Classroom,  as: 'classroom' },
-            {
-                model: SubjectTutor,
-                as: 'mondaycls',
-                include: [{ model: Subject, as: 'subject' }, { model: Tutor, as: 'tutor' }, { model: Grade, as: 'grade' }],
-            },
-            {
-                model: SubjectTutor,
-                as: 'tuesdaycls',
-                include: [{ model: Subject, as: 'subject' }, { model: Tutor, as: 'tutor' }, { model: Grade, as: 'grade' }],
-            },
-            {
-                model: SubjectTutor,
-                as: 'wednesdaycls',
-                include: [{ model: Subject, as: 'subject' }, { model: Tutor, as: 'tutor' }, { model: Grade, as: 'grade' }],
-            },
-            {
-                model: SubjectTutor,
-                as: 'thursdaycls',
-                include: [{ model: Subject, as: 'subject' }, { model: Tutor, as: 'tutor' }, { model: Grade, as: 'grade' }],
-            },
-            {
-                model: SubjectTutor,
-                as: 'fridaycls',
-                include: [{ model: Subject, as: 'subject' }, { model: Tutor, as: 'tutor' }, { model: Grade, as: 'grade' }],
-            },
-            {
-                model: SubjectTutor,
-                as: 'saturdaycls',
-                include: [{ model: Subject, as: 'subject' }, { model: Tutor, as: 'tutor' }, { model: Grade, as: 'grade' }],
-            },
-            {
-                model: SubjectTutor,
-                as: 'sundaycls',
-                include: [{ model: Subject, as: 'subject' }, { model: Tutor, as: 'tutor' }, { model: Grade, as: 'grade' }],
-            },
+            includeFilter('mondaycls'),
+            includeFilter('tuesdaycls'),
+            includeFilter('wednesdaycls'),
+            includeFilter('thursdaycls'),
+            includeFilter('fridaycls'),
+            includeFilter('saturdaycls'),
+            includeFilter('sundaycls'),
         ],
         order: [['timeslotid', 'ASC']],
     });
@@ -232,64 +235,30 @@ exports.delete = async (req, res) => {
 
 const getStudentTimetableRecords = async (studentId) => {
 
-    const student = await Student.findOne({
-      where: {
-        user_id : studentId
-      }
-    })
-
-    if (!student) {
-      console.log("Student not found for user_id:", studentId);
-      return [];
-    }
+    const student = await Student.findOne({ where: { user_id : studentId } });
+    if (!student) return [];
 
     const studentSubjects = await StudentSubject.findAll({
-      where: {
-        studentid: student.id,
-      },
+      where: { studentid: student.id },
       attributes: ['subjecttutorid'], 
     });
-const subjectTutorIds = studentSubjects.map(subject => subject.subjecttutorid);
+    const subjectTutorIds = studentSubjects.map(subject => subject.subjecttutorid);
 
-const rawTimetable = await Timetable.findAll({
-  include: [
-    {
-      model: SubjectTutor,
-      as: 'mondaycls',
-      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
-    },
-    {
-      model: SubjectTutor,
-      as: 'tuesdaycls',
-      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
-    },
-    {
-      model: SubjectTutor,
-      as: 'wednesdaycls',
-      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
-    },
-    {
-      model: SubjectTutor,
-      as: 'thursdaycls',
-      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
-    },
-    {
-      model: SubjectTutor,
-      as: 'fridaycls',
-      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
-    },
-    {
-      model: SubjectTutor,
-      as: 'saturdaycls',
-      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
-    },
-    {
-      model: SubjectTutor,
-      as: 'sundaycls',
-      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
-    },
-  ],
-  order: [['timeslotid', 'ASC']],
+    const rawTimetable = await Timetable.findAll({
+      include: [
+        { model: Classroom, as: 'classroom', attributes: ['name'] },
+        ...['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => ({
+          model: SubjectTutor,
+          as: `${day}cls`,
+          include: [
+            { model: Subject, as: 'subject', attributes: ['name'] },
+            { model: Tutor, as: 'tutor', attributes: ['firstname', 'lastname', 'title'] },
+            { model: Grade, as: 'grade', attributes: ['name'] },
+            { model: Syllabus, as: 'syllabus', attributes: ['name'] }
+          ]
+        }))
+      ],
+      order: [['timeslotid', 'ASC']],
     });
 
     const result = [];
@@ -304,20 +273,24 @@ const rawTimetable = await Timetable.findAll({
       { key: "sunday", cls: "sundaycls" },
     ];
 
-rawTimetable.forEach(entry => {
-    days.forEach(({ key, cls }) => {
-      const subjectTutorId = entry[key];
-      if (subjectTutorIds.includes(subjectTutorId)) {
-        const subjectName = entry[cls]?.subject?.name;
-        if (subjectName) {
-          result.push({
-            timeslot: entry.timeslot,
-            day: key,
-            subject: subjectName,
-          });
+    rawTimetable.forEach(entry => {
+      days.forEach(({ key, cls: clsKey }) => {
+        const subjectTutorId = entry[key];
+        if (subjectTutorIds.includes(subjectTutorId)) {
+          const cls = entry[clsKey];
+          if (cls) {
+            result.push({
+              timeslot: entry.timeslot,
+              day: key,
+              subject: cls.subject?.name,
+              tutor: cls.tutor ? `${cls.tutor.title} ${cls.tutor.firstname} ${cls.tutor.lastname}` : 'N/A',
+              grade: cls.grade?.name,
+              syllabus: cls.syllabus?.name || 'N/A',
+              classroom: entry.classroom?.name || 'Main Hall',
+            });
+          }
         }
-      }
-    });
+      });
     });
 
   return result;
@@ -363,45 +336,21 @@ exports.findForTutor = async (req, res) => {
       return res.status(404).json({ message: 'No subjects assigned to this tutor.' });
     }
 
-  const rawTimetable = await Timetable.findAll({
-  include: [
-    {
-      model: SubjectTutor,
-      as: 'mondaycls',
-      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
-    },
-    {
-      model: SubjectTutor,
-      as: 'tuesdaycls',
-      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
-    },
-    {
-      model: SubjectTutor,
-      as: 'wednesdaycls',
-      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
-    },
-    {
-      model: SubjectTutor,
-      as: 'thursdaycls',
-      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
-    },
-    {
-      model: SubjectTutor,
-      as: 'fridaycls',
-      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
-    },
-    {
-      model: SubjectTutor,
-      as: 'saturdaycls',
-      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
-    },
-    {
-      model: SubjectTutor,
-      as: 'sundaycls',
-      include: [{ model: Subject, as: 'subject', attributes: ['name'] }]
-    },
-  ],
-  order: [['timeslotid', 'ASC']],
+    const rawTimetable = await Timetable.findAll({
+      include: [
+        { model: Classroom, as: 'classroom', attributes: ['name'] },
+        ...['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map(day => ({
+          model: SubjectTutor,
+          as: `${day}cls`,
+          include: [
+            { model: Subject, as: 'subject', attributes: ['name'] },
+            { model: Tutor, as: 'tutor', attributes: ['firstname', 'lastname', 'title'] },
+            { model: Grade, as: 'grade', attributes: ['name'] },
+            { model: Syllabus, as: 'syllabus', attributes: ['name'] }
+          ]
+        }))
+      ],
+      order: [['timeslotid', 'ASC']],
     });
 
 
@@ -418,19 +367,22 @@ exports.findForTutor = async (req, res) => {
     ];
 
     rawTimetable.forEach(entry => {
-    days.forEach(({ key, cls }) => {
-      const subjectTutorId = entry[key];
-      if (subjectTutorIds.includes(subjectTutorId)) {
-        const subjectName = entry[cls]?.subject?.name;
-        if (subjectName) {
-          result.push({
-            timeslot: entry.timeslot,
-            day: key,
-            subject: subjectName,
-          });
+      days.forEach(({ key, cls: clsKey }) => {
+        const subjectTutorId = entry[key];
+        if (subjectTutorIds.includes(subjectTutorId)) {
+          const cls = entry[clsKey];
+          if (cls) {
+            result.push({
+              timeslot: entry.timeslot,
+              day: key,
+              subject: cls.subject?.name,
+              tutor: cls.tutor ? `${cls.tutor.title} ${cls.tutor.firstname} ${cls.tutor.lastname}` : 'N/A',
+              grade: cls.grade?.name,
+              classroom: entry.classroom?.name || 'Main Hall',
+            });
+          }
         }
-      }
-    });
+      });
     });
 
     res.json({ data: result });

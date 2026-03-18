@@ -15,7 +15,10 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
     console.log('Connection has been established successfully.');
 
     const currentDate = new Date();
-    const currentMonth = currentDate.getMonth() + 1; 
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const currentMonth = monthNames[currentDate.getMonth()]; 
     const currentYear = currentDate.getFullYear();
 
     // Fetch all students
@@ -37,7 +40,7 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
           include: [{ model: SubjectTutor, as: 'subjectTutor' ,required: true }],
         });
 
-        const totalAmount = studentSubjects.reduce((sum, studentSubject) => {
+        const amount = studentSubjects.reduce((sum, studentSubject) => {
           return sum + studentSubject.subjectTutor.fees;
         }, 0);
 
@@ -46,7 +49,7 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
           studentid: student.id,
           month: currentMonth.toString(),
           year: currentYear,
-          totalAmount: totalAmount,
+          amount: amount,
           status: 'PENDING',
           createdAt: new Date(),
           updatedAt: new Date(),

@@ -8,6 +8,27 @@ import { SectionHeader } from '../SectionHeader/SectionHeader';
 import { Card } from '../shared/Card';
 import { Info } from 'lucide-react';
 
+const ReadOnlyField = ({ label, value }) => (
+  <div className="space-y-1">
+    <label className="text-xs font-bold text-textMuted uppercase ml-1">{label}</label>
+    <div className="input-field !py-2.5 bg-slate-900/60 text-slate-400 cursor-not-allowed border border-slate-700/50 rounded-xl px-4">{value || '—'}</div>
+  </div>
+);
+
+const EditableField = ({ label, name, value, onChange, type = 'text', editable = true }) => (
+  <div className="space-y-1">
+    <label className="text-xs font-bold text-textMuted uppercase ml-1">{label}</label>
+    <input
+      type={type}
+      name={name}
+      className={`input-field !py-2.5 w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 text-white focus:border-primary transition-colors ${!editable ? 'bg-slate-900/60 text-slate-400 cursor-not-allowed' : ''}`}
+      value={value || ''}
+      onChange={editable ? onChange : undefined}
+      readOnly={!editable}
+    />
+  </div>
+);
+
 export const Profile = () => {
   const [user, setUser] = useState(null);
   const [role, setRole] = useState('');
@@ -80,27 +101,6 @@ export const Profile = () => {
   const canEditContact = true;
   const canEditTitle = isAdmin || isTutorOrStaff;
 
-  const ReadOnlyField = ({ label, value }) => (
-    <div className="space-y-1">
-      <label className="text-xs font-bold text-textMuted uppercase ml-1">{label}</label>
-      <div className="input-field !py-2.5 bg-slate-900/60 text-slate-400 cursor-not-allowed border border-slate-700/50 rounded-xl px-4">{value || '—'}</div>
-    </div>
-  );
-
-  const EditableField = ({ label, name, value, type = 'text', editable = true }) => (
-    <div className="space-y-1">
-      <label className="text-xs font-bold text-textMuted uppercase ml-1">{label}</label>
-      <input
-        type={type}
-        name={name}
-        className={`input-field !py-2.5 w-full bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 text-white focus:border-primary transition-colors ${!editable ? 'bg-slate-900/60 text-slate-400 cursor-not-allowed' : ''}`}
-        value={value || ''}
-        onChange={editable ? handleChange : undefined}
-        readOnly={!editable}
-      />
-    </div>
-  );
-
   return (
     <div className="flex flex-col min-h-screen">
       <Header type="dashboard" action="Logout" />
@@ -136,16 +136,19 @@ export const Profile = () => {
 
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
-                <EditableField label="First Name" name="firstname" value={user.firstname} editable={canEditName} />
-                <EditableField label="Last Name" name="lastname" value={user.lastname} editable={canEditName} />
+                <EditableField label="First Name" name="firstname" value={user.firstname} onChange={handleChange} editable={canEditName} />
+                <EditableField label="Last Name" name="lastname" value={user.lastname} onChange={handleChange} editable={canEditName} />
               </div>
 
-              <EditableField label="Username" name="username" value={user.username} editable={canEditUsername} />
-              <EditableField label="Email Address" name="email" value={user.email} type="email" editable={canEditEmail} />
-              <EditableField label="Contact Number" name="contact" value={user.contact} editable={canEditContact} />
+              <EditableField label="Username" name="username" value={user.username} onChange={handleChange} editable={canEditUsername} />
+              <EditableField label="Email Address" name="email" value={user.email} onChange={handleChange} type="email" editable={canEditEmail} />
+              <EditableField label="Contact Number" name="contact" value={user.contact} onChange={handleChange} editable={canEditContact} />
 
               {isStudent && (
-                <ReadOnlyField label="Grade" value={user.grade} />
+                <>
+                  <ReadOnlyField label="Grade" value={user.grade} />
+                  <ReadOnlyField label="Syllabus" value={user.syllabus?.name} />
+                </>
               )}
 
               {isTutorOrStaff && (

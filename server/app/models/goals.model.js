@@ -9,7 +9,6 @@ const { DataTypes, Sequelize } = require('sequelize');
     },
     studentid: {
           type: DataTypes.INTEGER,
-          primaryKey: true,
           references: {
             model: 'Student', 
             key: 'id',
@@ -22,11 +21,16 @@ const { DataTypes, Sequelize } = require('sequelize');
         model: 'SubjectTutor', 
         key: 'id',
       },
-      allowNull: false,
+      allowNull: true,
     },
     goaltitle: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    checklist: {
+      type: DataTypes.JSON,
+      allowNull: true,
+      defaultValue: []
     },
     status: {
       type: DataTypes.STRING,
@@ -48,19 +52,11 @@ const { DataTypes, Sequelize } = require('sequelize');
     lastprogressupdate: {
       type: DataTypes.DATEONLY,
       allowNull: true,
-    },
-    createdAt: {
-        type: DataTypes.DATE,
-        field: 'created_at'
-      },
-
-      updatedAt: {
-        type: DataTypes.DATE,
-        field: 'updated_at'
-      }
+    }
   }, {
     tableName: 'goals',
-    timestamps: false,
+    timestamps: true,
+    underscored: true
   });
 };
 

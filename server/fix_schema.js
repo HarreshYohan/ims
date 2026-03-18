@@ -29,6 +29,10 @@ async function migrate() {
     await sequelize.query('ALTER TABLE "tutor" DROP COLUMN IF EXISTS "username";');
     await sequelize.query('ALTER TABLE "tutor" DROP COLUMN IF EXISTS "password";');
 
+    // Add checklist column to goals if it doesn't exist
+    console.log('Adding checklist column to goals table...');
+    await sequelize.query('ALTER TABLE "goals" ADD COLUMN IF NOT EXISTS "checklist" JSON DEFAULT \'[]\';');
+
     console.log('Migration completed successfully.');
     process.exit(0);
   } catch (err) {

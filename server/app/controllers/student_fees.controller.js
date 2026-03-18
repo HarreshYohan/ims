@@ -3,11 +3,22 @@ const { StudentFees, StudentSubject, SubjectTutor  } = require('../models');
 
 
 exports.create = async (req, res) => {
+  const { studentid, month, year, amount } = req.body;
+
+  if (amount && parseFloat(amount) <= 0) {
+    return res.status(400).json({ message: 'Amount must be a positive value greater than zero.' });
+  }
+
   try {
+    const existing = await StudentFees.findOne({ where: { studentid, month, year } });
+    if (existing) {
+      return res.status(409).json({ message: 'A fee record already exists for this student in this month and year.' });
+    }
+
     const studentFee = await StudentFees.create(req.body);
     res.status(201).json(studentFee);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -17,28 +28,34 @@ exports.findAll = async (req, res) => {
     const studentFees = await StudentFees.findAll();
     res.status(200).json(studentFees);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
 
 exports.findOne = async (req, res) => {
+  const studentId = parseInt(req.params.id);
+  if (isNaN(studentId)) {
+    return res.status(400).json({ message: 'Invalid student ID format.' });
+  }
+
   try {
     const studentFee = await StudentFees.findAll({
-      where:{studentid : req.params.id}
+      where: { studentid: studentId }
     });
-    if (studentFee) {
-      res.status(200).json(studentFee);
-    } else {
-      res.status(404).json({ error: 'Student fee not found' });
-    }
+    res.status(200).json(studentFee || []);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Error in studentFees.findOne:', error);
+    res.status(500).json({ error: error.message });
   }
 };
 
 
 exports.update = async (req, res) => {
+  if (req.body.amount && parseFloat(req.body.amount) <= 0) {
+    return res.status(400).json({ message: 'Amount must be a positive value greater than zero.' });
+  }
+  
   try {
     const [updated] = await StudentFees.update(req.body, {
       where: { id: req.params.id },
@@ -47,10 +64,10 @@ exports.update = async (req, res) => {
       const updatedStudentFee = await StudentFees.findByPk(req.params.id);
       res.status(200).json(updatedStudentFee);
     } else {
-      res.status(404).json({ error: 'Student fee not found' });
+      res.status(404).json({ message: 'Student fee not found' });
     }
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -63,10 +80,10 @@ exports.delete = async (req, res) => {
     if (deleted) {
       res.status(204).send();
     } else {
-      res.status(404).json({ error: 'Student fee not found' });
+      res.status(404).json({ message: 'Student fee not found' });
     }
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 
@@ -82,7 +99,7 @@ exports.getStudentFeesSummary = async (req, res) => {
     let totalPending = 0;
 
     studentFeeRecords.forEach((record) => {
-      const amount = parseFloat(record.totalamount) || 0;
+      const amount = parseFloat(record.amount) || 0;
       if (record.status === 'PAID') {
         totalPaid += amount;
       } else if (record.status === 'PENDING') {
@@ -99,7 +116,7 @@ exports.getStudentFeesSummary = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(400).json({ error: error.message });
+    res.status(400).json({ message: error.message });
   }
 };
 

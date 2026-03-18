@@ -8,7 +8,7 @@ exports.validate = (method) => {
     case 'updateGrade': {
       return [
         check('name', 'Grade name is required').notEmpty(),
-        check('name', 'Invalid Grade format. Use "Grade X" or "Class X" (e.g., Grade 10, Class 5A)').matches(/^(Grade|Class)\s*[0-9]+[A-Z]?$/i)
+        check('name', 'Invalid grade name').isIn(['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12', 'Grade 13', 'After O/L', 'After A/L', 'Pre School'])
       ];
     }
   }
@@ -117,5 +117,31 @@ exports.delete = async (req, res) => {
     res.status(500).send({
       message: `Could not delete Grade with id=${id} err ${err}`
     });
+  }
+};
+
+exports.bulkCreate = async (req, res) => {
+  const defaultGrades = [
+    'Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 
+    'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 
+    'Grade 11', 'Grade 12', 'Grade 13', 'After O/L', 'After A/L', 'Pre School'
+  ];
+
+  try {
+    const existingGrades = await Grade.findAll({ attributes: ['name'] });
+    const existingNames = existingGrades.map(g => g.name);
+    
+    const toCreate = defaultGrades
+      .filter(name => !existingNames.includes(name))
+      .map(name => ({ name }));
+
+    if (toCreate.length === 0) {
+      return res.status(200).send({ message: 'All default grades already exist.' });
+    }
+
+    await Grade.bulkCreate(toCreate);
+    res.status(201).send({ message: `${toCreate.length} default grades created.` });
+  } catch (err) {
+    res.status(500).send({ message: err.message || 'Error creating default grades.' });
   }
 };

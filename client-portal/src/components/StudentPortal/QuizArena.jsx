@@ -39,8 +39,9 @@ export const QuizArena = () => {
 
   const fetchSubjects = async () => {
     try {
-      const res = await api.get(`/student-subjects/student/${userId}`);
-      const subs = [...new Set((res.data || []).map(s => s.subject || s.subjectName || 'Unknown'))];
+      const res = await api.get(`/students/student-subject/${userId}`);
+      const subjectsList = res.data?.data?.subjects || [];
+      const subs = [...new Set(subjectsList.map(s => s.subjectName || s.subject || 'Unknown'))];
       setSubjects(subs);
     } catch (err) { console.error(err); }
   };

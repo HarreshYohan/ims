@@ -23,6 +23,7 @@ export const EditStudent = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [grades, setGrades] = useState([]);
+  const [syllabuses, setSyllabuses] = useState([]);
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -43,19 +44,21 @@ export const EditStudent = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [studentRes, feesRes, subjectsRes, allSubjectsRes, gradesRes] = await Promise.all([
+      const [studentRes, feesRes, subjectsRes, allSubjectsRes, gradesRes, syllabusRes] = await Promise.all([
         api.get(`/students/${id}`),
         api.get(`/student-fees/${id}`),
         api.get(`/students/student-subject/${id}`),
         api.get(`/student-subjects/subjects/${id}`),
-        api.get('/grades')
+        api.get('/grades'),
+        api.get('/syllabus')
       ]);
 
       setStudentData(studentRes.data);
       setFeesData(feesRes.data);
       setSubjects(subjectsRes.data.data?.subjects || []);
       setAllSubjects(allSubjectsRes.data.subjects || []);
-      setGrades(gradesRes.data.map(g => ({ label: g.name, value: g.id })));
+      setGrades(gradesRes.data.map(g => ({ label: g.name, value: g.name })));
+      setSyllabuses(Array.isArray(syllabusRes.data) ? syllabusRes.data.map(s => ({ label: s.name, value: String(s.id) })) : []);
     } catch (err) {
       console.error('Error fetching data:', err);
       setError('Failed to load student data');
@@ -125,7 +128,7 @@ export const EditStudent = () => {
   const feeColumns = [
     { label: 'Month', accessor: 'month' },
     { label: 'Year', accessor: 'year' },
-    { label: 'Amount', accessor: 'totalAmount', render: (val) => <span className="text-secondary font-medium">${val}</span> },
+    { label: 'Amount', accessor: 'amount', render: (val) => <span className="text-secondary font-medium">${val}</span> },
     { 
       label: 'Status', 
       accessor: 'status',
@@ -167,6 +170,14 @@ export const EditStudent = () => {
                   value={studentData.grade || ''} 
                   onChange={handleInputChange}
                   options={grades}
+                  disabled={userRole === 'TUTOR'}
+                />
+                <FormSelect 
+                  label="Syllabus" 
+                  name="syllabusid" 
+                  value={String(studentData.syllabusid || '')} 
+                  onChange={handleInputChange}
+                  options={syllabuses}
                   disabled={userRole === 'TUTOR'}
                 />
                 

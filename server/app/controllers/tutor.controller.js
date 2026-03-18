@@ -170,7 +170,7 @@ exports.approveOrRejectNote = async (req, res, next) => {
   const { status, points } = req.body;
   try {
     const note = await Notes.findByPk(id);
-    if (!note) return res.status(404).json({ error: 'Note not found.' });
+    if (!note) return res.status(404).json({ message: 'Note not found.' });
 
     note.status = status;
     note.points = status === 'Approved' ? points : 0;
@@ -184,7 +184,12 @@ exports.approveOrRejectNote = async (req, res, next) => {
 
 exports.getSubjectMapping = async (req, res, next) => {
   try {
-    const tutor = await Tutor.findOne({ where: { user_id: req.params.id } });
+    const { Op } = require('sequelize');
+    const tutor = await Tutor.findOne({ 
+      where: { 
+        [Op.or]: [ { user_id: req.params.id }, { id: req.params.id } ] 
+      } 
+    });
     if (!tutor) {
       return res.status(404).json({ message: 'Tutor not found' });
     }
@@ -197,9 +202,10 @@ exports.getSubjectMapping = async (req, res, next) => {
     });
 
     const result = mappings.map(m => ({
-      id: m.id,
+      subject_id: m.id,
       subject: m.subject.name,
       grade: m.grade.name,
+      fees: m.fees,
     }));
 
     res.json({ subjects: result });

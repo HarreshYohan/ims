@@ -36,7 +36,8 @@ export const Transaction = () => {
     amount: '',
     description: '',
     user_id: '',
-    participant_id: ''
+    participant_id: '',
+    date: format(new Date(), 'yyyy-MM-dd')
   });
 
   const fetchData = useCallback(async (page = 1) => {
@@ -83,7 +84,14 @@ export const Transaction = () => {
     try {
       await api.post('/transactions', newTransaction);
       setShowCreateModal(false);
-      setNewTransaction({ transaction_type: '', amount: '', description: '', user_id: '', participant_id: '' });
+      setNewTransaction({ 
+        transaction_type: '', 
+        amount: '', 
+        description: '', 
+        user_id: '', 
+        participant_id: '',
+        date: format(new Date(), 'yyyy-MM-dd')
+      });
       toast.success('Transaction saved successfully');
       fetchData();
     } catch (err) {
@@ -128,30 +136,32 @@ export const Transaction = () => {
     <Layout title="Transactions">
         
         {/* Quick Filters */}
-        <div className="flex flex-col md:flex-row items-center gap-4 bg-slate-900/40 p-4 rounded-2xl border border-white/5 backdrop-blur-sm">
-           <div className="flex items-center gap-2 w-full md:w-64">
-              <FormInput 
-                placeholder="Search description..." 
-                value={searchTerm} 
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="!mb-0"
-                icon={<Search size={18} className="text-textMuted" />}
-              />
-           </div>
-           <div className="flex-1 w-full md:max-w-xs">
-              <FormSelect 
-                name="type" 
-                value={selectedType} 
-                onChange={(e) => setSelectedType(e.target.value)}
-                options={[
-                  { label: 'All Types', value: '' },
-                  { label: 'Income', value: 'INCOME' },
-                  { label: 'Fees', value: 'FEES' },
-                  { label: 'Salary', value: 'SALARY' },
-                  { label: 'Expense', value: 'EXPENSE' }
-                ]}
-                className="!mb-0"
-              />
+        <div className="flex flex-col md:flex-row items-center gap-4 bg-slate-900/40 p-4 rounded-2xl border border-white/5 backdrop-blur-sm mb-6">
+           <div className="flex flex-1 items-center gap-4 w-full">
+              <div className="w-full md:w-64">
+                <FormInput 
+                  placeholder="Search description..." 
+                  value={searchTerm} 
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="!mb-0"
+                  icon={<Search size={18} className="text-textMuted" />}
+                />
+              </div>
+              <div className="w-full md:w-48">
+                <FormSelect 
+                  name="type" 
+                  value={selectedType} 
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  options={[
+                    { label: 'All Types', value: '' },
+                    { label: 'Income', value: 'INCOME' },
+                    { label: 'Fees', value: 'FEES' },
+                    { label: 'Salary', value: 'SALARY' },
+                    { label: 'Expense', value: 'EXPENSE' }
+                  ]}
+                  className="!mb-0"
+                />
+              </div>
            </div>
         </div>
 
@@ -189,12 +199,20 @@ export const Transaction = () => {
                 { label: 'Other', value: 'OTHER' }
               ]}
             />
-            <FormInput label="Amount" name="amount" type="number" step="0.01" value={newTransaction.amount} onChange={(e) => setNewTransaction({...newTransaction, amount: e.target.value})} required />
+            <FormInput label="Amount" name="amount" type="number" step="0.01" value={newTransaction.amount} onChange={(e) => setNewTransaction({...newTransaction, amount: e.target.value})} required min={1} />
             <FormInput label="Description" name="description" value={newTransaction.description} onChange={(e) => setNewTransaction({...newTransaction, description: e.target.value})} required />
             <div className="grid grid-cols-2 gap-4">
                <FormInput label="User ID" name="user_id" value={newTransaction.user_id} onChange={(e) => setNewTransaction({...newTransaction, user_id: e.target.value})} />
                <FormInput label="Participant ID" name="participant_id" value={newTransaction.participant_id} onChange={(e) => setNewTransaction({...newTransaction, participant_id: e.target.value})} />
             </div>
+            <FormInput 
+              label="Transaction Date" 
+              name="date" 
+              type="date" 
+              value={newTransaction.date} 
+              onChange={(e) => setNewTransaction({...newTransaction, date: e.target.value})} 
+              required 
+            />
           </div>
           <div className="mt-8 flex justify-end gap-3">
             <button type="button" onClick={() => setShowCreateModal(false)} className="px-5 py-2.5 rounded-lg text-textMuted hover:bg-slate-800 transition-colors font-medium">

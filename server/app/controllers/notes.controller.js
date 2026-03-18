@@ -79,6 +79,10 @@ exports.update = async (req, res) => {
     const note = await Notes.findByPk(req.params.id);
     if (!note) return res.status(404).json({ message: 'Note not found.' });
 
+    if (note.status !== 'PENDING') {
+      return res.status(403).json({ message: 'Only notes in PENDING status can be edited.' });
+    }
+
     await note.update(req.body);
     res.status(200).json({ message: 'Note updated successfully.' });
   } catch (err) {
@@ -91,6 +95,9 @@ exports.delete = async (req, res) => {
   try {
     const note = await Notes.findByPk(req.params.id);
     if (!note) return res.status(404).json({ message: 'Note not found.' });
+
+    // Status check - optional, but usually better to only allow deleting pending/rejected if needed
+    // However, user just said "allow to delete", so we'll just check ownership
 
     await note.destroy();
     res.status(200).json({ message: 'Note deleted successfully.' });

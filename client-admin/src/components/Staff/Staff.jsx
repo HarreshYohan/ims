@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { Layout } from '../shared/Layout';
@@ -58,8 +58,8 @@ export const Staff = () => {
       title: item.title, 
       firstname: item.firstname, 
       lastname: item.lastname, 
-      username: item.username, 
-      email: item.email, 
+      username: item.user?.username || '', 
+      email: item.user?.email || '', 
       password: '', // Don't show password
       contact: item.contact, 
       position: item.position, 
@@ -90,6 +90,20 @@ export const Staff = () => {
     }
   };
 
+  const isFormValid = useMemo(() => {
+    const requiredFields = [
+      formData.title, formData.firstname, formData.lastname, 
+      formData.email, formData.contact, formData.position, formData.salary
+    ];
+    const isBasicInfoComplete = requiredFields.every(field => field && field.toString().trim() !== '');
+    const isContactValid = formData.contact.length === 10;
+    const isAuthComplete = modalMode === 'CREATE' 
+      ? (formData.username && formData.password && formData.password.length >= 8)
+      : true;
+
+    return isBasicInfoComplete && isContactValid && isAuthComplete;
+  }, [formData, modalMode]);
+
   const columns = [
     { label: 'ID', accessor: 'id', render: (val) => <span className="text-textMuted">#{val}</span> },
     { label: 'Title', accessor: 'title', render: (val) => <span className="text-secondary font-medium">{val}</span> },
@@ -118,33 +132,37 @@ export const Staff = () => {
   ];
 
   const TableActions = (
-    <div className="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
-      <div className="flex items-center gap-2 w-full md:w-64">
-        <FormInput 
-          placeholder="Search staff..." 
-          value={searchTerm} 
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="!mb-0"
-        />
+    <div className="flex flex-col md:flex-row items-center gap-4 w-full">
+      <div className="flex flex-1 items-center gap-3 w-full">
+        <div className="w-full md:w-64">
+          <FormInput 
+            placeholder="Search staff..." 
+            value={searchTerm} 
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="!mb-0"
+          />
+        </div>
+        <div className="w-full md:w-48">
+          <FormSelect 
+            value={positionFilter} 
+            onChange={(e) => setPositionFilter(e.target.value)}
+            options={[
+              { label: 'All Positions', value: '' },
+              { label: 'Manager', value: 'Manager' },
+              { label: 'Coordinator', value: 'Coordinator' },
+              { label: 'Clerk', value: 'Clerk' },
+              { label: 'Accountant', value: 'Accountant' },
+              { label: 'Receptionist', value: 'Receptionist' }
+            ]}
+            className="!mb-0"
+          />
+        </div>
       </div>
-      <div className="w-full md:w-48">
-        <FormSelect 
-          value={positionFilter} 
-          onChange={(e) => setPositionFilter(e.target.value)}
-          options={[
-            { label: 'All Positions', value: '' },
-            { label: 'Manager', value: 'Manager' },
-            { label: 'Coordinator', value: 'Coordinator' },
-            { label: 'Clerk', value: 'Clerk' },
-            { label: 'Accountant', value: 'Accountant' },
-            { label: 'Receptionist', value: 'Receptionist' }
-          ]}
-          className="!mb-0"
-        />
+      <div className="flex items-center gap-3 w-full md:w-auto shrink-0 justify-end">
+        <button onClick={openCreateModal} className="btn-primary">
+          <UserPlus size={18} /> Add Staff
+        </button>
       </div>
-      <button onClick={openCreateModal} className="btn-primary ml-auto">
-        <UserPlus size={18} /> Add Staff
-      </button>
     </div>
   );
 
@@ -170,8 +188,8 @@ export const Staff = () => {
               value={formData.title} 
               onChange={handleFormChange} 
               required 
+              autoFocus
               options={[
-                { label: 'Select Title', value: '' },
                 { label: 'Mr', value: 'Mr' },
                 { label: 'Mrs', value: 'Mrs' },
                 { label: 'Ms', value: 'Ms' },
@@ -180,13 +198,13 @@ export const Staff = () => {
                 { label: 'Rev', value: 'Rev' }
               ]} 
             />
-            <FormInput label="Contact" name="contact" value={formData.contact} onChange={handleFormChange} required />
+            <FormInput label="Contact (10 Digits)" name="contact" value={formData.contact} onChange={handleFormChange} required maxLength={10} />
             <FormInput label="First Name" name="firstname" value={formData.firstname} onChange={handleFormChange} required />
             <FormInput label="Last Name" name="lastname" value={formData.lastname} onChange={handleFormChange} required />
             <FormInput label="Username" name="username" value={formData.username} onChange={handleFormChange} required />
             <FormInput label="Email" name="email" type="email" value={formData.email} onChange={handleFormChange} required />
             <FormInput label="Position" name="position" value={formData.position} onChange={handleFormChange} placeholder="e.g. Admin, Janitor" required />
-            <FormInput label="Salary" name="salary" type="number" value={formData.salary} onChange={handleFormChange} required />
+            <FormInput label="Salary" name="salary" type="number" value={formData.salary} onChange={handleFormChange} required min={1} step={0.01} />
             <div className="md:col-span-2">
               <FormInput 
                 label={modalMode === 'EDIT' ? "New Password (leave blank to keep current)" : "Password"} 
@@ -203,7 +221,11 @@ export const Staff = () => {
             <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2.5 rounded-lg text-textMuted hover:bg-slate-800 transition-colors font-medium">
               Cancel
             </button>
-            <button type="submit" disabled={isSubmitting} className="btn-primary">
+            <button 
+              type="submit" 
+              disabled={isSubmitting || !isFormValid} 
+              className="btn-primary disabled:opacity-40 disabled:cursor-not-allowed"
+            >
               {isSubmitting ? 'Saving...' : (modalMode === 'CREATE' ? 'Create Staff' : 'Save Changes')}
             </button>
           </div>

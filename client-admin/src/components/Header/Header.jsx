@@ -1,21 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 import logo_icon from '../../assets/IMS.png';
 import profile_icon from '../../assets/profile.png';
-import { Menu, X, LogOut, User as UserIcon } from 'lucide-react';
+import { Menu, X, LogOut, User as UserIcon, Flame, Star } from 'lucide-react';
 import { jwtDecode } from 'jwt-decode';
 
 export const Header = ({ type, action }) => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [userProfile, setUserProfile] = useState(null);
   const [userType, setUserType] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (token) {
-      try { setUserType(jwtDecode(token).user_type); } catch (e) {}
+      try { 
+        const decoded = jwtDecode(token);
+        setUserType(decoded.user_type);
+        fetchProfile(decoded.user_id);
+      } catch (e) {}
     }
   }, []);
+
+  const fetchProfile = async (userId) => {
+    try {
+      const res = await api.get(`/profile/${userId}`);
+      setUserProfile(res.data);
+    } catch (err) {
+      console.error('Error fetching header profile:', err);
+    }
+  };
 
   // Broadcast menu state for Navbar to listen
   useEffect(() => {
@@ -66,6 +81,20 @@ export const Header = ({ type, action }) => {
       </div>
 
       <div className="flex items-center gap-4">
+        {userType === 'STUDENT' && userProfile && (
+          <div className="hidden md:flex items-center gap-4 mr-4 px-4 py-2 bg-slate-50 rounded-full border border-gray-100">
+            <div className="flex items-center gap-1.5 text-amber-500">
+              <Star size={18} fill="currentColor" />
+              <span className="text-sm font-bold">{userProfile.totalXP || 0} XP</span>
+            </div>
+            <div className="w-[1px] h-4 bg-gray-200" />
+            <div className="flex items-center gap-1.5 text-orange-500">
+              <Flame size={18} fill="currentColor" />
+              <span className="text-sm font-bold">{userProfile.maxStreak || 0} Day Streak</span>
+            </div>
+          </div>
+        )}
+
         <button 
           className="flex items-center gap-2 p-1.5 pr-4 rounded-full border border-gray-200 hover:bg-gray-100 transition-all group hidden sm:flex" 
           onClick={handleProfileClick}
@@ -73,7 +102,13 @@ export const Header = ({ type, action }) => {
           <div className="w-8 h-8 rounded-full bg-gray-50 overflow-hidden border border-gray-200 flex items-center justify-center">
             {profile_icon ? <img src={profile_icon} alt="Profile" className="w-full h-full object-cover" /> : <UserIcon size={16} className="text-gray-500" />}
           </div>
-          <span className="text-sm font-medium text-textMuted group-hover:text-gray-900 transition-colors">Profile</span>
+          <span className="text-sm font-medium text-textMuted group-hover:text-gray-900 transition-colors">
+            {userProfile ? 
+              ((userProfile.firstname || userProfile.lastname) ? 
+                `${userProfile.firstname || ''} ${userProfile.lastname || ''}`.trim() : 
+                (userProfile.user?.username || userProfile.username || 'Profile')) 
+              : 'Profile'}
+          </span>
         </button>
 
         <button 

@@ -106,7 +106,8 @@ exports.create = async (req, res) => {
           salary: salary
         });
 
-        return Staff.findByPk(newUser.id, {
+        return Staff.findOne({
+          where: { user_id: newUser.id },
           include: [{ model: User, as: 'user', attributes: ['username', 'email'] }]
         });
       }
@@ -165,45 +166,43 @@ exports.delete = async (req, res) => {
 };
 
 
-exports.update = async (req, res) => {
-  const id = req.params.id; 
-  const errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { username, password, email, firstname, lastname, title, contact, position } = req.body;
+exports.update = async (req, res, next) => {
+  const id = req.params.id;
+  const { username, password, email, firstname, lastname, title, contact, position, salary } = req.body;
 
   try {
     const staff = await Staff.findByPk(id);
-    
     if (!staff) {
-      return res.status(404).send({ message: `Cannot find Staff with id=${id}.` });
+      return res.status(404).json({ message: `Staff with id=${id} not found.` });
     }
 
-    const existingStaff = await Staff.findOne({ where: { firstname, lastname , email} });
+    const hashedPassword = password ? await bcrypt.hash(password, 10) : undefined;
 
-    if ((existingStaff && existingStaff.id !== staff.id)) {
-      throw new Error('Email or Tutor name already exists');
+    // Update User record
+    if (username || email || hashedPassword) {
+      const userUpdate = {};
+      if (username) userUpdate.username = username;
+      if (email) userUpdate.email = email;
+      if (hashedPassword) userUpdate.password = hashedPassword;
+      await User.update(userUpdate, { where: { id: staff.user_id } });
     }
 
-    const hashedPassword = password ? await bcrypt.hash(password, 10) : staff.password;
-
+    // Update Staff profile
     await staff.update({
-      email: email || staff.email,
-      password: hashedPassword,
       firstname: firstname || staff.firstname,
-      lastname: lastname || staff.lastname,
-      title: title || staff.title,
-      contact: contact || staff.contact,
-      position: position || staff.position,
+      lastname:  lastname  || staff.lastname,
+      title:     title     || staff.title,
+      contact:   contact   || staff.contact,
+      position:  position  || staff.position,
+      salary:    salary    || staff.salary,
     });
 
-    res.status(200).send({ message: "Staff was updated successfully!", staff });
-  } catch (err) {
-    res.status(500).send({
-      message: err.message || 'Some error occurred while updating the Staff.'
+    const updatedStaff = await Staff.findByPk(id, {
+      include: [{ model: User, as: 'user', attributes: ['username', 'email'] }]
     });
+
+    res.status(200).json({ message: 'Staff updated successfully.', staff: updatedStaff });
+  } catch (err) {
+    next(err);
   }
 };

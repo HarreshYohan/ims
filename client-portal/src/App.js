@@ -10,7 +10,7 @@ import { QuizArena }      from "./components/StudentPortal/QuizArena";
 import { TutorDashboard } from "./components/TutorDashboard/TutorDashboard";
 import { Welcome }     from './components/Welcome/Welcome';
 import { LoginSignup } from "./components/LoginSignup/LoginSignup";
-import { Timetable }   from "./components/TimeTable/TimeTable";
+import { Timetable }   from "./components/Timetable/Timetable";
 import { Classroom }   from "./components/Classroom/Classroom";
 import { Student }     from "./components/Student/Student";
 import { EditStudent } from "./components/Student/EditStudent";
@@ -64,7 +64,7 @@ function App() {
         <Route path="/timetable"        element={<Protected element={<Timetable />} />} />
         <Route path="/classroom"        element={<Protected element={<Classroom />} />} />
         <Route path="/student"          element={<Protected element={<Student />} />} />
-        <Route path="/student/edit/:id" element={<Protected element={<EditStudent />} />} />
+        <Route path="/edit-student/:id" element={<Protected element={<EditStudent />} />} />
         <Route path="/news"             element={<Protected element={<News />} />} />
         <Route path="/chatroom"         element={<Protected element={<Chatroom />} />} />
         <Route path="/profile"          element={<Protected element={<Profile />} />} />

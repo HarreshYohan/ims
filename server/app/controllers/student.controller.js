@@ -1,4 +1,4 @@
-const { User, Student, StudentSubject, SubjectTutor, Subject } = require('../models');
+const { User, Student, StudentSubject, SubjectTutor, Subject, Tutor, Syllabus } = require('../models');
 const bcrypt = require('bcryptjs');
 const { Parser } = require('json2csv');
 const fs = require('fs');
@@ -29,7 +29,7 @@ exports.validate = (method) => {
 
 exports.findAll = async (req, res, next) => {
   try {
-    const { search, grade, page, limit } = req.query;
+    const { search, grade, page, limit, tutorid } = req.query;
     const pageNum  = Math.max(1, parseInt(page)  || 1);
     const limitNum = Math.min(100, parseInt(limit) || 20);
     const offset = (pageNum - 1) * limitNum;
@@ -50,9 +50,26 @@ exports.findAll = async (req, res, next) => {
       where.grade = grade;
     }
 
+    if (tutorid) {
+      const tutor = await Tutor.findOne({ where: { user_id: tutorid } });
+      if (tutor) {
+        const studentSubjects = await StudentSubject.findAll({
+          include: [{ model: SubjectTutor, as: 'subjectTutor', where: { tutorid: tutor.id } }],
+          attributes: ['studentid']
+        });
+        const studentIds = [...new Set(studentSubjects.map(ss => ss.studentid))];
+        where.id = { [Op.in]: studentIds };
+      } else {
+        where.id = null; // No tutor found, return nothing
+      }
+    }
+
     const { count, rows } = await Student.findAndCountAll({
       where,
-      include: [{ model: User, as: 'user', attributes: ['username', 'email'] }],
+      include: [
+        { model: User, as: 'user', attributes: ['username', 'email'] },
+        { model: Syllabus, as: 'syllabus', attributes: ['id', 'name'] }
+      ],
       order: [['user_id', 'DESC']],
       limit: limitNum,
       offset,
@@ -70,7 +87,7 @@ exports.create = async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { email, firstname, lastname, grade, contact } = req.body;
+  const { email, firstname, lastname, grade, contact, syllabusid } = req.body;
 
   try {
     const existingUser = await User.findOne({ where: { email } });
@@ -97,12 +114,16 @@ exports.create = async (req, res, next) => {
       lastname,
       grade,
       contact,
+      syllabusid,
     });
     
     // Refresh to include joined user data
     const studentWithUser = await Student.findOne({
       where: { user_id: newUser.id },
-      include: [{ model: User, as: 'user', attributes: ['username', 'email'] }]
+      include: [
+        { model: User, as: 'user', attributes: ['username', 'email'] },
+        { model: Syllabus, as: 'syllabus', attributes: ['id', 'name'] }
+      ]
     });
 
     // Send Greeting Email (non-blocking)
@@ -123,10 +144,17 @@ exports.create = async (req, res, next) => {
 };
 
 exports.findOne = async (req, res, next) => {
-  const id = req.params.id;
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) {
+    return res.status(400).json({ message: 'Invalid student ID format.' });
+  }
+
   try {
     const data = await Student.findByPk(id, {
-      include: [{ model: User, as: 'user', attributes: ['username', 'email'] }]
+      include: [
+        { model: User, as: 'user', attributes: ['username', 'email'] },
+        { model: Syllabus, as: 'syllabus', attributes: ['id', 'name'] }
+      ]
     });
     if (data) {
       res.json(data);
@@ -155,7 +183,7 @@ exports.delete = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   const id = req.params.id;
-  const { username, password, email, firstname, lastname, grade, contact } = req.body;
+  const { username, password, email, firstname, lastname, grade, contact, syllabusid } = req.body;
 
   try {
     const student = await Student.findByPk(id, { include: ['user'] });
@@ -179,6 +207,7 @@ exports.update = async (req, res, next) => {
       lastname:  lastname  || student.lastname,
       grade:     grade     || student.grade,
       contact:   contact   || student.contact,
+      syllabusid: syllabusid || student.syllabusid,
     });
 
     logger.info(`Student updated: id=${id}`);
@@ -189,11 +218,24 @@ exports.update = async (req, res, next) => {
 };
 
 exports.student_subject = async (req, res, next) => {
-  const id = req.params.id;
+  const { id } = req.params;
+  const numericId = parseInt(id);
+
   try {
-    const student = await Student.findOne({ where: { user_id: id } });
+    const { Op } = require('sequelize');
+    const studentWhere = {};
+    
+    if (!isNaN(numericId)) {
+      studentWhere[Op.or] = [ { user_id: numericId }, { id: numericId } ];
+    } else {
+      // If not numeric, only try user_id (if it might be a UUID, but here it's likely int)
+      // Actually, if it's not numeric and we expect numeric, just 404
+      return res.status(404).json({ message: `Student for id=${id} not found.` });
+    }
+
+    const student = await Student.findOne({ where: studentWhere });
     if (!student) {
-      return res.status(404).json({ message: `Student for user_id=${id} not found.` });
+      return res.status(404).json({ message: `Student for id=${id} not found.` });
     }
 
     const studentSubjects = await StudentSubject.findAll({
@@ -202,18 +244,31 @@ exports.student_subject = async (req, res, next) => {
       include: [{
         model: SubjectTutor,
         as: 'subjectTutor',
-        include: [{ model: Subject, as: 'subject', attributes: ['name'] }],
+        include: [
+          { model: Subject, as: 'subject', attributes: ['name'] },
+          { model: Tutor, as: 'tutor' }
+        ],
         attributes: ['id'],
       }],
     });
 
-    const subjects = studentSubjects.map(item => ({
-      subject: item.subjectTutor.subject.name,
-      subject_id: item.subjectTutor.id,
-    }));
+    const subjects = studentSubjects.map(item => {
+      let subjectName = item.subjectTutor?.subject?.name || 'Unknown Subject';
+      let t = item.subjectTutor?.tutor;
+      let tutorName = t ? `${t.title} ${t.firstname} ${t.lastname}` : 'Unknown Tutor';
+      
+      return {
+        subject: `${subjectName} - ${tutorName}`,
+        subjectName: subjectName,
+        tutorName: tutorName,
+        subject_id: item.subjectTutor.id,
+      };
+    });
 
+    console.log(`Student ID: ${id}, Subjects Found: ${subjects.length}`);
     res.status(200).json({ data: { student_id: id, subjects } });
   } catch (err) {
+    console.error('Error in student_subject:', err);
     next(err);
   }
 };

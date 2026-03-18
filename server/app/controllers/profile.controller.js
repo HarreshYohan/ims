@@ -1,5 +1,6 @@
-const { User, Student, Tutor, Staff, Admin } = require('../models');
+const { User, Student, Tutor, Staff, Admin, Notes, Goals, Syllabus } = require('../models');
 const jwt = require('jsonwebtoken');
+const { Sequelize } = require('sequelize');
 
 exports.getProfile = async (req, res) => {
   const { id } = req.params;
@@ -15,8 +16,16 @@ exports.getProfile = async (req, res) => {
       case 'STUDENT':
         profileData = await Student.findOne({ 
           where: { user_id: id },
-          include: [{ model: User, as: 'user', attributes: ['username', 'email', 'user_type'] }]
+          include: [
+            { model: User, as: 'user', attributes: ['username', 'email', 'user_type'] },
+            { model: Syllabus, as: 'syllabus', attributes: ['name'] }
+          ]
         });
+        if (profileData) {
+          const totalXP = await Notes.sum('points', { where: { studentid: profileData.id } }) || 0;
+          const maxStreak = await Goals.max('streak', { where: { studentid: profileData.id } }) || 0;
+          profileData = { ...profileData.toJSON(), totalXP, maxStreak };
+        }
         break;
       case 'TUTOR':
         profileData = await Tutor.findOne({ 

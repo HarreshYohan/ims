@@ -28,25 +28,40 @@ export const Chatroom = () => {
   useEffect(() => {
     if (token) {
       const decoded = jwtDecode(token);
-      setUserType(decoded.username);
-      fetchSubjects(decoded.user_id);
+      setUserType(decoded.user_type);
+      fetchSubjects(decoded.user_id, decoded.user_type);
     }
   }, [token]);
 
-  const fetchSubjects = async (userId) => {
+  const fetchSubjects = async (userId, type) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.get(`/student/student-subject/${userId}`);
-      if (res.status === 200) {
-        setSubjects(res.data.data.subjects);
+      let res;
+      if (type === 'STUDENT') {
+        res = await api.get(`/students/student-subject/${userId}`);
       } else {
-        console.error('Failed to fetch subjects');
-        setSubjects([]);
+        res = await api.get('/subject-tutors/all');
+      }
+      
+      if (res.status === 200) {
+        let subjectsList = res.data.data?.subjects || res.data.data || [];
+        if (type !== 'STUDENT') {
+          // For tutors/admins, show all or filter if needed
+          // Assuming subject-tutors/all returns mappings
+          setSubjects(subjectsList.map(s => ({
+            id: s.id,
+            label: `${s.grade} • ${s.subject} (${s.tutor})`
+          })));
+        } else {
+          setSubjects(subjectsList.map(s => ({
+            id: s.subject_id,
+            label: `${s.grade} • ${s.subject}`
+          })));
+        }
       }
     } catch (err) {
       console.error('Error during subject fetch:', err);
-      setError('Error during subject fetch');
     } finally {
       setLoading(false);
     }
@@ -142,7 +157,7 @@ export const Chatroom = () => {
                 onChange={handleSubjectChange}
                 options={[
                   { label: 'Select Subject...', value: '' },
-                  ...subjects.map(s => ({ label: s.subject, value: s.subject_id }))
+                  ...subjects.map(s => ({ label: s.label, value: s.id }))
                 ]}
               />
            </div>

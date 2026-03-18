@@ -22,6 +22,7 @@ export const Student = () => {
   const [gradeFilter, setGradeFilter] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [userRole, setUserRole] = useState(null);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -29,6 +30,7 @@ export const Student = () => {
       try {
         const decoded = jwtDecode(token);
         setUserRole(decoded.user_type);
+        setUserId(decoded.user_id);
       } catch (err) {
         console.error('Failed to decode token:', err);
       }
@@ -43,7 +45,8 @@ export const Student = () => {
 
   const { data, loading, error, pagination, refetch } = useFetch('/students/all', { 
     search: debouncedSearch,
-    grade: gradeFilter 
+    grade: gradeFilter,
+    tutorid: userRole === 'TUTOR' ? userId : undefined
   });
   
   // Modal State
