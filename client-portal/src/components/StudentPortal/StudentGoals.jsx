@@ -96,19 +96,43 @@ export const StudentGoals = () => {
   };
 
   const handleToggleCheckItem = async (goalId, itemId) => {
+    console.log('TOGGLE:', { goalId, itemId });
+    // Optimistic Update
+    setGoals(prev => prev.map(g => {
+      if (g.id === goalId) {
+        console.log('GOAL FOUND, CHECKLIST:', g.checklist);
+        const newList = g.checklist.map(i => {
+          if (String(i.id) === String(itemId)) {
+            console.log('MATCH FOUND! Old completed:', i.completed, 'New:', !i.completed);
+            return { ...i, completed: !i.completed };
+          }
+          return i;
+        });
+        const completedCount = newList.filter(i => i.completed).length;
+        const progress = Math.round((completedCount / newList.length) * 100);
+        const status = progress >= 100 ? 'Completed' : 'Active';
+        const updatedGoal = { ...g, checklist: newList, progress, status };
+        
+        if (selectedGoal?.id === goalId) {
+          setSelectedGoal(prev => prev && prev.id === goalId ? updatedGoal : prev);
+        }
+        return updatedGoal;
+      }
+      return g;
+    }));
+
     try {
       const res = await api.put(`/goals/toggle-item/${goalId}`, { itemId });
-      const updatedGoal = res.data.goal;
+      const serverGoal = res.data.goal;
       
-      setGoals(prev => prev.map(g => g.id === goalId ? updatedGoal : g));
-      
-      if (selectedGoal?.id === goalId) {
-        setSelectedGoal(updatedGoal);
-      }
+      setGoals(prev => prev.map(g => g.id === goalId ? serverGoal : g));
+      setSelectedGoal(prev => prev && prev.id === goalId ? serverGoal : prev);
       
       toast.success('Mission updated!', { id: 'mission-sync' });
     } catch (err) {
-      toast.error('Failed to update progress');
+      toast.error('Failed to sync progress');
+      // Rollback would be nice but for now we'll just fetch fresh data
+      fetchStudentAndGoals();
     }
   };
 

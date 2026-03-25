@@ -83,32 +83,40 @@ exports.generateAIChecklist = async (req, res) => {
 };
 
 exports.toggleChecklistItem = async (req, res) => {
+  const t = await Goals.sequelize.transaction();
   try {
     const { id } = req.params;
     const { itemId } = req.body;
 
-    const goal = await Goals.findByPk(id);
-    if (!goal) return res.status(404).json({ message: 'Goal not found' });
+    const goal = await Goals.findByPk(id, { transaction: t, lock: t.LOCK.UPDATE });
+    if (!goal) {
+      await t.rollback();
+      return res.status(404).json({ message: 'Goal not found' });
+    }
 
-    let checklist = [...(goal.checklist || [])];
-    const itemIndex = checklist.findIndex(i => i.id === itemId);
+    console.log('BACKEND TOGGLE:', { id, itemId, currentChecklist: goal.checklist });
+    let checklist = JSON.parse(JSON.stringify(goal.checklist || [])); // Deep clone to avoid mutation issues
+    const itemIndex = checklist.findIndex(i => String(i.id) === String(itemId));
     
     if (itemIndex > -1) {
       checklist[itemIndex].completed = !checklist[itemIndex].completed;
+      console.log('MODIFIED ITEM:', checklist[itemIndex]);
       
-      // Update progress based on checklist
       const completedCount = checklist.filter(i => i.completed).length;
       const progress = Math.round((completedCount / checklist.length) * 100);
       
       const today = new Date().toISOString().slice(0, 10);
       let status = progress >= 100 ? 'Completed' : 'Active';
 
-      await goal.update({ checklist, progress, status, lastprogressupdate: today });
+      await goal.update({ checklist, progress, status, lastprogressupdate: today }, { transaction: t });
+      await t.commit();
       res.json({ message: 'Checklist updated', goal });
     } else {
+      await t.rollback();
       res.status(404).json({ message: 'Item not found' });
     }
   } catch (error) {
+    if (t) await t.rollback();
     res.status(500).json({ message: error.message });
   }
 };
@@ -250,16 +258,22 @@ exports.getGoalsByTutorSubjectGrade = async (req, res) => {
 };
 
 exports.updateGoalProgress = async (req, res) => {
+  const t = await Goals.sequelize.transaction();
   try {
     const { id } = req.params;
     const { progress } = req.body;
 
     if (progress < 0 || progress > 100) {
+      await t.rollback();
       return res.status(400).json({ message: 'Progress must be between 0 and 100' });
     }
 
-    const goal = await Goals.findByPk(id);
-    if (!goal) return res.status(404).json({ message: 'Goal not found' });
+    // Use lock for concurrent safety
+    const goal = await Goals.findByPk(id, { transaction: t, lock: t.LOCK.UPDATE });
+    if (!goal) {
+      await t.rollback();
+      return res.status(404).json({ message: 'Goal not found' });
+    }
 
     const today = new Date().toISOString().slice(0, 10);
     let newStreak = goal.streak;
@@ -270,10 +284,12 @@ exports.updateGoalProgress = async (req, res) => {
 
     const status = progress >= 100 ? 'Completed' : 'Active';
 
-    await goal.update({ progress, streak: newStreak, lastprogressupdate: today, status });
+    await goal.update({ progress, streak: newStreak, lastprogressupdate: today, status }, { transaction: t });
+    await t.commit();
 
     res.json({ message: 'Progress updated successfully', goal });
   } catch (error) {
+    if (t) await t.rollback();
     res.status(500).json({ message: error.message });
   }
 };
