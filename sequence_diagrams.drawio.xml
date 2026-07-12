@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-23T23:04:50.000Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36" version="21.0.0" type="device">
+  <diagram id="diagram_page_0" name="1. User Authentication &amp; JWT Flow">
+    <mxGraphModel dx="1422" dy="804" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="browser" value="Client Browser
+(Portal UI)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E1F5FE;strokeColor=#0288D1;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="50" y="40" width="120" height="900" as="geometry" />
+        </mxCell>
+        <mxCell id="auth_middleware" value="auth.js
+(Auth Middleware)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FFF3E0;strokeColor=#F57C00;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="230" y="40" width="120" height="900" as="geometry" />
+        </mxCell>
+        <mxCell id="login_controller" value="login.controller.js
+(Login Controller)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#EDE7F6;strokeColor=#5E35B1;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="410" y="40" width="120" height="900" as="geometry" />
+        </mxCell>
+        <mxCell id="dashboard_controller" value="dashboard.controller.js
+(Dashboard Controller)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#EDE7F6;strokeColor=#5E35B1;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="590" y="40" width="120" height="900" as="geometry" />
+        </mxCell>
+        <mxCell id="user_model" value="User Model
+(Sequelize)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E8F5E9;strokeColor=#2E7D32;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="770" y="40" width="120" height="900" as="geometry" />
+        </mxCell>
+        <mxCell id="crypto_jwt" value="Bcrypt / JWT
+(Crypto Utility)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FCE4EC;strokeColor=#C2185B;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="950" y="40" width="120" height="900" as="geometry" />
+        </mxCell>
+        <mxCell id="db" value="Database
+(MySQL/MariaDB)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#ECEFF1;strokeColor=#37474F;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="40" width="120" height="900" as="geometry" />
+        </mxCell>
+        <mxCell id="msg_0_0" value="User inputs credentials &amp; clicks Login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1.0;exitY=0.0333;entryX=1.0;entryY=0.0667;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;curved=1;fontSize=10;" edge="1" parent="1" source="browser" target="browser">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" x="10" y="0" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_1" value="POST /api/login (email, password)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.1000;entryX=0.5;entryY=0.1000;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="browser" target="login_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_2" value="helpers.isValidObject(req.body)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.1444;entryX=0.5;entryY=0.1444;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="login_controller" target="crypto_jwt">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_3" value="true" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.1778;entryX=0.5;entryY=0.1778;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="crypto_jwt" target="login_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_4" value="User.findOne({ where: { email } })" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.2222;entryX=0.5;entryY=0.2222;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="login_controller" target="user_model">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_5" value="SELECT * FROM user WHERE email = ?" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.2556;entryX=0.5;entryY=0.2556;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="user_model" target="db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_6" value="user record (hash, active)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.2889;entryX=0.5;entryY=0.2889;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="db" target="user_model">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_7" value="user instance" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.3222;entryX=0.5;entryY=0.3222;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="user_model" target="login_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_8" value="bcrypt.compare(password, user.password)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.3667;entryX=0.5;entryY=0.3667;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="login_controller" target="crypto_jwt">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_9" value="true (password matches)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.4000;entryX=0.5;entryY=0.4000;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="crypto_jwt" target="login_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_10" value="jwt.sign({ id, type, email }, SECRET_KEY)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.4444;entryX=0.5;entryY=0.4444;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="login_controller" target="crypto_jwt">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_11" value="JWT Token string" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.4778;entryX=0.5;entryY=0.4778;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="crypto_jwt" target="login_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_12" value="HTTP 200 { message, token, user }" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5222;entryX=0.5;entryY=0.5222;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="login_controller" target="browser">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_13" value="localStorage.setItem(&apos;authToken&apos;, token)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1.0;exitY=0.5556;entryX=1.0;entryY=0.5889;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;curved=1;fontSize=10;" edge="1" parent="1" source="browser" target="browser">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" x="10" y="0" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_14" value="GET /api/dashboard (Headers: Authorization)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.6667;entryX=0.5;entryY=0.6667;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="browser" target="auth_middleware">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_15" value="jwt.verify(token, SECRET_KEY)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.7111;entryX=0.5;entryY=0.7111;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="auth_middleware" target="crypto_jwt">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_16" value="decoded user payload" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.7444;entryX=0.5;entryY=0.7444;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="crypto_jwt" target="auth_middleware">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_17" value="req.user = decoded; next()" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1.0;exitY=0.7778;entryX=1.0;entryY=0.8111;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;curved=1;fontSize=10;" edge="1" parent="1" source="auth_middleware" target="auth_middleware">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" x="10" y="0" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_18" value="Route to getDashboardData()" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.8556;entryX=0.5;entryY=0.8556;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="auth_middleware" target="dashboard_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_19" value="Student.count(), Tutor.count() ..." style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.8889;entryX=0.5;entryY=0.8889;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="dashboard_controller" target="db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_20" value="counts and scheduling data" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.9222;entryX=0.5;entryY=0.9222;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="db" target="dashboard_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_0_21" value="HTTP 200 { totalStudents, nextClasses ... }" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.9667;entryX=0.5;entryY=0.9667;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="dashboard_controller" target="browser">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="diagram_page_1" name="2. Student Enrollment &amp; Subject Registration Flow">
+    <mxGraphModel dx="1422" dy="804" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="admin_browser" value="Staff Client Browser
+(Admin Dashboard)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E1F5FE;strokeColor=#0288D1;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="80" y="40" width="120" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="student_controller" value="student.controller.js
+(Student Controller)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#EDE7F6;strokeColor=#5E35B1;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="280" y="40" width="120" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="student_sub_controller" value="student_subject.controller.js
+(Enrollment Controller)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#EDE7F6;strokeColor=#5E35B1;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="480" y="40" width="120" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="models" value="Sequelize Models
+(User, Student, StudentSubject)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E8F5E9;strokeColor=#2E7D32;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="680" y="40" width="120" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="bcrypt" value="Bcrypt Module
+(Security)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#FCE4EC;strokeColor=#C2185B;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="880" y="40" width="120" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="db" value="Database
+(MySQL/MariaDB)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#ECEFF1;strokeColor=#37474F;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="40" width="120" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="msg_1_0" value="POST /api/student (username, password, email, firstname, lastname, grade, contact)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.1000;entryX=0.5;entryY=0.1000;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="admin_browser" target="student_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_1" value="Student.findOne({ where: { firstname, lastname } })" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.1500;entryX=0.5;entryY=0.1500;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="student_controller" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_2" value="SELECT * FROM student WHERE ..." style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.1875;entryX=0.5;entryY=0.1875;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_3" value="null (Student doesn&apos;t exist)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.2250;entryX=0.5;entryY=0.2250;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="db" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_4" value="null" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.2625;entryX=0.5;entryY=0.2625;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="student_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_5" value="bcrypt.hash(password, 10)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.3125;entryX=0.5;entryY=0.3125;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="student_controller" target="bcrypt">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_6" value="hashedPassword" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.3500;entryX=0.5;entryY=0.3500;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="bcrypt" target="student_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_7" value="User.create({ username, email, password, user_type: &apos;STUDENT&apos;, is_active: true })" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.4000;entryX=0.5;entryY=0.4000;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="student_controller" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_8" value="INSERT INTO user ..." style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.4375;entryX=0.5;entryY=0.4375;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_9" value="createdUser instance" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.4750;entryX=0.5;entryY=0.4750;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="db" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_10" value="newUser" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5125;entryX=0.5;entryY=0.5125;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="student_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_11" value="Student.create({ user_id: newUser.id, username, email, firstname, lastname, grade, contact })" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5625;entryX=0.5;entryY=0.5625;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="student_controller" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_12" value="INSERT INTO student ..." style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.6000;entryX=0.5;entryY=0.6000;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_13" value="createdStudent instance" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.6375;entryX=0.5;entryY=0.6375;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="db" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_14" value="newStudent" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.6750;entryX=0.5;entryY=0.6750;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="student_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_15" value="HTTP 201 Created { newStudent }" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.7250;entryX=0.5;entryY=0.7250;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="student_controller" target="admin_browser">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_16" value="POST /api/student-subject (studentid, subjecttutorid)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.8250;entryX=0.5;entryY=0.8250;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="admin_browser" target="student_sub_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_17" value="StudentSubject.create({ studentid, subjecttutorid })" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.8750;entryX=0.5;entryY=0.8750;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="student_sub_controller" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_18" value="INSERT INTO student_subject ..." style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.9125;entryX=0.5;entryY=0.9125;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_19" value="success" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.9500;entryX=0.5;entryY=0.9500;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="db" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_20" value="enrollmentInstance" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.9875;entryX=0.5;entryY=0.9875;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="student_sub_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_1_21" value="HTTP 201 Created" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1.0375;entryX=0.5;entryY=1.0375;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="student_sub_controller" target="admin_browser">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="diagram_page_2" name="3. Class Schedule &amp; Timetable Flow">
+    <mxGraphModel dx="1422" dy="804" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="750" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="portal_browser" value="Student / Tutor Portal
+(Browser UI)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E1F5FE;strokeColor=#0288D1;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="80" y="40" width="120" height="650" as="geometry" />
+        </mxCell>
+        <mxCell id="timetable_controller" value="timetable.controller.js
+(Timetable Controller)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#EDE7F6;strokeColor=#5E35B1;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="380" y="40" width="120" height="650" as="geometry" />
+        </mxCell>
+        <mxCell id="models" value="Sequelize Models
+(Student, StudentSubject, Timetable)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E8F5E9;strokeColor=#2E7D32;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="680" y="40" width="120" height="650" as="geometry" />
+        </mxCell>
+        <mxCell id="db" value="Database
+(MySQL/MariaDB)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#ECEFF1;strokeColor=#37474F;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="980" y="40" width="120" height="650" as="geometry" />
+        </mxCell>
+        <mxCell id="msg_2_0" value="GET /api/timetable/student/:studentid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.1231;entryX=0.5;entryY=0.1231;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="portal_browser" target="timetable_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_1" value="Student.findOne({ where: { user_id: studentid } })" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.1846;entryX=0.5;entryY=0.1846;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="timetable_controller" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_2" value="SELECT * FROM student WHERE user_id = ?" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.2308;entryX=0.5;entryY=0.2308;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_3" value="student record" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.2769;entryX=0.5;entryY=0.2769;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="db" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_4" value="studentInstance (ID = 15)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.3231;entryX=0.5;entryY=0.3231;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="timetable_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_5" value="StudentSubject.findAll({ where: { studentid: 15 } })" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.3846;entryX=0.5;entryY=0.3846;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="timetable_controller" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_6" value="SELECT subjecttutorid FROM student_subject WHERE studentid = 15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.4308;entryX=0.5;entryY=0.4308;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_7" value="[subjecttutorid: 5, 9, 12]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.4769;entryX=0.5;entryY=0.4769;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="db" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_8" value="list of subjectTutorIds" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5231;entryX=0.5;entryY=0.5231;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="timetable_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_9" value="Timetable.findAll({ include: [SubjectTutor, Subject, Classroom] })" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5846;entryX=0.5;entryY=0.5846;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="timetable_controller" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_10" value="SELECT * FROM timetable JOIN subject_tutor JOIN ..." style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.6308;entryX=0.5;entryY=0.6308;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_11" value="all timetable slots" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.6769;entryX=0.5;entryY=0.6769;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="db" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_12" value="rawTimetable records" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.7231;entryX=0.5;entryY=0.7231;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="timetable_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_13" value="Filter days/slots matching [5, 9, 12]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1.0;exitY=0.7692;entryX=1.0;entryY=0.8154;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;curved=1;fontSize=10;" edge="1" parent="1" source="timetable_controller" target="timetable_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" x="10" y="0" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_14" value="HTTP 200 { data: filteredTimetable }" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.8769;entryX=0.5;entryY=0.8769;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="timetable_controller" target="portal_browser">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_2_15" value="Render timetable grid (Monday - Sunday)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1.0;exitY=0.9231;entryX=1.0;entryY=0.9692;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;curved=1;fontSize=10;" edge="1" parent="1" source="portal_browser" target="portal_browser">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" x="10" y="0" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="diagram_page_3" name="4. Student Notes &amp; Goals (Tutor Review) Flow">
+    <mxGraphModel dx="1422" dy="804" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="student_portal" value="Student Portal
+(Browser)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E1F5FE;strokeColor=#0288D1;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="80" y="40" width="120" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="tutor_portal" value="Tutor Portal
+(Browser)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E1F5FE;strokeColor=#0288D1;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="280" y="40" width="120" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="notes_controller" value="notes.controller.js
+(Notes Controller)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#EDE7F6;strokeColor=#5E35B1;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="480" y="40" width="120" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="models" value="Sequelize Models
+(Notes, Student)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E8F5E9;strokeColor=#2E7D32;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="680" y="40" width="120" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="db" value="Database
+(MySQL/MariaDB)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#ECEFF1;strokeColor=#37474F;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="880" y="40" width="120" height="800" as="geometry" />
+        </mxCell>
+        <mxCell id="msg_3_0" value="POST /api/notes (studentid, note_content, title)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.1000;entryX=0.5;entryY=0.1000;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="student_portal" target="notes_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_1" value="Notes.create({ studentid, note_content, title })" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.1500;entryX=0.5;entryY=0.1500;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="notes_controller" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_2" value="INSERT INTO notes ..." style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.1875;entryX=0.5;entryY=0.1875;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_3" value="createdNote instance" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.2250;entryX=0.5;entryY=0.2250;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="db" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_4" value="newNote" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.2625;entryX=0.5;entryY=0.2625;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="notes_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_5" value="HTTP 201 Created { data: newNote }" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.3125;entryX=0.5;entryY=0.3125;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="notes_controller" target="student_portal">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_6" value="GET /api/notes/tutor/:tutorid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.4000;entryX=0.5;entryY=0.4000;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="tutor_portal" target="notes_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_7" value="Notes.findAll({ include: [Student] ... })" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.4500;entryX=0.5;entryY=0.4500;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="notes_controller" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_8" value="SELECT * FROM notes JOIN student WHERE tutorid = ?" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.4875;entryX=0.5;entryY=0.4875;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_9" value="list of notes with student profiles" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5250;entryX=0.5;entryY=0.5250;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="db" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_10" value="notes array" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.5625;entryX=0.5;entryY=0.5625;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="notes_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_11" value="HTTP 200 [ { id, title, student: {...} } ]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.6125;entryX=0.5;entryY=0.6125;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="notes_controller" target="tutor_portal">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_12" value="PUT /api/notes/:id (grade, feedback)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.7125;entryX=0.5;entryY=0.7125;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="tutor_portal" target="notes_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_13" value="Notes.update({ grade, feedback }, { where: { id } })" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.7625;entryX=0.5;entryY=0.7625;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="notes_controller" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_14" value="UPDATE notes SET grade = ?, feedback = ? WHERE id = ?" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.8000;entryX=0.5;entryY=0.8000;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_15" value="success (rows updated = 1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.8375;entryX=0.5;entryY=0.8375;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="db" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_16" value="[1]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.8750;entryX=0.5;entryY=0.8750;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="notes_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_3_17" value="HTTP 200 { message: &apos;Note updated successfully&apos; }" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.9250;entryX=0.5;entryY=0.9250;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="notes_controller" target="tutor_portal">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="diagram_page_4" name="5. Real-time Chatroom Flow">
+    <mxGraphModel dx="1422" dy="804" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="user_browser" value="User Portal Browser
+(Student/Tutor Chat UI)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E1F5FE;strokeColor=#0288D1;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="80" y="40" width="120" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="chatroom_controller" value="chatroom.controller.js
+(Chatroom Controller)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#EDE7F6;strokeColor=#5E35B1;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="380" y="40" width="120" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="models" value="Sequelize Models
+(Chatroom, User)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#E8F5E9;strokeColor=#2E7D32;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="680" y="40" width="120" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="db" value="Database
+(MySQL/MariaDB)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;fillColor=#ECEFF1;strokeColor=#37474F;fontColor=#212121;fontStyle=1;fontSize=12;strokeWidth=1.5;" vertex="1" parent="1">
+          <mxGeometry x="980" y="40" width="120" height="600" as="geometry" />
+        </mxCell>
+        <mxCell id="msg_4_0" value="GET /api/chatroom/:subjecttutorid" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.1333;entryX=0.5;entryY=0.1333;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="user_browser" target="chatroom_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4_1" value="Chatroom.findAll({ where: { subjecttutorid }, include: [User] })" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.2000;entryX=0.5;entryY=0.2000;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="chatroom_controller" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4_2" value="SELECT * FROM chatroom JOIN user WHERE subjecttutorid = ?" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.2500;entryX=0.5;entryY=0.2500;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4_3" value="message records list" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.3000;entryX=0.5;entryY=0.3000;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="db" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4_4" value="chatrooms array" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.3500;entryX=0.5;entryY=0.3500;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="chatroom_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4_5" value="HTTP 200 [ { message, user: { username } } ]" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.4167;entryX=0.5;entryY=0.4167;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="chatroom_controller" target="user_browser">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4_6" value="Render message history on screen" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1.0;exitY=0.4667;entryX=1.0;entryY=0.5167;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;curved=1;fontSize=10;" edge="1" parent="1" source="user_browser" target="user_browser">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" x="10" y="0" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4_7" value="POST /api/chatroom (user_id, message, subjecttutorid)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.6167;entryX=0.5;entryY=0.6167;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="user_browser" target="chatroom_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4_8" value="Chatroom.create({ user_id, message, subjecttutorid })" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.6833;entryX=0.5;entryY=0.6833;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="chatroom_controller" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4_9" value="INSERT INTO chatroom (user_id, message, subjecttutorid) ..." style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.7333;entryX=0.5;entryY=0.7333;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="db">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4_10" value="createdMessage instance" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.7833;entryX=0.5;entryY=0.7833;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="db" target="models">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4_11" value="chatroom instance" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.8333;entryX=0.5;entryY=0.8333;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="models" target="chatroom_controller">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4_12" value="HTTP 201 Created { messageInstance }" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0.9000;entryX=0.5;entryY=0.9000;endArrow=open;endFill=0;dashed=1;strokeColor=#666666;strokeWidth=1.2;fontSize=11;labelBackgroundColor=#FFFFFF;" edge="1" parent="1" source="chatroom_controller" target="user_browser">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="msg_4_13" value="Append message bubble to Chat View" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1.0;exitY=0.9500;entryX=1.0;entryY=1.0000;endArrow=block;endFill=1;strokeColor=#333333;strokeWidth=1.5;curved=1;fontSize=10;" edge="1" parent="1" source="user_browser" target="user_browser">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" x="10" y="0" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
