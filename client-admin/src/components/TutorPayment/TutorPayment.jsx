@@ -17,6 +17,7 @@ export const TutorPayment = () => {
   const [groupedData, setGroupedData] = useState({});
   const [paymentsData, setPaymentsData] = useState([]); // store payment records for tutors by month/year
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [editingTutorId, setEditingTutorId] = useState(null);
   const [paymentType, setPaymentType] = useState('PAID');
@@ -174,13 +175,23 @@ export const TutorPayment = () => {
         ) : (
           <div className="space-y-8">
             {/* Header Actions */}
-            <div className="flex justify-end gap-3 mb-2">
-               <button onClick={handleDownloadCsv} className="px-4 py-2 border border-slate-700 rounded-xl text-textMuted hover:text-slate-200 transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-widest leading-none">
-                  <Download size={14} /> CSV
-               </button>
-               <button onClick={handleDownloadPdf} className="btn-primary !py-2 !px-6 flex items-center gap-2 text-xs font-bold uppercase tracking-widest leading-none">
-                  <FileText size={14} /> Settlement Report (PDF)
-               </button>
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-2">
+               <div className="w-full md:w-64">
+                 <FormInput 
+                   placeholder="Search tutor name..." 
+                   value={searchTerm} 
+                   onChange={(e) => setSearchTerm(e.target.value)}
+                   className="!mb-0"
+                 />
+               </div>
+               <div className="flex justify-end gap-3 w-full md:w-auto">
+                 <button onClick={handleDownloadCsv} className="px-4 py-2 border border-slate-700 rounded-xl text-textMuted hover:text-slate-200 transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-widest leading-none">
+                    <Download size={14} /> CSV
+                 </button>
+                 <button onClick={handleDownloadPdf} className="btn-primary !py-2 !px-6 flex items-center gap-2 text-xs font-bold uppercase tracking-widest leading-none">
+                    <FileText size={14} /> Settlement Report (PDF)
+                 </button>
+               </div>
             </div>
 
             {/* Global Settlement Insights */}
@@ -211,7 +222,9 @@ export const TutorPayment = () => {
                </div>
             </div>
 
-          {Object.values(groupedData).map((tutor, index) => {
+          {Object.values(groupedData).filter(tutor => 
+            `${tutor.firstname} ${tutor.lastname}`.toLowerCase().includes(searchTerm.toLowerCase())
+          ).map((tutor, index) => {
             const totalReceived = getTotalReceived(tutor.tutorid);
             const pending = tutor.totalPayment - totalReceived;
 
@@ -225,17 +238,17 @@ export const TutorPayment = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 relative z-10">
                    <div className="bg-slate-900/40 p-4 rounded-xl border border-white/5">
                       <p className="text-textMuted text-xs uppercase font-bold tracking-widest mb-1">Total Agreed Payment</p>
-                      <p className="text-2xl font-bold text-slate-200">LKR {tutor.totalPayment.toFixed(2)}</p>
+                      <p className="text-2xl font-bold text-slate-200">LKR {tutor.totalPayment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                    </div>
                    <div className="bg-slate-900/40 p-4 rounded-xl border border-white/5">
                       <p className="text-textMuted text-xs uppercase font-bold tracking-widest mb-1">Total Received</p>
-                      <p className="text-2xl font-bold text-secondary">LKR {totalReceived.toFixed(2)}</p>
+                      <p className="text-2xl font-bold text-secondary">LKR {totalReceived.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                    </div>
                    <div className={`p-4 rounded-xl border ${pending > 0 ? 'bg-danger/10 border-danger/20' : 'bg-secondary/10 border-secondary/20'}`}>
                       <p className={`${pending > 0 ? 'text-danger' : 'text-secondary'} text-xs uppercase font-bold tracking-widest mb-1`}>
                         {pending > 0 ? 'Outstanding Balance' : 'Fully Settled'}
                       </p>
-                      <p className={`text-2xl font-bold ${pending > 0 ? 'text-danger' : 'text-secondary'}`}>LKR {pending.toFixed(2)}</p>
+                      <p className={`text-2xl font-bold ${pending > 0 ? 'text-danger' : 'text-secondary'}`}>LKR {pending.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                    </div>
                 </div>
 
@@ -247,7 +260,7 @@ export const TutorPayment = () => {
                           { label: 'Subject', accessor: 'subject', render: (val) => <span className="font-medium text-slate-200">{val}</span> },
                           { label: 'Grade', accessor: 'grade', render: (val) => <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-xs">{val}</span> },
                           { label: 'Students', accessor: 'studentCount', render: (val) => <span className="text-secondary">{val}</span> },
-                          { label: 'Amount', accessor: 'payment', render: (val) => <span className="font-bold">LKR {val.toFixed(2)}</span> }
+                          { label: 'Amount', accessor: 'payment', render: (val) => <span className="font-bold">LKR {val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> }
                         ]}
                         data={tutor.breakdown}
                       />

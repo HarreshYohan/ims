@@ -28,6 +28,7 @@ export const Tutor = () => {
   });
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '', firstname: '', lastname: '', username: '', email: '', password: '', contact: ''
@@ -50,10 +51,15 @@ export const Tutor = () => {
 
   const handleCreateSubmit = async (e) => {
     e.preventDefault();
+    setIsConfirmModalOpen(true);
+  };
+
+  const handleConfirmCreate = async () => {
     setIsSubmitting(true);
     try {
       await api.post('/tutors', formData);
       toast.success('Tutor created successfully!');
+      setIsConfirmModalOpen(false);
       setIsModalOpen(false);
       setFormData({ title: '', firstname: '', lastname: '', username: '', email: '', password: '', contact: '' });
       refetch();
@@ -150,7 +156,17 @@ export const Tutor = () => {
                 { label: 'Rev', value: 'Rev' }
               ]} 
             />
-            <FormInput label="Contact (10 Digits)" name="contact" value={formData.contact} onChange={handleFormChange} required maxLength={10} />
+            <FormInput 
+              label="Contact (10 Digits)" 
+              name="contact" 
+              value={formData.contact} 
+              onChange={(e) => {
+                const val = e.target.value.replace(/[^0-9]/g, '');
+                handleFormChange({ target: { name: 'contact', value: val } });
+              }} 
+              required 
+              maxLength={10} 
+            />
             <FormInput label="First Name" name="firstname" value={formData.firstname} onChange={handleFormChange} required />
             <FormInput label="Last Name" name="lastname" value={formData.lastname} onChange={handleFormChange} required />
             <FormInput label="Username" name="username" value={formData.username} onChange={handleFormChange} required />
@@ -172,6 +188,25 @@ export const Tutor = () => {
             </button>
           </div>
         </form>
+      </Modal>
+      <Modal isOpen={isConfirmModalOpen} onClose={() => setIsConfirmModalOpen(false)} title="Confirm Tutor Creation">
+        <div className="space-y-4">
+          <p className="text-slate-300">Please verify the tutor details and credentials before creating.</p>
+          <div className="bg-slate-900/50 p-4 rounded-xl border border-white/5 space-y-2">
+            <p><span className="text-textMuted w-24 inline-block">Name:</span> <span className="font-medium text-slate-200">{formData.title} {formData.firstname} {formData.lastname}</span></p>
+            <p><span className="text-textMuted w-24 inline-block">Username:</span> <span className="font-medium text-slate-200">{formData.username}</span></p>
+            <p><span className="text-textMuted w-24 inline-block">Password:</span> <span className="font-mono text-secondary bg-secondary/10 px-2 py-0.5 rounded">{formData.password}</span></p>
+          </div>
+          <div className="bg-primary/10 border border-primary/20 text-primary p-3 rounded-lg text-sm mt-4">
+            <strong>Important:</strong> Please securely provide these credentials to the tutor.
+          </div>
+          <div className="flex justify-end gap-3 mt-6 pt-6 border-t border-slate-700/50">
+            <button onClick={() => setIsConfirmModalOpen(false)} className="px-4 py-2 text-textMuted hover:text-slate-200 font-medium">Back</button>
+            <button onClick={handleConfirmCreate} disabled={isSubmitting} className="btn-primary">
+              {isSubmitting ? 'Creating...' : 'Confirm & Create Tutor'}
+            </button>
+          </div>
+        </div>
       </Modal>
     </Layout>
   );

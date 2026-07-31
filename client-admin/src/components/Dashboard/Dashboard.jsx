@@ -19,7 +19,7 @@ export const Dashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const response = await api.get('/dashboard');
+        const response = await api.get(`/dashboard?_t=${Date.now()}`);
         const data = response.data;
 
         setTotalStudents(data.totalStudents);

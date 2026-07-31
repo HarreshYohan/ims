@@ -137,7 +137,7 @@ export const EditTutor = () => {
     { label: 'Subject', accessor: 'subject', render: (val) => <span className="font-medium text-slate-200">{val}</span> },
     { label: 'Grade', accessor: 'grade', render: (val) => <span className="bg-primary/20 text-primary px-2 py-1 rounded text-xs">{val}</span> },
     { label: 'Syllabus', accessor: 'syllabus', render: (val) => <span className="text-secondary text-sm">{val || 'N/A'}</span> },
-    { label: 'Fees', accessor: 'fees', render: (val) => <span className="text-secondary font-medium">${val}</span> },
+    { label: 'Fees', accessor: 'fees', render: (val) => <span className="text-secondary font-medium">LKR {Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> },
     { 
       label: 'Actions', 
       accessor: 'subject_id', 
@@ -243,7 +243,7 @@ export const EditTutor = () => {
                   />
                 </div>
                 <div className="sm:col-span-1 md:col-span-1 mb-5">
-                  <button onClick={handleAddSubject} disabled={!selectedGrade || !selectedSubject || !selectedSyllabus || !subjectFees} className="btn-primary w-full h-[46px]">
+                  <button onClick={handleAddSubject} disabled={!selectedGrade || !selectedSubject || !selectedSyllabus || !subjectFees || Number(subjectFees) <= 0} className="btn-primary w-full h-[46px]">
                     <Plus size={18} /> Add
                   </button>
                 </div>

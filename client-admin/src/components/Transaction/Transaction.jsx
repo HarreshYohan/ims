@@ -3,6 +3,7 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '../shared/Layout';
+import { jwtDecode } from 'jwt-decode';
 import { Card } from '../shared/Card';
 import { GenericTable } from '../shared/GenericTable';
 import { Modal } from '../shared/Modal';
@@ -31,12 +32,18 @@ export const Transaction = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  const token = localStorage.getItem('token');
+  let currentUserId = '';
+  if (token) {
+    try { currentUserId = jwtDecode(token).user_id; } catch(e) {}
+  }
+
   const [newTransaction, setNewTransaction] = useState({
     transaction_type: '',
     amount: '',
     description: '',
     user_id: '',
-    participant_id: '',
+    participant_id: currentUserId,
     date: format(new Date(), 'yyyy-MM-dd')
   });
 
@@ -89,7 +96,7 @@ export const Transaction = () => {
         amount: '', 
         description: '', 
         user_id: '', 
-        participant_id: '',
+        participant_id: currentUserId,
         date: format(new Date(), 'yyyy-MM-dd')
       });
       toast.success('Transaction saved successfully');
@@ -115,7 +122,7 @@ export const Transaction = () => {
         </span>
       )
     },
-    { label: 'Amount', accessor: 'amount', render: (val) => <span className="font-bold text-slate-200">LKR {val}</span> },
+    { label: 'Amount', accessor: 'amount', render: (val) => <span className="font-bold text-slate-200">LKR {Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> },
     { label: 'Description', accessor: 'description' },
     { label: 'Participant', accessor: 'participant_id', render: (val) => <span className="text-textMuted text-xs">{val || 'N/A'}</span> },
     { label: 'Date', accessor: 'createdAt', render: (val) => <span className="text-textMuted">{format(new Date(val), 'MMM dd, yyyy')}</span> },
@@ -203,7 +210,7 @@ export const Transaction = () => {
             <FormInput label="Description" name="description" value={newTransaction.description} onChange={(e) => setNewTransaction({...newTransaction, description: e.target.value})} required />
             <div className="grid grid-cols-2 gap-4">
                <FormInput label="User ID" name="user_id" value={newTransaction.user_id} onChange={(e) => setNewTransaction({...newTransaction, user_id: e.target.value})} />
-               <FormInput label="Participant ID" name="participant_id" value={newTransaction.participant_id} onChange={(e) => setNewTransaction({...newTransaction, participant_id: e.target.value})} />
+               <FormInput label="Participant ID" name="participant_id" value={newTransaction.participant_id} onChange={(e) => setNewTransaction({...newTransaction, participant_id: e.target.value})} disabled={true} />
             </div>
             <FormInput 
               label="Transaction Date" 

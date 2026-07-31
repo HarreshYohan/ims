@@ -198,8 +198,57 @@ export const AnalyticsDashboard = () => {
         </div>
       )}
 
-      {/* Placeholder for Staff/Tutor which follow the same pattern */}
-      {(userType === 'STAFF' || userType === 'TUTOR') && (
+      {userType === 'STAFF' && (
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatTile icon={GraduationCapIcon} label="Total Students" value={data.stats?.student_count || 0} color="indigo" />
+            <StatTile icon={BarChart3} label="Total Tutors" value={data.stats?.tutor_count || 0} color="emerald" />
+            <StatTile icon={Activity} label="Total Revenue" value={`LKR ${(data.stats?.total_revenue || 0).toLocaleString()}`} color="rose" />
+            <StatTile icon={PieChartIcon} label="Total Expenses" value={`LKR ${(data.stats?.total_expenses || 0).toLocaleString()}`} color="amber" />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card title="Fee Recovery Forecast">
+               <div className="h-80 w-full mt-4">
+                 <ResponsiveContainer width="100%" height="100%">
+                   <AreaChart data={data.fee_recovery?.labels?.map((l, i) => ({
+                     name: l,
+                     Recovered: data.fee_recovery.recovered[i],
+                     Pending: data.fee_recovery.pending[i]
+                   })) || []}>
+                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                     <XAxis dataKey="name" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                     <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `LKR ${v/1000}k`} />
+                     <Tooltip contentStyle={{backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '12px'}} />
+                     <Area type="monotone" dataKey="Recovered" stroke="#10b981" strokeWidth={3} fill="#10b981" fillOpacity={0.2} />
+                     <Area type="monotone" dataKey="Pending" stroke="#f43f5e" strokeWidth={3} fill="#f43f5e" fillOpacity={0.2} />
+                     <Legend />
+                   </AreaChart>
+                 </ResponsiveContainer>
+               </div>
+            </Card>
+            
+            <Card title="Tutor Payments Timeline">
+               <div className="h-80 w-full mt-4">
+                 <ResponsiveContainer width="100%" height="100%">
+                   <BarChart data={data.tutor_payments_timeline || []}>
+                     <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                     <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
+                     <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `LKR ${v/1000}k`} />
+                     <Tooltip contentStyle={{backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '12px'}} />
+                     <Bar dataKey="totalpayment" fill="#3b82f6" radius={[4, 4, 0, 0]} name="Total Payable" />
+                     <Bar dataKey="received" fill="#10b981" radius={[4, 4, 0, 0]} name="Paid" />
+                     <Legend />
+                   </BarChart>
+                 </ResponsiveContainer>
+               </div>
+            </Card>
+          </div>
+        </div>
+      )}
+
+      {/* Placeholder for Tutor */}
+      {userType === 'TUTOR' && (
         <div className="flex flex-col items-center justify-center p-20 glass-card">
            <BarChart3 size={48} className="text-primary mb-4 opacity-50"/>
            <h3 className="text-xl font-bold text-slate-200 mb-2">{userType} Analytics Ready</h3>
