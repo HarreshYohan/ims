@@ -127,8 +127,8 @@ exports.create = async (req, res, next) => {
     });
 
     // Send Greeting Email (non-blocking)
-    const { sendStudentGreeting } = require('../services/email.service');
-    sendStudentGreeting(email, firstname, username, rawPassword).catch(err => {
+    const { sendGreetingEmail } = require('../services/email.service');
+    sendGreetingEmail(email, firstname, username, rawPassword, 'Student').catch(err => {
         logger.error(`Background email task failed for ${email}: ${err.message}`);
     });
 

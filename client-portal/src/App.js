@@ -9,6 +9,7 @@ import { StudentGoals }   from "./components/StudentPortal/StudentGoals";
 import { QuizArena }      from "./components/StudentPortal/QuizArena";
 import { TutorDashboard } from "./components/TutorDashboard/TutorDashboard";
 import { TutorScheduleApprovals } from "./components/TutorScheduleApprovals/TutorScheduleApprovals";
+import { TutorNotesApprovals } from "./components/TutorNotesApprovals/TutorNotesApprovals";
 import { Welcome }     from './components/Welcome/Welcome';
 import { LoginSignup } from "./components/LoginSignup/LoginSignup";
 import { Timetable }   from "./components/TimeTable/TimeTable";
@@ -65,6 +66,7 @@ function App() {
         <Route path="/timetable"        element={<Protected element={<Timetable />} />} />
         <Route path="/classroom"        element={<Protected element={<Classroom />} />} />
         <Route path="/tutor-schedule-approvals" element={<Protected element={<TutorScheduleApprovals />} />} />
+        <Route path="/tutor-notes-approvals" element={<Protected element={<TutorNotesApprovals />} />} />
         <Route path="/student"          element={<Protected element={<Student />} />} />
         <Route path="/edit-student/:id" element={<Protected element={<EditStudent />} />} />
         <Route path="/news"             element={<Protected element={<News />} />} />

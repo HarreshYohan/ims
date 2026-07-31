@@ -38,17 +38,21 @@ export const TutorDashboard = () => {
 
   const loadDashboard = async (userId) => {
     try {
-      const [profileRes, subjectsRes] = await Promise.allSettled([
+      const [profileRes] = await Promise.allSettled([
         api.get(`/profile/${userId}`),
-        api.get('/subject-tutors/all'),
       ]);
 
       const prof = profileRes.status === 'fulfilled' ? profileRes.value.data : {};
       setProfile(prof);
 
-      const allSubjects = subjectsRes.status === 'fulfilled' ? (subjectsRes.value.data?.data || []) : [];
-      const mySubjects = allSubjects.filter(st => st.tutorid === (prof.id || prof.user_id));
-      setSubjects(mySubjects);
+      // Now fetch subjects specifically for this tutor with a high limit
+      try {
+        const tutorId = prof.id || prof.user_id;
+        const subRes = await api.get(`/subject-tutors/all?tutorid=${tutorId}&limit=1000`);
+        setSubjects(subRes.data?.data || []);
+      } catch (e) {
+        setSubjects([]);
+      }
 
       try {
         const scheduleRes = await api.get('/timetable/all');

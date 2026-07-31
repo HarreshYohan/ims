@@ -10,7 +10,10 @@ exports.generate = async (req, res) => {
     const student = await Student.findOne({ where: { user_id: userid } });
     if (!student) return res.status(404).json({ message: 'Student not found' });
 
-    const where = { studentid: student.id, status: 'APPROVED' };
+    const where = { 
+      studentid: student.id, 
+      status: { [Op.or]: ['APPROVED', 'Approved'] }
+    };
     if (subject) where.subject = subject;
 
     const notes = await Notes.findAll({ where, order: [['id', 'ASC']] });

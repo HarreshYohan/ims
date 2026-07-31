@@ -58,6 +58,12 @@ exports.create = async (req, res, next) => {
       include: [{ model: User, as: 'user', attributes: ['username', 'email'] }]
     });
 
+    // Send Greeting Email (non-blocking)
+    const { sendGreetingEmail } = require('../services/email.service');
+    sendGreetingEmail(email, firstname, username, password, 'Tutor').catch(err => {
+      logger.error(`Background email task failed for ${email}: ${err.message}`);
+    });
+
     logger.info(`Tutor created: ${email}`);
     res.status(201).json(tutorWithUser);
   } catch (err) {

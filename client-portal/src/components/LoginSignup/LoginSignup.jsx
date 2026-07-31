@@ -10,6 +10,8 @@ export const LoginSignup = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -50,6 +52,30 @@ export const LoginSignup = () => {
         errorMsg = 'Network Error. Please check your internet connection and ensure your ad-blocker is disabled for this site.';
       }
       
+      setMessage({ type: 'error', text: errorMsg });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    if (!resetEmail) {
+      setMessage({ type: 'error', text: 'Please enter your email address' });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await api.post('/auth/forgot-password', { email: resetEmail });
+      setMessage({ type: 'success', text: response.data.message || 'Password reset email sent!' });
+      setTimeout(() => {
+        setIsForgotPassword(false);
+        setMessage(null);
+        setResetEmail('');
+      }, 3000);
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || 'Failed to request password reset.';
       setMessage({ type: 'error', text: errorMsg });
     } finally {
       setIsLoading(false);
@@ -116,10 +142,56 @@ export const LoginSignup = () => {
                  <img src={logo_icon} alt="Logo" className="h-6 w-auto" />
                  <span className="font-bold tracking-tight">IMS.</span>
               </div>
-              <h2 className="text-4xl font-black text-white">Sign In</h2>
-              <p className="text-slate-500 mt-2 font-medium">Access your personalized learning portal</p>
+              <h2 className="text-4xl font-black text-white">
+                {isForgotPassword ? 'Reset Password' : 'Sign In'}
+              </h2>
+              <p className="text-slate-500 mt-2 font-medium">
+                {isForgotPassword ? 'Enter your email to receive a new password' : 'Access your personalized learning portal'}
+              </p>
             </div>
 
+            {isForgotPassword ? (
+              <form onSubmit={handleForgotPassword} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[13px] font-bold text-slate-400 uppercase tracking-wider ml-1">Email Hub</label>
+                  <div className="relative group">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-primary transition-colors">
+                      <Mail size={18} />
+                    </div>
+                    <input 
+                      type="email" 
+                      placeholder="Enter school email" 
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/60 transition-all font-medium"
+                      onChange={(e) => setResetEmail(e.target.value)}
+                      disabled={isLoading}
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex flex-col gap-3 mt-6">
+                  <button 
+                    type="submit" 
+                    disabled={isLoading} 
+                    className="w-full btn-primary !rounded-2xl py-4.5 flex items-center justify-center gap-3 shadow-xl transition-all"
+                  >
+                    {isLoading ? (
+                      <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <span className="font-bold uppercase tracking-widest text-sm">Send Reset Email</span>
+                    )}
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => { setIsForgotPassword(false); setMessage(null); }}
+                    disabled={isLoading} 
+                    className="w-full bg-white/5 hover:bg-white/10 text-white rounded-2xl py-3 flex items-center justify-center transition-all text-sm font-bold uppercase tracking-widest border border-white/10"
+                  >
+                    Back to Login
+                  </button>
+                </div>
+              </form>
+            ) : (
             <form onSubmit={handleLogin} className="space-y-6">
               <div className="space-y-2">
                 <label className="text-[13px] font-bold text-slate-400 uppercase tracking-wider ml-1">Email Hub</label>
@@ -141,7 +213,13 @@ export const LoginSignup = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between ml-1">
                   <label className="text-[13px] font-bold text-slate-400 uppercase tracking-wider">Access Key</label>
-                  <button type="button" className="text-xs font-bold text-primary hover:text-white transition-colors">Forgot Key?</button>
+                  <button 
+                    type="button" 
+                    onClick={() => { setIsForgotPassword(true); setMessage(null); }}
+                    className="text-xs font-bold text-primary hover:text-white transition-colors"
+                  >
+                    Forgot Key?
+                  </button>
                 </div>
                 <div className="relative group">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-primary transition-colors">
@@ -175,6 +253,7 @@ export const LoginSignup = () => {
                 <div className="absolute top-0 -left-[100%] w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent group-hover:animate-shine" />
               </button>
             </form>
+            )}
 
             {/* Error/Success Messages */}
             {message && (

@@ -1,5 +1,4 @@
-const { where } = require('sequelize');
-const { StudentFees, StudentSubject, SubjectTutor  } = require('../models');
+const { StudentFees, StudentSubject, SubjectTutor, Transaction } = require('../models');
 
 
 exports.create = async (req, res) => {
@@ -16,6 +15,18 @@ exports.create = async (req, res) => {
     }
 
     const studentFee = await StudentFees.create(req.body);
+
+    if (req.body.user_id) {
+      await Transaction.create({
+        transaction_type: 'FEES',
+        amount: amount,
+        description: `Student fees payment for ${month} ${year}`,
+        user_id: req.body.user_id,
+        participant_id: studentid,
+        createdAt: new Date()
+      });
+    }
+
     res.status(201).json(studentFee);
   } catch (error) {
     res.status(400).json({ message: error.message });

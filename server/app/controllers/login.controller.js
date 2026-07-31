@@ -14,7 +14,12 @@ exports.login = async (req, res, next) => {
   }
 
   try {
-    const user = await User.findOne({ where: { email } });
+    const { Op } = require('sequelize');
+    const user = await User.findOne({ 
+      where: { 
+        email: { [Op.iLike]: email } 
+      } 
+    });
 
     if (!user || !user.is_active) {
       return res.status(401).json({ message: 'Invalid credentials.' });
@@ -87,6 +92,48 @@ exports.signup = async (req, res, next) => {
 
     logger.info(`New user signed up: ${user.email} [${user.user_type}]`);
     res.status(201).json({ message: 'Successfully signed up.', token, user: safeUser });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.forgotPassword = async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) {
+    return res.status(400).json({ message: 'Email is required.' });
+  }
+
+  try {
+    const { Op } = require('sequelize');
+    const user = await User.findOne({ 
+      where: { 
+        email: { [Op.iLike]: email } 
+      } 
+    });
+    if (!user || !user.is_active) {
+      return res.status(404).json({ message: 'No active user found with this email.' });
+    }
+
+    const crypto = require('crypto');
+    const newPassword = crypto.randomBytes(6).toString('hex'); // 12 char random password
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    await User.update({ password: hashedPassword }, { where: { id: user.id } });
+
+    const { sendPasswordResetEmail } = require('../services/email.service');
+    const emailSent = await sendPasswordResetEmail(user.email, user.username, newPassword);
+
+    if (emailSent) {
+      // Audit: PASSWORD_RESET
+      await auditLog.log({
+        req, action: 'UPDATE', entity: 'user', entity_id: user.id,
+        details: `Password reset requested for: ${user.username} (${user.email})`,
+        user: { user_id: user.id, username: user.username, email: user.email, user_type: user.user_type },
+      });
+      res.status(200).json({ message: 'Password reset successfully. Please check your email.' });
+    } else {
+      res.status(500).json({ message: 'Failed to send password reset email. Please try again later.' });
+    }
   } catch (err) {
     next(err);
   }

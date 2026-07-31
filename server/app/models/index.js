@@ -72,6 +72,7 @@ Chatroom.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 StudentFees.belongsTo(Student, { foreignKey: 'studentid', as: 'student' });
 
 Notes.belongsTo(Student, { foreignKey: 'studentid', as: 'student' });
+Notes.belongsTo(SubjectTutor, { foreignKey: 'subjecttutorid', as: 'subjectTutor' });
 
 Goals.belongsTo(Student, { foreignKey: 'studentid', as: 'student' });
 

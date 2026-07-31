@@ -9,6 +9,7 @@ import { Card } from '../shared/Card';
 import { GenericTable } from '../shared/GenericTable';
 import { FormInput } from '../shared/FormInput';
 import { FormSelect } from '../shared/FormSelect';
+import { Modal } from '../shared/Modal';
 import { Trash2, Save, Plus } from 'lucide-react';
 import { jwtDecode } from 'jwt-decode';
 
@@ -24,6 +25,13 @@ export const EditStudent = () => {
   const [grades, setGrades] = useState([]);
   const [syllabuses, setSyllabuses] = useState([]);
   const [userRole, setUserRole] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
+  
+  // Payment Modal State
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [paymentData, setPaymentData] = useState({ month: '', year: new Date().getFullYear().toString(), amount: '' });
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -37,6 +45,7 @@ export const EditStudent = () => {
       try {
         const decoded = jwtDecode(token);
         setUserRole(decoded.user_type);
+        setCurrentUserId(decoded.user_id);
       } catch (err) {
         console.error('Failed to decode token:', err);
       }
@@ -135,6 +144,34 @@ export const EditStudent = () => {
     }
   };
 
+  const handleRecordPayment = async (e) => {
+    e.preventDefault();
+    if (!paymentData.month || !paymentData.year || !paymentData.amount) {
+      toast.error('Please fill in all payment fields');
+      return;
+    }
+    
+    setIsSubmittingPayment(true);
+    try {
+      await api.post('/student-fees', {
+        studentid: id,
+        month: paymentData.month,
+        year: paymentData.year,
+        amount: parseFloat(paymentData.amount),
+        status: 'PAID',
+        user_id: currentUserId
+      });
+      toast.success('Payment recorded successfully');
+      setIsPaymentModalOpen(false);
+      setPaymentData({ month: '', year: new Date().getFullYear().toString(), amount: '' });
+      fetchFeesOnly();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to record payment');
+    } finally {
+      setIsSubmittingPayment(false);
+    }
+  };
+
   const subjectColumns = [
     { label: 'Subject Name', accessor: 'subject', render: (val) => <span className="font-medium text-slate-200">{val}</span> },
     { 
@@ -163,6 +200,7 @@ export const EditStudent = () => {
     }
   ];
 
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map(m => ({ label: m, value: m }));
   const subjectOptions = (allSubjects || []).map(sub => ({ value: String(sub.id), label: sub.subject }));
 
   const totalSubjectFees = useMemo(() => {
@@ -252,11 +290,20 @@ export const EditStudent = () => {
 
             <Card title={
               <div className="flex items-center justify-between">
-                <span>Fees History</span>
+                <span>Fees History </span>
                 {!loading && (
-                  <div className="text-sm font-medium flex gap-4">
-                    <span className="text-slate-400">Total Monthly Fees: <span className="text-white">${totalSubjectFees.toLocaleString()}</span></span>
-                    {tobePaid > 0 && <span className="text-rose-400">To Be Paid: ${tobePaid.toLocaleString()}</span>}
+                  <div className="flex items-center gap-6">
+                    <div className="text-sm font-medium flex gap-4">
+                      <span className="text-slate-400">-Total Monthly Fees: <span className="text-black">${totalSubjectFees.toLocaleString()}</span></span>
+                      {tobePaid > 0 && <span className="text-rose-400">To Be Paid: ${tobePaid.toLocaleString()}</span>}
+                    </div>
+                    {(userRole === 'STAFF' || userRole === 'ADMIN') && (
+                      <button 
+                        onClick={() => setIsPaymentModalOpen(true)}
+                        className="btn-primary py-1.5 px-3 text-sm flex items-center gap-1"
+                      >Record Payment
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -272,6 +319,50 @@ export const EditStudent = () => {
           
         </div>
       </main>
+
+      <Modal isOpen={isPaymentModalOpen} onClose={() => setIsPaymentModalOpen(false)} title="Record Payment">
+        <form onSubmit={handleRecordPayment} className="space-y-4">
+          <FormSelect
+            label="Month"
+            name="month"
+            value={paymentData.month}
+            onChange={(e) => setPaymentData({ ...paymentData, month: e.target.value })}
+            options={[{ label: 'Select Month', value: '' }, ...months]}
+          />
+          <FormInput
+            label="Year"
+            name="year"
+            type="number"
+            value={paymentData.year}
+            onChange={(e) => setPaymentData({ ...paymentData, year: e.target.value })}
+          />
+          <FormInput
+            label="Amount Paid ($)"
+            name="amount"
+            type="number"
+            value={paymentData.amount}
+            onChange={(e) => setPaymentData({ ...paymentData, amount: e.target.value })}
+          />
+          
+          <div className="flex justify-end gap-3 mt-6">
+            <button
+              type="button"
+              onClick={() => setIsPaymentModalOpen(false)}
+              className="px-4 py-2 text-textMuted hover:text-red-500 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmittingPayment}
+              className="btn-primary py-2 px-6"
+            >
+              {isSubmittingPayment ? 'Recording...' : 'Record Payment'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
     </div>
   );
 };

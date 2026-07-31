@@ -213,30 +213,62 @@ exports.getTutorSubjectsAndGrades = async (req, res) => {
 
 exports.getNotesForApproval = async (req, res) => {
   const { userid, subject, grade } = req.query;
+  const { Op } = require('sequelize');
 
   try {
     const tutor = await Tutor.findOne({
       where: { user_id: userid },
       attributes: ['id']
     });
+    
+    if (!tutor) return res.status(404).json({ message: 'Tutor not found' });
     const tutorid = tutor.id;
-    const subjectTutor = await SubjectTutor.findOne({
-      where: {
-        tutorid: tutorid,
-        subjectid: subject,
-        gradeid: grade
-      }
-    });
 
-    if (!subjectTutor) {
-      return res.status(404).json({ message: 'Subject-Tutor mapping not found' });
+    let subjectTutorIds = [];
+
+    if (subject && grade) {
+      const subjectTutor = await SubjectTutor.findOne({
+        where: {
+          tutorid: tutorid,
+          subjectid: subject,
+          gradeid: grade
+        }
+      });
+      if (!subjectTutor) {
+        return res.status(404).json({ message: 'Subject-Tutor mapping not found' });
+      }
+      subjectTutorIds.push(subjectTutor.id);
+    } else {
+      const mappings = await SubjectTutor.findAll({ where: { tutorid }});
+      subjectTutorIds = mappings.map(m => m.id);
     }
+
+    if (subjectTutorIds.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    const { Student, SubjectTutor: STModel, Subject, Grade } = require('../models');
 
     const notes = await Notes.findAll({
       where: {
-        subjecttutorid: subjectTutor.id,
+        subjecttutorid: { [Op.in]: subjectTutorIds },
         status: "PENDING"
       },
+      include: [
+        { 
+          model: Student, 
+          as: 'student',
+          attributes: ['firstname', 'lastname']
+        },
+        {
+          model: STModel,
+          as: 'subjectTutor',
+          include: [
+            { model: Subject, as: 'subject', attributes: ['name'] },
+            { model: Grade, as: 'grade', attributes: ['name'] }
+          ]
+        }
+      ]
     });
 
     res.status(200).json(notes);

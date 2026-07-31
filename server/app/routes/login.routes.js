@@ -3,5 +3,6 @@ const login = require('../controllers/login.controller');
 
 router.post('/login', login.login);
 router.post('/signup', login.signup);
+router.post('/forgot-password', login.forgotPassword);
 
 module.exports = router;

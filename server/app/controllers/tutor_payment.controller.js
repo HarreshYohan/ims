@@ -158,7 +158,7 @@ exports.getTutorPaymentSummary = async (req, res) => {
 
 exports.updatePayment = async (req, res) => {
   try {
-    const { tutorid, amount, month, year, totalPayment } = req.body;
+    const { tutorid, amount, month, year, totalPayment, user_id } = req.body;
 
     if (!tutorid || month == null || year == null) {
       return res.status(400).json({ message: 'tutorid, month, and year are required' });
@@ -185,6 +185,18 @@ exports.updatePayment = async (req, res) => {
       payment.received = amount;
       payment.receiveddate = amount > 0 ? new Date() : null;
       await payment.save();
+    }
+
+    if (amount > 0 && user_id) {
+      const { Transaction } = require('../models');
+      await Transaction.create({
+        transaction_type: 'SALARY',
+        amount: amount,
+        description: `Tutor salary payment for month ${month} ${year}`,
+        user_id: user_id,
+        participant_id: tutorid,
+        createdAt: new Date()
+      });
     }
 
     res.status(200).json({ message: 'Payment updated successfully', payment });

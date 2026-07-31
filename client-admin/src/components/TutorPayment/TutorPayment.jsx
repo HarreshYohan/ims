@@ -24,6 +24,17 @@ export const TutorPayment = () => {
   const [amount, setAmount] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // 1-based month
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [currentUserId, setCurrentUserId] = useState(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setCurrentUserId(decoded.user_id);
+      } catch (err) {}
+    }
+  }, []);
 
   const fetchData = async () => {
     setLoading(true);
@@ -71,10 +82,10 @@ export const TutorPayment = () => {
     fetchData();
   }, []);
 
-  // Helper to get received amount for a tutor from paymentsData
+  // Helper to get received amount for a tutor from paymentsData for the active month
   const getTotalReceived = (tutorid) => {
     return paymentsData
-      .filter((p) => p.tutorid === tutorid)
+      .filter((p) => p.tutorid === tutorid && p.month === selectedMonth && p.year === selectedYear)
       .reduce((sum, p) => sum + Number(p.received), 0);
   };
 
@@ -108,6 +119,7 @@ export const TutorPayment = () => {
         totalPayment,
         month: selectedMonth,
         year: selectedYear,
+        user_id: currentUserId,
       });
       toast.success('Payment status updated');
       cancelEditing();
@@ -175,16 +187,35 @@ export const TutorPayment = () => {
         ) : (
           <div className="space-y-8">
             {/* Header Actions */}
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-2">
-               <div className="w-full md:w-64">
-                 <FormInput 
-                   placeholder="Search tutor name..." 
-                   value={searchTerm} 
-                   onChange={(e) => setSearchTerm(e.target.value)}
-                   className="!mb-0"
-                 />
+            <div className="flex flex-col lg:flex-row justify-between items-center gap-4 mb-2">
+               <div className="flex flex-col md:flex-row items-center gap-3 w-full lg:w-auto">
+                 <div className="w-full md:w-64">
+                   <FormInput 
+                     placeholder="Search tutor name..." 
+                     value={searchTerm} 
+                     onChange={(e) => setSearchTerm(e.target.value)}
+                     className="!mb-0"
+                   />
+                 </div>
+                 <div className="w-full md:w-40">
+                    <FormSelect 
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                      options={months.map(m => ({ label: m.name, value: m.value }))}
+                    />
+                 </div>
+                 <div className="w-full md:w-32">
+                    <FormSelect 
+                      value={selectedYear}
+                      onChange={(e) => setSelectedYear(Number(e.target.value))}
+                      options={[
+                        { label: '2025', value: 2025 },
+                        { label: '2026', value: 2026 }
+                      ]}
+                    />
+                 </div>
                </div>
-               <div className="flex justify-end gap-3 w-full md:w-auto">
+               <div className="flex justify-end gap-3 w-full lg:w-auto">
                  <button onClick={handleDownloadCsv} className="px-4 py-2 border border-slate-700 rounded-xl text-textMuted hover:text-slate-200 transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-widest leading-none">
                     <Download size={14} /> CSV
                  </button>
@@ -271,22 +302,9 @@ export const TutorPayment = () => {
                       
                       {editingTutorId === tutor.tutorid ? (
                         <div className="space-y-4">
-                          <div className="grid grid-cols-2 gap-3">
-                            <FormSelect 
-                              label="Month"
-                              value={selectedMonth}
-                              onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                              options={months.map(m => ({ label: m.name, value: m.value }))}
-                            />
-                            <FormSelect 
-                              label="Year"
-                              value={selectedYear}
-                              onChange={(e) => setSelectedYear(Number(e.target.value))}
-                              options={[
-                                { label: '2025', value: 2025 },
-                                { label: '2026', value: 2026 }
-                              ]}
-                            />
+                          <div className="p-3 bg-slate-900/50 rounded-lg border border-white/5 mb-2">
+                             <p className="text-xs text-textMuted mb-1">Logging payment for:</p>
+                             <p className="text-sm font-bold text-slate-200">{months.find(m => m.value === selectedMonth)?.name} {selectedYear}</p>
                           </div>
 
                           <FormSelect 

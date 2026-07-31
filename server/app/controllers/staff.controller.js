@@ -112,6 +112,13 @@ exports.create = async (req, res) => {
         });
       }
       const result = await newStaffData();
+
+      // Send Greeting Email (non-blocking)
+      const { sendGreetingEmail } = require('../services/email.service');
+      sendGreetingEmail(email, firstname, username, password, 'Staff').catch(err => {
+        logger.error(`Background email task failed for ${email}: ${err.message}`);
+      });
+
       res.status(201).send(result);
   } catch (err) {
     const errorMsg = err.response?.data?.message || err.message || 'Some error occurred while creating the Staff.';
