@@ -69,14 +69,14 @@ def get_top_subjects():
 
 def get_fees_collection():
     return query_df("""
-        SELECT status, COUNT(*) AS count, SUM(totalamount) AS total
+        SELECT status, COUNT(*) AS count, SUM(amount) AS total
         FROM student_fees GROUP BY status
     """)
 
 def get_tutor_payments_timeline():
     return query_df("""
         SELECT CONCAT(year, '-', LPAD(month::TEXT, 2, '0'), '-01')::DATE AS period,
-               SUM(totalpayment) AS total, SUM(received) AS received
+               SUM(totalpayment)::FLOAT AS total, SUM(received)::FLOAT AS received
         FROM tutor_payments GROUP BY year, month ORDER BY period
     """)
 
@@ -119,7 +119,7 @@ def get_tutor_subjects(tutor_id):
 def get_tutor_payments(tutor_id):
     return query_df("""
         SELECT CONCAT(year, '-', LPAD(month::TEXT, 2, '0'), '-01')::DATE AS period,
-               totalpayment, received
+               totalpayment::FLOAT, received::FLOAT
         FROM tutor_payments WHERE tutorid = %s ORDER BY period
     """, [tutor_id])
 

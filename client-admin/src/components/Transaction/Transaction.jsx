@@ -45,7 +45,7 @@ export const Transaction = () => {
     try {
       const typeFilter = selectedType ? `&transaction_type=${selectedType}` : '';
       const searchFilter = debouncedSearch ? `&search=${encodeURIComponent(debouncedSearch)}` : '';
-      const response = await api.get(`/transactions/all?page=${page}&limit=${pagination.limit}${typeFilter}${searchFilter}`);
+      const response = await api.get(`/transactions/all?page=${page}&limit=${pagination.limit}${typeFilter}${searchFilter}&_t=${new Date().getTime()}`);
       setData(response.data.data);
       setPagination(prev => ({ ...prev, total: response.data.total, page }));
     } catch (err) {

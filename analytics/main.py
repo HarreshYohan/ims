@@ -11,6 +11,7 @@ from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from jose import jwt, JWTError
 from dotenv import load_dotenv
+import uvicorn
 
 # Ensure the analytics directory is in sys.path for robust imports
 current_dir = Path(__file__).resolve().parent
@@ -251,3 +252,6 @@ def download_csv(role: str, user: dict = Depends(verify_token)):
         media_type="text/csv",
         headers={"Content-Disposition": f"attachment; filename=IMS_{role}_Data.csv"},
     )
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8084)

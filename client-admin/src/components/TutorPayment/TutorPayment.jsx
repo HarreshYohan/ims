@@ -28,7 +28,7 @@ export const TutorPayment = () => {
     setLoading(true);
     try {
       // Fetch summary breakdown (subjects + students + fees)
-      const summaryResponse = await api.get('/tutor-payments/summary');
+      const summaryResponse = await api.get(`/tutor-payments/summary?_t=${new Date().getTime()}`);
       if (summaryResponse.status === 200) {
         const rawData = summaryResponse.data.data;
         const grouped = {};
@@ -55,7 +55,7 @@ export const TutorPayment = () => {
       }
 
       // Fetch all tutor payment records (received amounts) — you need an endpoint for this
-      const paymentsResponse = await api.get('/tutor-payments'); // Make sure this route exists and returns TutorPayment data with tutorid, month, year, received, totalpayment
+      const paymentsResponse = await api.get(`/tutor-payments?_t=${new Date().getTime()}`); // Make sure this route exists and returns TutorPayment data with tutorid, month, year, received, totalpayment
       if (paymentsResponse.status === 200) {
         setPaymentsData(paymentsResponse.data); // Array of payment records
       }

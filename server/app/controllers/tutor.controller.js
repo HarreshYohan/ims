@@ -1,5 +1,5 @@
 const { validationResult, check } = require('express-validator');
-const { User, Tutor, SubjectTutor, Subject, Grade, Notes } = require('../models');
+const { User, Tutor, SubjectTutor, Subject, Grade, Notes, Syllabus } = require('../models');
 const bcrypt = require('bcryptjs');
 const logger = require('../lib/logger');
 
@@ -198,6 +198,7 @@ exports.getSubjectMapping = async (req, res, next) => {
       include: [
         { model: Subject, as: 'subject' },
         { model: Grade, as: 'grade' },
+        { model: Syllabus, as: 'syllabus' }
       ],
     });
 
@@ -206,6 +207,7 @@ exports.getSubjectMapping = async (req, res, next) => {
       subject: m.subject.name,
       grade: m.grade.name,
       fees: m.fees,
+      syllabus: m.syllabus ? m.syllabus.name : 'N/A'
     }));
 
     res.json({ subjects: result });
@@ -215,13 +217,13 @@ exports.getSubjectMapping = async (req, res, next) => {
 };
 
 exports.addSubjectToTutor = async (req, res, next) => {
-  const { tutorid, subjectid, gradeid, fees } = req.body;
+  const { tutorid, subjectid, gradeid, fees, syllabusid } = req.body;
   try {
-    const exists = await SubjectTutor.findOne({ where: { tutorid, subjectid, gradeid } });
+    const exists = await SubjectTutor.findOne({ where: { tutorid, subjectid, gradeid, syllabusid: syllabusid || null } });
     if (exists) {
       return res.status(409).json({ message: 'Mapping already exists.' });
     }
-    const mapping = await SubjectTutor.create({ tutorid, subjectid, gradeid, fees });
+    const mapping = await SubjectTutor.create({ tutorid, subjectid, gradeid, fees, syllabusid: syllabusid || null });
     res.status(201).json(mapping);
   } catch (err) {
     next(err);

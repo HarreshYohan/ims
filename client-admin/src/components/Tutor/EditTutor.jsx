@@ -22,6 +22,8 @@ export const EditTutor = () => {
   const [selectedGrade, setSelectedGrade] = useState('');
   const [selectedSubject, setSelectedSubject] = useState('');
   const [subjectFees, setSubjectFees] = useState('');
+  const [syllabuses, setSyllabuses] = useState([]);
+  const [selectedSyllabus, setSelectedSyllabus] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -29,15 +31,18 @@ export const EditTutor = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [tutorRes, subjectMapRes, gradesRes] = await Promise.all([
-        api.get(`/tutors/${id}`),
-        api.get(`/tutors/subject-mapping/${id}`),
-        api.get(`/tutors/grades/all`),
+      const _t = new Date().getTime();
+      const [tutorRes, subjectMapRes, gradesRes, syllabusRes] = await Promise.all([
+        api.get(`/tutors/${id}?_t=${_t}`),
+        api.get(`/tutors/subject-mapping/${id}?_t=${_t}`),
+        api.get(`/tutors/grades/all?_t=${_t}`),
+        api.get(`/syllabus?_t=${_t}`).catch(() => ({ data: [] }))
       ]);
 
       setTutorData(tutorRes.data);
       setSubjects(subjectMapRes.data.subjects);
       setGrades(gradesRes.data);
+      setSyllabuses(syllabusRes.data?.data || syllabusRes.data || []);
     } catch (err) {
       console.error('Failed to load data:', err);
       setError('Failed to load data');
@@ -100,10 +105,12 @@ export const EditTutor = () => {
         tutorid: id,
         subjectid: selectedSubject,
         gradeid: selectedGrade,
-        fees: subjectFees
+        fees: subjectFees,
+        syllabusid: selectedSyllabus || null
       });
       setSelectedGrade('');
       setSelectedSubject('');
+      setSelectedSyllabus('');
       setSubjectFees('');
       setSubjectsByGrade([]);
       toast.success('Subject added successfully!');
@@ -129,10 +136,11 @@ export const EditTutor = () => {
   const subjectColumns = [
     { label: 'Subject', accessor: 'subject', render: (val) => <span className="font-medium text-slate-200">{val}</span> },
     { label: 'Grade', accessor: 'grade', render: (val) => <span className="bg-primary/20 text-primary px-2 py-1 rounded text-xs">{val}</span> },
+    { label: 'Syllabus', accessor: 'syllabus', render: (val) => <span className="text-secondary text-sm">{val || 'N/A'}</span> },
     { label: 'Fees', accessor: 'fees', render: (val) => <span className="text-secondary font-medium">${val}</span> },
     { 
       label: 'Actions', 
-      accessor: 'id', 
+      accessor: 'subject_id', 
       render: (subTutorId) => (
         <button onClick={() => handleRemoveSubject(subTutorId)} className="text-textMuted hover:text-danger transition-colors">
           <Trash2 size={18} />
@@ -143,6 +151,7 @@ export const EditTutor = () => {
 
   const gradeOptions = grades.map(g => ({ value: g.id, label: g.name }));
   const subjectOptions = subjectsByGrade.map(sub => ({ value: sub.id, label: sub.name }));
+  const syllabusOptions = Array.isArray(syllabuses) ? syllabuses.map(s => ({ value: s.id, label: s.name })) : [];
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -194,7 +203,7 @@ export const EditTutor = () => {
 
           <div className="lg:col-span-2 space-y-8">
             <Card title="Teaching Subjects">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6 items-end">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-6 items-end">
                 <div className="sm:col-span-1 md:col-span-1">
                   <FormSelect 
                     label="Grade"
@@ -202,6 +211,15 @@ export const EditTutor = () => {
                     value={selectedGrade} 
                     onChange={(e) => handleGradeChange(e.target.value)}
                     options={gradeOptions}
+                  />
+                </div>
+                <div className="sm:col-span-1 md:col-span-1">
+                  <FormSelect 
+                    label="Syllabus"
+                    name="selectedSyllabus" 
+                    value={selectedSyllabus} 
+                    onChange={(e) => setSelectedSyllabus(e.target.value)}
+                    options={[{ label: 'Select...', value: '' }, ...syllabusOptions]}
                   />
                 </div>
                 <div className="sm:col-span-1 md:col-span-1">
@@ -225,7 +243,7 @@ export const EditTutor = () => {
                   />
                 </div>
                 <div className="sm:col-span-1 md:col-span-1 mb-5">
-                  <button onClick={handleAddSubject} disabled={!selectedGrade || !selectedSubject || !subjectFees} className="btn-primary w-full h-[46px]">
+                  <button onClick={handleAddSubject} disabled={!selectedGrade || !selectedSubject || !selectedSyllabus || !subjectFees} className="btn-primary w-full h-[46px]">
                     <Plus size={18} /> Add
                   </button>
                 </div>

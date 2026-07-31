@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import api from '../../services/api';
 import { useNavigate } from 'react-router-dom';
 
@@ -23,23 +23,30 @@ export const useFetch = (endpoint, initialParams = {}) => {
 
   const navigate = useNavigate();
 
-  const initialParamsString = JSON.stringify(initialParams);
-  const fetchData = useCallback(async (params = {}) => {
+  // Keep all mutable values in refs so the fetch function never goes stale
+  const endpointRef = useRef(endpoint);
+  endpointRef.current = endpoint;
+  const pageRef = useRef(currentPage);
+  pageRef.current = currentPage;
+  const paramsRef = useRef(initialParams);
+  paramsRef.current = initialParams;
+
+  // Core fetch function — reads everything from refs so it never goes stale
+  const doFetch = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await api.get(endpoint, {
+      const response = await api.get(endpointRef.current, {
         params: {
-          page: currentPage,
+          page: pageRef.current,
           limit: itemsPerPage,
-          ...JSON.parse(initialParamsString),
-          ...params
+          ...paramsRef.current,
+          _t: new Date().getTime() // Aggressive cache busting
         }
       });
       
       const resData = response.data;
       
-      // Flexible handling of different API response formats
       if (resData && resData.data && Array.isArray(resData.data)) {
         setData(resData.data);
         if (resData.total !== undefined) {
@@ -50,12 +57,9 @@ export const useFetch = (endpoint, initialParams = {}) => {
           setTotalPages(1);
         }
       } else if (Array.isArray(resData)) {
-        // Flat array fallback
         setData(resData);
         setTotalPages(1);
       } else if (resData && typeof resData === 'object') {
-        // Handle cases where some controllers might return the object directly
-        // but it has a different structure. We err on the side of empty array.
         setData([]);
         setTotalPages(1);
       }
@@ -65,26 +69,25 @@ export const useFetch = (endpoint, initialParams = {}) => {
         navigate('/login');
       } else {
         setError(err.response?.data?.message || 'Failed to fetch data');
-        console.error(`Fetch error at ${endpoint}:`, err);
+        console.error(`Fetch error at ${endpointRef.current}:`, err);
       }
     } finally {
       setLoading(false);
     }
-  }, [endpoint, currentPage, itemsPerPage, navigate, initialParamsString]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemsPerPage, navigate]);
 
-  // Initial Fetch on Mount or Parameter Change
+  // Auto-fetch on mount AND when endpoint, page, or params change
+  const initialParamsString = JSON.stringify(initialParams);
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    doFetch();
+  }, [doFetch, endpoint, currentPage, initialParamsString]);
 
   // Export a robust pagination object that satisfies different component needs
   const pagination = {
-    // Standard names (for GenericTable)
     current: currentPage,
     total: totalPages,
     onPageChange: setCurrentPage,
-    
-    // Legacy/Alternative names (for internal table implementations)
     currentPage: currentPage,
     totalPages: totalPages,
     handlePageChange: setCurrentPage
@@ -95,6 +98,6 @@ export const useFetch = (endpoint, initialParams = {}) => {
     loading,
     error,
     pagination,
-    refetch: fetchData
+    refetch: doFetch   // Directly call the stable fetch function
   };
 };

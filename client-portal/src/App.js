@@ -10,7 +10,7 @@ import { QuizArena }      from "./components/StudentPortal/QuizArena";
 import { TutorDashboard } from "./components/TutorDashboard/TutorDashboard";
 import { Welcome }     from './components/Welcome/Welcome';
 import { LoginSignup } from "./components/LoginSignup/LoginSignup";
-import { Timetable }   from "./components/Timetable/Timetable";
+import { Timetable }   from "./components/TimeTable/TimeTable";
 import { Classroom }   from "./components/Classroom/Classroom";
 import { Student }     from "./components/Student/Student";
 import { EditStudent } from "./components/Student/EditStudent";

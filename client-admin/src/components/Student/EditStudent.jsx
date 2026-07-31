@@ -10,6 +10,7 @@ import { GenericTable } from '../shared/GenericTable';
 import { FormInput } from '../shared/FormInput';
 import { FormSelect } from '../shared/FormSelect';
 import { Trash2, Save, Plus } from 'lucide-react';
+import { jwtDecode } from 'jwt-decode';
 
 export const EditStudent = () => {
   const [studentData, setStudentData] = useState({});
@@ -22,6 +23,7 @@ export const EditStudent = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [grades, setGrades] = useState([]);
   const [syllabuses, setSyllabuses] = useState([]);
+  const [userRole, setUserRole] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -31,6 +33,13 @@ export const EditStudent = () => {
     if (!token) {
       localStorage.removeItem('authToken');
       navigate('/login');
+    } else {
+      try {
+        const decoded = jwtDecode(token);
+        setUserRole(decoded.user_type);
+      } catch (err) {
+        console.error('Failed to decode token:', err);
+      }
     }
   }, [token, navigate]);
 
@@ -165,8 +174,8 @@ export const EditStudent = () => {
           <div className="lg:col-span-1 border-r border-slate-700/50 pr-0 lg:pr-8">
             <Card title="Student Profile">
               <div className="space-y-4">
-                <FormInput label="First Name" name="firstname" value={studentData.firstname || ''} onChange={handleInputChange} />
-                <FormInput label="Last Name" name="lastname" value={studentData.lastname || ''} onChange={handleInputChange} />
+                <FormInput label="First Name" name="firstname" value={studentData.firstname || ''} onChange={handleInputChange} disabled={userRole === 'STAFF'} />
+                <FormInput label="Last Name" name="lastname" value={studentData.lastname || ''} onChange={handleInputChange} disabled={userRole === 'STAFF'} />
                 <FormInput label="Contact (10 Digits)" name="contact" value={studentData.contact || ''} onChange={handleInputChange} maxLength={10} />
                 <FormSelect 
                   label="Grade" 
@@ -174,6 +183,7 @@ export const EditStudent = () => {
                   value={studentData.grade || ''} 
                   onChange={handleInputChange}
                   options={grades}
+                  disabled={userRole === 'STAFF'}
                 />
                 <FormSelect 
                   label="Syllabus" 
@@ -181,6 +191,7 @@ export const EditStudent = () => {
                   value={String(studentData.syllabusid || '')} 
                   onChange={handleInputChange}
                   options={syllabuses}
+                  disabled={userRole === 'STAFF'}
                 />
                 
                 <button 

@@ -26,7 +26,7 @@ npm install
 npm start
 ```
 
-### 3. Run Analytics Service (Port 8000)
+### 3. Run Analytics Service (Port 8084)
 ```bash
 cd analytics
 # Create venv and install dependencies...

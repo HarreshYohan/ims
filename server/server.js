@@ -38,6 +38,12 @@ app.use(globalLimiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Disable caching globally for API responses
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  next();
+});
+
 // ── Health check ─────────────────────────────────────────────
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString(), version: '1.0.0' });
@@ -56,7 +62,7 @@ app.use('/api/v1/profile', profileRouter);
 
 // ── Analytics proxy (Python FastAPI server) ───────────────────
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const ANALYTICS_URL = process.env.ANALYTICS_URL || 'http://localhost:8000';
+const ANALYTICS_URL = process.env.ANALYTICS_URL || 'http://analytics:8084';
 
 // Use pathFilter to ensure we only proxy what we want
 const analyticsProxyOptions = {

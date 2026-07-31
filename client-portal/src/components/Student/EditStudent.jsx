@@ -90,7 +90,7 @@ export const EditStudent = () => {
   const handleRemoveSubject = async (subjectid) => {
     if (!window.confirm('Are you sure you want to remove this subject?')) return;
     try {
-      await api.delete(`/student-subject/remove-subject/${id}/${subjectid}`);
+      await api.delete(`/student-subjects/remove-subject/${id}/${subjectid}`);
       toast.success('Subject removed');
       fetchData(); // Reload all data to refresh dropdowns and lists
     } catch (err) {
@@ -102,7 +102,7 @@ export const EditStudent = () => {
   const handleAddSubject = async () => {
     if (!selectedSubject) return;
     try {
-      await api.post('/student-subject/add-subject', { studentid: id, subjectid: selectedSubject });
+      await api.post('/student-subjects/add-subject', { studentid: id, subjectid: selectedSubject });
       toast.success('Subject added');
       setSelectedSubject('');
       fetchData();
