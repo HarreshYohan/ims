@@ -44,28 +44,16 @@ exports.create = async (req, res) => {
     }
 
 
-    let timetable = await Timetable.findOne({
-      where: {
-        classroomid: Number(classroomid),
-        timeslotid: Number(timeslotid)
-      }
+    const { ClassScheduleRequest } = require('../models');
+    const scheduleRequest = await ClassScheduleRequest.create({
+      subject_tutor_id: subjecttutorid,
+      timeslotid: Number(timeslotid),
+      classroomid: Number(classroomid),
+      day_of_week: day,
+      status: 'PENDING_TUTOR'
     });
 
-    if (timetable) {
-      timetable[day] = subjecttutorid;
-      await timetable.save();
-    } 
-    else {
-      const newTimetable = {
-        timeslotid: Number(timeslotid),
-        timeslot: timeslot,
-        classroomid: Number(classroomid),
-        [day]: subjecttutorid
-      };
-      timetable = await Timetable.create(newTimetable);
-    }
-
-    res.status(201).send(timetable);
+    res.status(201).send({ message: 'Request sent to Tutor for approval', data: scheduleRequest });
   } catch (err) {
     if (err.name === 'SequelizeUniqueConstraintError') {
       res.status(400).send({

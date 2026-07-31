@@ -34,6 +34,8 @@ const TutorPayment = require('./tutor_payment.model')(sequelize, Sequelize.DataT
 const Flashcard = require('./flashcard.model')(sequelize, Sequelize.DataTypes);
 const QuizAttempt = require('./quiz_attempt.model')(sequelize, Sequelize.DataTypes);
 const ActivityLog = require('./activity_log.model')(sequelize, Sequelize.DataTypes);
+const StaffLeaveRequest = require('./staff_leave_request.model')(sequelize, Sequelize.DataTypes);
+const ClassScheduleRequest = require('./class_schedule_request.model')(sequelize, Sequelize.DataTypes);
 // Associations
 User.hasOne(Student, { foreignKey: 'user_id', as: 'student' });
 User.hasOne(Tutor, { foreignKey: 'user_id', as: 'tutor' });
@@ -80,6 +82,12 @@ Flashcard.belongsTo(Notes, { foreignKey: 'noteid', as: 'note' });
 
 QuizAttempt.belongsTo(Student, { foreignKey: 'studentid', as: 'student' });
 
+StaffLeaveRequest.belongsTo(Staff, { foreignKey: 'staff_id', as: 'staff' });
+Staff.hasMany(StaffLeaveRequest, { foreignKey: 'staff_id', as: 'leave_requests' });
+
+ClassScheduleRequest.belongsTo(SubjectTutor, { foreignKey: 'subject_tutor_id', as: 'subjectTutor' });
+ClassScheduleRequest.belongsTo(Classroom, { foreignKey: 'classroomid', as: 'classroom' });
+
 module.exports = {
   sequelize,
   User,
@@ -102,5 +110,7 @@ module.exports = {
   TutorPayment,
   Flashcard,
   QuizAttempt,
-  ActivityLog
+  ActivityLog,
+  StaffLeaveRequest,
+  ClassScheduleRequest
 };

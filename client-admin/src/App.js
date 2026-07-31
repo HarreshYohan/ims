@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Toaster } from 'react-hot-toast';
-import HomePage from './components/HomePage';
 import { LoginSignup } from "./components/LoginSignup/LoginSignup";
 import { Dashboard }   from './components/Dashboard/Dashboard';
 import { Welcome }     from './components/Welcome/Welcome';
@@ -14,7 +13,8 @@ import { Tutor }       from "./components/Tutor/Tutor";
 import { News }        from "./components/News/News";
 import { Classroom }   from "./components/Classroom/Classroom";
 import { Chatroom }    from "./components/Chatroom/Chatroom";
-import { SubjectTutor } from "./components/SubjectTutor/SubjectTutor";
+import { SubjectTutor } from './components/SubjectTutor/SubjectTutor';
+import { ClassScheduleApprovals } from './components/ClassScheduleApprovals/ClassScheduleApprovals';
 import { Transaction }  from "./components/Transaction/Transaction";
 import { EditStudent }  from "./components/Student/EditStudent";
 import { Profile }      from "./components/Profile/Profile";
@@ -28,7 +28,6 @@ import { Syllabus } from "./components/Syllabus/Syllabus";
 
 
 
-import { ActionLog } from "./components/ActivityLog/ActivityLog"; // Wait, it's ActivityLog
 import { ActivityLog } from "./components/ActivityLog/ActivityLog";
 import { AnalyticsDashboard } from "./components/Analytics/AnalyticsDashboard";
 import { jwtDecode } from "jwt-decode";
@@ -80,6 +79,7 @@ function App() {
         <Route path="/grade"            element={<Protected element={<Grade />} />} />
         <Route path="/revenue"          element={<Protected element={<RevenueIntelligence />} />} />
         <Route path="/staff-payment"    element={<Protected element={<StaffPayment />} />} />
+        <Route path="/schedule-approvals" element={<Protected element={<ClassScheduleApprovals />} />} />
         <Route path="/syllabus"         element={<Protected element={<Syllabus />} />} />
 
         {/* Admin/Staff Tools */}

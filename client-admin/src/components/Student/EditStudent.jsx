@@ -58,21 +58,31 @@ export const EditStudent = () => {
 
       setStudentData(studentRes.data || {});
       setFeesData(feesRes.data || []);
-      setSubjects(subjectsRes.data.data?.subjects || []);
+      setSubjects(subjectsRes.data?.data?.subjects || []);
       setAllSubjects(allSubjectsRes.data?.subjects || []);
       setGrades(Array.isArray(gradesRes.data) ? gradesRes.data.map(g => ({ label: g.name, value: g.name })) : []);
       setSyllabuses(Array.isArray(syllabusesRes.data) ? syllabusesRes.data.map(s => ({ label: s.name, value: String(s.id) })) : []);
     } catch (err) {
-      console.error('Error fetching data:', err);
-      setError(`Failed to load student data: ${err.response?.data?.message || err.message}`);
+      setError('Failed to fetch data.');
     } finally {
       setLoading(false);
     }
   }, [id]);
 
+  const fetchFeesOnly = useCallback(async () => {
+    try {
+      const feesRes = await api.get(`/student-fees/${id}`);
+      setFeesData(feesRes.data || []);
+    } catch (e) {
+      console.error('Fees auto-refresh failed:', e);
+    }
+  }, [id]);
+
   useEffect(() => {
     fetchData();
-  }, [fetchData]);
+    const interval = setInterval(fetchFeesOnly, 5000);
+    return () => clearInterval(interval);
+  }, [fetchData, fetchFeesOnly]);
 
   const isFormValid = useMemo(() => {
     return (
@@ -155,6 +165,16 @@ export const EditStudent = () => {
 
   const subjectOptions = (allSubjects || []).map(sub => ({ value: String(sub.id), label: sub.subject }));
 
+  const totalSubjectFees = useMemo(() => {
+    return subjects.reduce((sum, sub) => sum + (Number(sub.fees) || 0), 0);
+  }, [subjects]);
+
+  const totalPaid = useMemo(() => {
+    return feesData.filter(f => f.status === 'PAID').reduce((sum, f) => sum + (Number(f.amount) || 0), 0);
+  }, [feesData]);
+
+  const tobePaid = Math.max(0, totalSubjectFees - totalPaid);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header type="dashboard" action="Logout" />
@@ -230,7 +250,17 @@ export const EditStudent = () => {
               />
             </Card>
 
-            <Card title="Fees History">
+            <Card title={
+              <div className="flex items-center justify-between">
+                <span>Fees History</span>
+                {!loading && (
+                  <div className="text-sm font-medium flex gap-4">
+                    <span className="text-slate-400">Total Monthly Fees: <span className="text-white">${totalSubjectFees.toLocaleString()}</span></span>
+                    {tobePaid > 0 && <span className="text-rose-400">To Be Paid: ${tobePaid.toLocaleString()}</span>}
+                  </div>
+                )}
+              </div>
+            }>
               <GenericTable 
                 columns={feeColumns} 
                 data={feesData} 

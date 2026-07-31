@@ -248,7 +248,7 @@ exports.student_subject = async (req, res, next) => {
           { model: Subject, as: 'subject', attributes: ['name'] },
           { model: Tutor, as: 'tutor' }
         ],
-        attributes: ['id'],
+        attributes: ['id', 'fees'],
       }],
     });
 
@@ -262,6 +262,7 @@ exports.student_subject = async (req, res, next) => {
         subjectName: subjectName,
         tutorName: tutorName,
         subject_id: item.subjectTutor.id,
+        fees: item.subjectTutor.fees || 0,
       };
     });
 

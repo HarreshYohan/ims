@@ -99,6 +99,8 @@ const gradeRouter       = require('./app/routes/grade.routes');
 const chatroomRouter    = require('./app/routes/chatroom.routes');
 const notesRouter       = require('./app/routes/notes.routes');
 const goalsRouter       = require('./app/routes/goals.routes');
+const leaveRouter       = require('./app/routes/leave.routes');
+const scheduleRouter    = require('./app/routes/schedule_request.routes');
 const studentFeesRouter = require('./app/routes/student_fees.routes');
 const transactionRouter = require('./app/routes/transaction.routes');
 const tutorPaymentRouter = require('./app/routes/tutor_payments.routes');
@@ -121,6 +123,8 @@ app.use('/api/v1/grades',          authenticate, autoAudit('grade'), gradeRouter
 app.use('/api/v1/chatroom',        authenticate, autoAudit('chatroom'), chatroomRouter);
 app.use('/api/v1/notes',           authenticate, autoAudit('notes'), notesRouter);
 app.use('/api/v1/goals',           authenticate, autoAudit('goals'), goalsRouter);
+app.use('/api/v1/leave',           authenticate, autoAudit('leave'), leaveRouter);
+app.use('/api/v1/schedule-requests', authenticate, autoAudit('schedule_request'), scheduleRouter);
 app.use('/api/v1/syllabus',        authenticate, autoAudit('syllabus'), syllabusRouter);
 app.use('/api/v1/student-fees',    authenticate, autoAudit('student_fees'), studentFeesRouter);
 app.use('/api/v1/transactions',    authenticate, autoAudit('transaction'), transactionRouter);

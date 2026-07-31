@@ -5,7 +5,7 @@ import {
   BarChart3, Calendar, User, Users, Building2, ArrowLeftRight, 
   BookOpen, FileText, ChevronDown, ChevronRight, GraduationCap,
   TrendingUp, ShieldCheck, Layers, Brain, Target, MessageSquare,
-  CreditCard, Activity, Sparkles
+  CreditCard, Activity, Sparkles, CheckCircle
 } from 'lucide-react';
 import { jwtDecode } from 'jwt-decode';
 
@@ -15,6 +15,7 @@ export const Navbar = () => {
     location.pathname.startsWith('/report') || location.pathname === '/user-report' || location.pathname === '/revenue' || location.pathname === '/staff-payment'
   );
   const [isTutorOpen, setIstutorOpen] = useState(location.pathname.startsWith('/tutor'));
+  const [isStaffOpen, setIsStaffOpen] = useState(location.pathname.startsWith('/staff'));
   const [isStudyOpen, setIsStudyOpen] = useState(location.pathname.startsWith('/student-'));
   const [userType, setUserType] = useState(null);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -104,6 +105,7 @@ export const Navbar = () => {
         <NavItem to="/dashboard" icon={BarChart3} label="Dashboard" />
         <NavItem to="/timetable" icon={Calendar} label="Time Table" />
         <NavItem to="/student" icon={GraduationCap} label="Students" />
+        <NavItem to="/schedule-approvals" icon={CheckCircle} label="Class Approvals" />
         <div>
           <NavItem icon={Users} label="Tutors" onClick={() => setIstutorOpen(!isTutorOpen)} isOpen={isTutorOpen} hasChildren />
           {isTutorOpen && (
@@ -129,7 +131,6 @@ export const Navbar = () => {
             </div>
           )}
         </div>
-        <NavItem to="/analytics" icon={Sparkles} label="AI Insights" />
         <NavItem to="/activity-log" icon={Activity} label="Activity Log" />
         <NavItem to="/profile" icon={User} label="Profile" />
       </nav>
@@ -142,6 +143,7 @@ export const Navbar = () => {
       <NavItem to="/dashboard" icon={BarChart3} label="Dashboard" />
       <NavItem to="/timetable" icon={Calendar} label="Time Table" />
       <NavItem to="/student" icon={GraduationCap} label="Students" />
+      <NavItem to="/schedule-approvals" icon={CheckCircle} label="Class Approvals" />
       <div>
         <NavItem icon={Users} label="Tutors" onClick={() => setIstutorOpen(!isTutorOpen)} isOpen={isTutorOpen} hasChildren />
         {isTutorOpen && (
@@ -151,7 +153,14 @@ export const Navbar = () => {
           </div>
         )}
       </div>
-      <NavItem to="/staff" icon={Users} label="Staff" />
+      <div>
+        <NavItem icon={Users} label="Staff Directory" onClick={() => setIsStaffOpen(!isStaffOpen)} isOpen={isStaffOpen} hasChildren />
+        {isStaffOpen && (
+          <div className="ml-4 pl-4 border-l border-slate-800 mt-2 space-y-1 animate-in slide-in-from-left-2 duration-200">
+            <NavItem to="/staff" icon={Users} label="Directory" />
+          </div>
+        )}
+      </div>
       <NavItem to="/classroom" icon={Building2} label="Classrooms" />
       <NavItem to="/grade" icon={GraduationCap} label="Grades" />
       <NavItem to="/syllabus" icon={Layers} label="Syllabus" />

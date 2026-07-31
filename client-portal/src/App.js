@@ -8,6 +8,7 @@ import { FlashcardDeck }  from "./components/StudentPortal/FlashcardDeck";
 import { StudentGoals }   from "./components/StudentPortal/StudentGoals";
 import { QuizArena }      from "./components/StudentPortal/QuizArena";
 import { TutorDashboard } from "./components/TutorDashboard/TutorDashboard";
+import { TutorScheduleApprovals } from "./components/TutorScheduleApprovals/TutorScheduleApprovals";
 import { Welcome }     from './components/Welcome/Welcome';
 import { LoginSignup } from "./components/LoginSignup/LoginSignup";
 import { Timetable }   from "./components/TimeTable/TimeTable";
@@ -63,6 +64,7 @@ function App() {
         {/* Shared Protected Tools */}
         <Route path="/timetable"        element={<Protected element={<Timetable />} />} />
         <Route path="/classroom"        element={<Protected element={<Classroom />} />} />
+        <Route path="/tutor-schedule-approvals" element={<Protected element={<TutorScheduleApprovals />} />} />
         <Route path="/student"          element={<Protected element={<Student />} />} />
         <Route path="/edit-student/:id" element={<Protected element={<EditStudent />} />} />
         <Route path="/news"             element={<Protected element={<News />} />} />

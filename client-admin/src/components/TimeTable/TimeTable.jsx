@@ -76,13 +76,13 @@ export const Timetable = () => {
     
     setIsSubmitting(true);
     try {
-      await api.post(`/timetable`, {
+      const res = await api.post(`/timetable`, {
         subjecttutorid: parseInt(subjectTutorid),
         classroomid: parseInt(classroomid),
         timeslotid: parseInt(editData.timeslotid),
         day: editData.day,
       });
-      toast.success('Timetable updated successfully!');
+      toast.success(res.data?.message || 'Timetable updated successfully!');
       setShowModal(false);
       refetch();
     } catch (err) {

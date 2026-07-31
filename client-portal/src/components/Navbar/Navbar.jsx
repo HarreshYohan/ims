@@ -77,6 +77,7 @@ export const Navbar = () => {
       <nav className={navClass}>
         <NavItem to="/tutor-dashboard" icon={BarChart3} label="My Dashboard" />
         <NavItem to="/timetable" icon={Calendar} label="My Schedule" />
+        <NavItem to="/tutor-schedule-approvals" icon={Calendar} label="Class Approvals" />
         <NavItem to="/student" icon={GraduationCap} label="My Students" />
         <NavItem to="/classroom" icon={Building2} label="Classrooms" />
         <NavItem to="/ai-insight" icon={Sparkles} label="AI Insights" />
