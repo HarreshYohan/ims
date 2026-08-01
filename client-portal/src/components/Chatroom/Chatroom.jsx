@@ -41,7 +41,7 @@ export const Chatroom = () => {
     try {
       let endpoint = `/students/student-subject/${userId}`;
       if (role === 'TUTOR') {
-        endpoint = `/tutors/subject-mapping/${userId}`;
+        endpoint = `/tutors/subject-mapping/${userId}?type=user_id`;
       }
       const res = await api.get(endpoint);
       if (res.status === 200) {

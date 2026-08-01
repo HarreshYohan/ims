@@ -34,7 +34,7 @@ export const EditTutor = () => {
       const _t = new Date().getTime();
       const [tutorRes, subjectMapRes, gradesRes, syllabusRes] = await Promise.all([
         api.get(`/tutors/${id}?_t=${_t}`),
-        api.get(`/tutors/subject-mapping/${id}?_t=${_t}`),
+        api.get(`/tutors/subject-mapping/${id}?type=tutor_id&_t=${_t}`),
         api.get(`/tutors/grades/all?_t=${_t}`),
         api.get(`/syllabus?_t=${_t}`).catch(() => ({ data: [] }))
       ]);

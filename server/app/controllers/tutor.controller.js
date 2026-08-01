@@ -191,11 +191,18 @@ exports.approveOrRejectNote = async (req, res, next) => {
 exports.getSubjectMapping = async (req, res, next) => {
   try {
     const { Op } = require('sequelize');
-    const tutor = await Tutor.findOne({ 
-      where: { 
-        [Op.or]: [ { user_id: req.params.id }, { id: req.params.id } ] 
-      } 
-    });
+    const { type } = req.query;
+    let whereClause = {};
+
+    if (type === 'user_id') {
+      whereClause = { user_id: req.params.id };
+    } else if (type === 'tutor_id') {
+      whereClause = { id: req.params.id };
+    } else {
+      whereClause = { [Op.or]: [ { user_id: req.params.id }, { id: req.params.id } ] };
+    }
+
+    const tutor = await Tutor.findOne({ where: whereClause });
     if (!tutor) {
       return res.status(404).json({ message: 'Tutor not found' });
     }
