@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+
 import { jwtDecode } from 'jwt-decode';
 import { format } from 'date-fns';
 import api from '../../services/api';
@@ -16,28 +16,25 @@ export const Chatroom = () => {
   const [data, setData] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState('');
-  const [userType, setUserType] = useState(null);
   const [userName, setUserName] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [message, setMessage] = useState('');
 
-  const navigate = useNavigate();
   const chatEndRef = useRef(null);
   const token = localStorage.getItem('authToken');
 
   useEffect(() => {
     if (token) {
-      const decoded = jwtDecode(token);
-      setUserType(decoded.user_type);
-      setUserName(decoded.username);
-      fetchSubjects(decoded.user_id, decoded.user_type);
+      try {
+        const decoded = jwtDecode(token);
+        setUserName(decoded.firstname || decoded.username);
+        fetchSubjects(decoded.user_id, decoded.user_type);
+      } catch (err) {
+        console.error('Failed to parse token');
+      }
     }
   }, [token]);
 
   const fetchSubjects = async (userId, role) => {
-    setLoading(true);
-    setError(null);
     try {
       let endpoint = `/students/student-subject/${userId}`;
       if (role === 'TUTOR') {
@@ -53,15 +50,10 @@ export const Chatroom = () => {
       }
     } catch (err) {
       console.error('Error during subject fetch:', err);
-      setError('Error during subject fetch');
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchMessages = async (subjectId) => {
-    setLoading(true);
-    setError(null);
     try {
       const res = await api.get(`/chatroom/${subjectId}`);
       if (res.status === 200) {
@@ -73,9 +65,6 @@ export const Chatroom = () => {
       }
     } catch (err) {
       console.error('Error during chat data fetch:', err);
-      setError('Error during chat data fetch');
-    } finally {
-      setLoading(false);
     }
   };
 

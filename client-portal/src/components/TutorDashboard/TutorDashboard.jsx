@@ -16,7 +16,7 @@ export const TutorDashboard = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [subjects, setSubjects] = useState([]);
-  const [schedule, setSchedule] = useState([]);
+
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,17 +45,18 @@ export const TutorDashboard = () => {
       const prof = profileRes.status === 'fulfilled' ? profileRes.value.data : {};
       setProfile(prof);
 
+      const _t = new Date().getTime();
       // Now fetch subjects specifically for this tutor with a high limit
       try {
         const tutorId = prof.id || prof.user_id;
         
         // Fetch raw subjects
-        const subRes = await api.get(`/subject-tutors/all?tutorid=${tutorId}&limit=1000`);
+        const subRes = await api.get(`/subject-tutors/all?tutorid=${tutorId}&limit=1000&_t=${_t}`);
         let tutorSubjects = subRes.data?.data || [];
         
         // Fetch summary to get student counts
         try {
-          const summaryRes = await api.get('/tutor-payments/summary');
+          const summaryRes = await api.get(`/tutor-payments/summary?_t=${_t}`);
           const summaryData = summaryRes.data?.data || [];
           
           // Merge studentCount into subjects
@@ -77,13 +78,12 @@ export const TutorDashboard = () => {
       }
 
       try {
-        const scheduleRes = await api.get('/timetable/all');
-        setSchedule(scheduleRes.data?.data || []);
-      } catch (e) { setSchedule([]); }
+        await api.get(`/timetable/all?_t=${_t}`);
+      } catch (e) { console.error('Failed to fetch timetable'); }
 
       try {
         const tutorId = prof.id || prof.user_id;
-        const payRes = await api.get(`/tutor-payments`);
+        const payRes = await api.get(`/tutor-payments?_t=${_t}`);
         const allPayments = payRes.data?.data || payRes.data || [];
         setPayments(allPayments.filter(p => p.tutorid === tutorId));
       } catch (e) { setPayments([]); }
