@@ -154,7 +154,10 @@ exports.getSubjectsForStudentGrade = async (req, res) => {
 
     const subjectTutors = await SubjectTutor.findAll({
       where: { gradeid: grade.id },
-      include: [{ model: Subject, as: 'subject' }]
+      include: [
+        { model: Subject, as: 'subject' },
+        { model: Tutor, as: 'tutor' }
+      ]
     });
 
     // Get already enrolled subjectTutor ids for this student
@@ -165,13 +168,13 @@ exports.getSubjectsForStudentGrade = async (req, res) => {
 
     const enrolledIds = enrolledSubjects.map(sub => sub.subjecttutorid);
 
-    // Filter subjectTutors where id is NOT in enrolledIds
     const availableSubjects = subjectTutors
       .filter(st => !enrolledIds.includes(st.id))
       .map(st => ({
         id: st.id,
-        subject: st.subject.name,
-        tutorid: st.tutorid
+        subject: `${st.subject.name} - ${st.tutor ? st.tutor.firstname + ' ' + st.tutor.lastname : 'Unknown Tutor'}`,
+        tutorid: st.tutorid,
+        tutorName: st.tutor ? `${st.tutor.firstname} ${st.tutor.lastname}` : 'Unknown Tutor'
       }));
 
     res.json({ subjects:availableSubjects  });

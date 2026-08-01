@@ -111,15 +111,17 @@ async function applyToTimetable(classroomid, timeslotid, day, subject_tutor_id) 
   const timeslot = TimetableData.find(slot => slot.id == timeslotid)?.timeslot;
   let timetable = await Timetable.findOne({ where: { classroomid, timeslotid } });
   
+  const dayColumn = day.toLowerCase();
+
   if (timetable) {
-    timetable[day] = subject_tutor_id;
+    timetable[dayColumn] = subject_tutor_id;
     await timetable.save();
   } else {
     await Timetable.create({
       timeslotid,
       timeslot,
       classroomid,
-      [day]: subject_tutor_id
+      [dayColumn]: subject_tutor_id
     });
   }
 }

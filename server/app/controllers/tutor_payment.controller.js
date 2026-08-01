@@ -137,6 +137,7 @@ exports.getTutorPaymentSummary = async (req, res) => {
         where: { subjecttutorid: st.id, is_active: true },
       });
       result.push({
+        subjecttutorid: st.id,
         tutorid: st.tutor.id,
         firstname: st.tutor.firstname,
         lastname: st.tutor.lastname,

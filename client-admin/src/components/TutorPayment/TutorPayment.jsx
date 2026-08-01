@@ -284,17 +284,58 @@ export const TutorPayment = () => {
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-6 items-start">
-                   <div className="w-full md:w-2/3">
-                      <h4 className="text-sm font-bold text-textMuted uppercase tracking-widest mb-4">Detailed Breakdown</h4>
-                      <GenericTable 
-                        columns={[
-                          { label: 'Subject', accessor: 'subject', render: (val) => <span className="font-medium text-slate-200">{val}</span> },
-                          { label: 'Grade', accessor: 'grade', render: (val) => <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-xs">{val}</span> },
-                          { label: 'Students', accessor: 'studentCount', render: (val) => <span className="text-secondary">{val}</span> },
-                          { label: 'Amount', accessor: 'payment', render: (val) => <span className="font-bold">LKR {val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> }
-                        ]}
-                        data={tutor.breakdown}
-                      />
+                   <div className="w-full md:w-2/3 space-y-6">
+                      <div>
+                        <h4 className="text-sm font-bold text-textMuted uppercase tracking-widest mb-4">Detailed Breakdown</h4>
+                        <GenericTable 
+                          columns={[
+                            { label: 'Subject', accessor: 'subject', render: (val) => <span className="font-medium text-slate-200">{val}</span> },
+                            { label: 'Grade', accessor: 'grade', render: (val) => <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-xs">{val}</span> },
+                            { label: 'Students', accessor: 'studentCount', render: (val) => <span className="text-secondary">{val}</span> },
+                            { label: 'Amount', accessor: 'payment', render: (val) => <span className="font-bold">LKR {val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span> }
+                          ]}
+                          data={tutor.breakdown}
+                        />
+                      </div>
+
+                      <div>
+                        <h4 className="text-sm font-bold text-textMuted uppercase tracking-widest mb-4">Payment History</h4>
+                        <div className="max-h-[300px] overflow-y-auto custom-scrollbar rounded-xl border border-slate-700/50 bg-slate-900/40">
+                          <table className="w-full text-left border-collapse">
+                            <thead className="sticky top-0 bg-slate-900 z-10">
+                              <tr className="border-b border-slate-700/50">
+                                <th className="py-3 px-4 text-xs font-semibold text-textMuted uppercase tracking-wider">Month/Year</th>
+                                <th className="py-3 px-4 text-xs font-semibold text-textMuted uppercase tracking-wider">Total Due</th>
+                                <th className="py-3 px-4 text-xs font-semibold text-textMuted uppercase tracking-wider">Paid Amount</th>
+                                <th className="py-3 px-4 text-xs font-semibold text-textMuted uppercase tracking-wider text-right">Date Paid</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {paymentsData.filter(p => p.tutorid === tutor.tutorid && Number(p.received) > 0).map((p, i) => (
+                                <tr key={i} className="border-b border-slate-700/20 hover:bg-slate-800/30 transition-colors">
+                                  <td className="py-3 px-4 text-sm text-white">
+                                    {months.find(m => m.value === p.month)?.name || p.month} {p.year}
+                                  </td>
+                                  <td className="py-3 px-4 text-sm text-textMuted">
+                                    LKR {Number(p.totalpayment).toLocaleString()}
+                                  </td>
+                                  <td className="py-3 px-4 text-sm font-bold text-emerald-400">
+                                    LKR {Number(p.received).toLocaleString()}
+                                  </td>
+                                  <td className="py-3 px-4 text-sm text-textMuted text-right">
+                                    {p.receiveddate ? new Date(p.receiveddate).toLocaleDateString() : 'N/A'}
+                                  </td>
+                                </tr>
+                              ))}
+                              {paymentsData.filter(p => p.tutorid === tutor.tutorid && Number(p.received) > 0).length === 0 && (
+                                <tr>
+                                  <td colSpan="4" className="py-6 text-center text-sm text-textMuted">No payment history found.</td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
                    </div>
 
                    <div className="w-full md:w-1/3 p-6 bg-slate-900/60 rounded-2xl border border-slate-700/50 shadow-xl">

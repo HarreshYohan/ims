@@ -48,8 +48,30 @@ export const TutorDashboard = () => {
       // Now fetch subjects specifically for this tutor with a high limit
       try {
         const tutorId = prof.id || prof.user_id;
+        
+        // Fetch raw subjects
         const subRes = await api.get(`/subject-tutors/all?tutorid=${tutorId}&limit=1000`);
-        setSubjects(subRes.data?.data || []);
+        let tutorSubjects = subRes.data?.data || [];
+        
+        // Fetch summary to get student counts
+        try {
+          const summaryRes = await api.get('/tutor-payments/summary');
+          const summaryData = summaryRes.data?.data || [];
+          
+          // Merge studentCount into subjects
+          tutorSubjects = tutorSubjects.map(sub => {
+            // Match based on subjecttutorid to avoid duplicates
+            const summaryMatch = summaryData.find(s => s.subjecttutorid === sub.id);
+            return {
+              ...sub,
+              studentCount: summaryMatch ? summaryMatch.studentCount : 0
+            };
+          });
+        } catch (sumErr) {
+          console.error("Failed to fetch student counts", sumErr);
+        }
+        
+        setSubjects(tutorSubjects);
       } catch (e) {
         setSubjects([]);
       }
@@ -60,8 +82,10 @@ export const TutorDashboard = () => {
       } catch (e) { setSchedule([]); }
 
       try {
-        const payRes = await api.get(`/tutor-payments/tutor/${prof.id || prof.user_id}`);
-        setPayments(payRes.data?.data || payRes.data || []);
+        const tutorId = prof.id || prof.user_id;
+        const payRes = await api.get(`/tutor-payments`);
+        const allPayments = payRes.data?.data || payRes.data || [];
+        setPayments(allPayments.filter(p => p.tutorid === tutorId));
       } catch (e) { setPayments([]); }
     } catch (err) {
       console.error('Dashboard load error:', err);
@@ -173,23 +197,31 @@ export const TutorDashboard = () => {
           {payments.length === 0 ? (
             <p className="text-textMuted text-sm py-4">No payment records found.</p>
           ) : (
-            <div className="space-y-3 mt-4 max-h-[400px] overflow-y-auto custom-scrollbar">
-              {payments.slice(0, 6).map((p, i) => (
-                <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-slate-800/40 border border-slate-700/30">
-                  <div>
-                    <p className="text-sm font-medium text-white">
-                      {['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][p.month]} {p.year}
-                    </p>
-                    <p className="text-xs text-textMuted mt-0.5">Total: LKR {Number(p.totalpayment).toLocaleString()}</p>
-                  </div>
-                  <div className="text-right">
-                    <span className={`text-sm font-bold ${Number(p.received) >= Number(p.totalpayment) ? 'text-emerald-400' : 'text-amber-400'}`}>
-                      LKR {Number(p.received).toLocaleString()}
-                    </span>
-                    <p className="text-xs text-textMuted">received</p>
-                  </div>
-                </div>
-              ))}
+            <div className="mt-4 max-h-[400px] overflow-y-auto custom-scrollbar">
+              <table className="w-full text-left border-collapse">
+                <thead className="sticky top-0 bg-slate-900 z-10">
+                  <tr className="border-b border-slate-700/50">
+                    <th className="py-3 px-4 text-xs font-semibold text-textMuted uppercase tracking-wider">Month</th>
+                    <th className="py-3 px-4 text-xs font-semibold text-textMuted uppercase tracking-wider">Paid Amount</th>
+                    <th className="py-3 px-4 text-xs font-semibold text-textMuted uppercase tracking-wider text-right">Date Paid</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {payments.map((p, i) => (
+                    <tr key={i} className="border-b border-slate-700/20 hover:bg-slate-800/30 transition-colors">
+                      <td className="py-3 px-4 text-sm text-white">
+                        {['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][p.month]} {p.year}
+                      </td>
+                      <td className={`py-3 px-4 text-sm font-bold ${Number(p.received) >= Number(p.totalpayment) ? 'text-emerald-400' : 'text-amber-400'}`}>
+                        LKR {Number(p.received).toLocaleString()}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-textMuted text-right">
+                        {p.receiveddate ? new Date(p.receiveddate).toLocaleDateString() : 'N/A'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </Card>
